@@ -66,7 +66,7 @@ def forward_PE(margin_of_safety, forward_pe, historical_pe):
 
 
 # ROE vs. COE - rule 8
-def roe(margin_of_safety, roe, coe):
+def roe_coe(margin_of_safety, roe, coe):
     if roe - coe > margin_of_safety:
         return "above"
     elif roe - coe < margin_of_safety or coe - roe < margin_of_safety:

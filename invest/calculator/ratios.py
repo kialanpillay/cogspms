@@ -1,4 +1,14 @@
-# Historic Earnings Growth Rate - calc rule 1
+# Historic Earnings Growth Rate - calc rule 1,
+# n = how many years eps was given over
+def historic_earnings_growth_rate(eps_list,n):
+    num_years = n-1
+    year = 0
+    growth_rates = []
+    for num_years in eps_list:
+        growth_rate = eps_list[year+1]/eps_list[year]
+        growth_rates.append(growth_rate)
+        year+=1
+    historic_earning_growth_rate = sum(growth_rates) / len(growth_rates)
 
 # Historic Earnings Compound Annual Growth Rate
 def historic_earnings_cagr(eps_n, eps_prev_x, x):
@@ -11,11 +21,19 @@ def historic_price_to_earnings(price, eps):
     return price / eps
 
 
-# Forward Earnings - calc rule 4
+# Forward Earnings - calc rule 4 - needs function 1 answer as input
+def forward_earnings(eps,historic_earnings_growth_rate):
+    return eps*historic_earnings_growth_rate
 
-# Forward Earnings Compound Annual Growth Rate - calc rule 5 - INVEST uses 3 years
+# Forward Earnings Compound Annual Growth Rate - calc rule 5 - INVEST uses 3 years, therefore X should be 3
+def forward_earnings_cagr(forward_earnings_n,forward_earnings_prev_x,x):
+    return ((forward_earnings_n/forward_earnings_prev_x)**1/x)-1
 
-# Forward Price to Earnings - calc rule 6
+
+# Forward Price to Earnings - calc rule 6 - needs rule 4 as input
+def forward_price_to_earnings(share_price,forward_earnings):
+    return share_price/forward_earnings
+
 
 
 # Price to Earnings Relative Sector - calc rule 7, calc 8
