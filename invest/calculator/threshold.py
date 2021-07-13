@@ -38,7 +38,7 @@ def current_PE_relative_share_market(margin_of_safety, current_pe_relative_share
                                      historic_pe_relative_share_market):
     if historic_pe_relative_share_market - current_pe_relative_share_market > margin_of_safety:
         return "cheap"
-    elif current_pe_relative_share_market - historic_pe_relative_share_market < margin_of_safety:
+    elif historic_pe_relative_share_market - current_pe_relative_share_market < margin_of_safety or current_pe_relative_share_market - historic_pe_relative_share_market < margin_of_safety:
         return "fairValue"
     elif current_pe_relative_share_market - historic_pe_relative_share_market > margin_of_safety:
         return "expensive"
@@ -49,8 +49,7 @@ def current_PE_relative_share_market(margin_of_safety, current_pe_relative_share
                                      historic_pe_relative_share_sector):
     if historic_pe_relative_share_sector - current_pe_relative_share_sector > margin_of_safety:
         return "cheap"
-    elif current_pe_relative_share_sector - historic_pe_relative_share_sector < margin_of_safety:
-        # elif historic_pe_relative_share_sector - current_pe_relative_share_sector < margin_of_safety or current_pe_relative_share_sector - historic_pe_relative_share_sector < margin_of_safety:
+    elif historic_pe_relative_share_sector - current_pe_relative_share_sector < margin_of_safety or current_pe_relative_share_sector - historic_pe_relative_share_sector < margin_of_safety:
         return "fairValue"
     elif current_pe_relative_share_sector - historic_pe_relative_share_sector > margin_of_safety:
         return "expensive"
@@ -86,7 +85,7 @@ def cagr_inflation(margin_of_safety, cagr, inflation):
         return "below"
 
 
-# Relative Debt to Equity
+# Relative Debt to Equity - rule 10
 def relative_debt_to_equity(margin_of_safety, relative_d_e):
     if relative_d_e - 1 > margin_of_safety:
         return "above"
