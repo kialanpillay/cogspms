@@ -13,7 +13,7 @@ def historic_price_to_earnings(price, eps):
 
 # Forward Earnings - calc rule 4
 
-# Forward Earnings Compound Annual Growth Rate - calc rule 5
+# Forward Earnings Compound Annual Growth Rate - calc rule 5 - INVEST uses 3 years
 
 # Forward Price to Earnings - calc rule 6
 
