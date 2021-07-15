@@ -9,6 +9,7 @@ def historic_earnings_growth_rate(eps_list, n):
         growth_rates.append(growth_rate)
         year += 1
     historic_earning_growth_rate = sum(growth_rates) / len(growth_rates)
+    return historic_earning_growth_rate
 
 
 # Historic Earnings Compound Annual Growth Rate
@@ -38,16 +39,20 @@ def forward_price_to_earnings(share_price, forward_earnings):
 
 
 # Price to Earnings Relative Sector - calc rule 7, calc 8
-def pe_relative_sector(historic_pe_share, historic_pe_sector):
+def pe_relative_sector(pe_share, pe_sector):
+    historic_pe_share = sum(pe_share) / len(pe_share)
+    historic_pe_sector = sum(pe_sector) / len(pe_sector)
     return historic_pe_share / historic_pe_sector
 
 
 # Price to Earnings Relative Market - calc rule 7, calc 9
-def pe_relative_market(historic_pe_share, historic_pe_market):
+def pe_relative_market(pe_share, pe_market):
+    historic_pe_share = sum(pe_share) / len(pe_share)
+    historic_pe_sector = sum(pe_market) / len(pe_market)
     return historic_pe_share / historic_pe_market
 
 
-# Return on Equity -calc rule 8, calc 10
+# Return on Equity -calc rule 8, calc 10 - dont need
 def return_on_equity(net_income, total_shareholder_equity):
     return net_income / total_shareholder_equity
 
@@ -59,8 +64,14 @@ def cost_of_equity(market_return_rate, risk_free_return_rate, share_beta):
     return cost_of_equity
 
 
-# Relative Debt to Equity
-def relative_debt_to_equity(total_liability, total_shareholder_equity, d_e_industry, ):
-    d_e = total_liability / total_shareholder_equity
+# Relative Debt to Equity - changed from paper formula
+def relative_debt_to_equity(d_e, d_e_industry, ):
     relative_d_e = d_e / d_e_industry
     return relative_d_e
+
+
+
+
+def historic_pe_share(pe_list):
+    rolling_average = sum(pe_list) / len(pe_list)
+    return rolling_average

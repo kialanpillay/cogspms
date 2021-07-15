@@ -8,8 +8,9 @@ companies= ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "C
           "AFRIMAT","BARLOWORLD","BIDVEST GROUP","GRINDROD","HUDACO","IMPERIAL","INVICTA","KAP INDUSTRIAL","MPACT", "MURRAY & ROBERTS",
           "NAMPAK","PPC","RAUBEX GROUP","REUNERT","SUPER GROUP","TRENCOR","WLSN.BAYLY HOLMES-OVCON"]
 final_df = df.loc[df['Name'].isin(companies)]
+
 print(final_df['Name'].unique())
-#print(final_df['Name'].nunique())
+#print(final_df['Name'].nun ique())
 
 
 # functions to pass it data for X period of time- one year
