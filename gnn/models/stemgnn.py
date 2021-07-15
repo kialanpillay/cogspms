@@ -43,10 +43,10 @@ class StockBlockLayer(nn.Module):
                 self.GLUs.append(GLU(self.time_step * self.output_channel, self.time_step * self.output_channel))
                 self.GLUs.append(GLU(self.time_step * self.output_channel, self.time_step * self.output_channel))
 
-    def spe_seq_cell(self, model_input):
-        batch_size, k, input_channel, node_cnt, time_step = model_input.size()
-        model_input = model_input.view(batch_size, -1, node_cnt, time_step)
-        ffted = torch.rfft(model_input, 1, onesided=False)
+    def spe_seq_cell(self, inputs):
+        batch_size, k, input_channel, node_cnt, time_step = inputs.size()
+        inputs = inputs.view(batch_size, -1, node_cnt, time_step)
+        ffted = torch.rfft(inputs, 1, onesided=False)
         real = ffted[..., 0].permute(0, 2, 1, 3).contiguous().reshape(batch_size, node_cnt, -1)
         img = ffted[..., 1].permute(0, 2, 1, 3).contiguous().reshape(batch_size, node_cnt, -1)
         for i in range(3):
@@ -75,10 +75,10 @@ class StockBlockLayer(nn.Module):
         return forecast, backcast_source
 
 
-class StemGNN(nn.Module):
+class Model(nn.Module):
     def __init__(self, units, stack_cnt, time_step, multi_layer, horizon=1, dropout_rate=0.5, leaky_rate=0.2,
                  device='cpu'):
-        super(StemGNN, self).__init__()
+        super(Model, self).__init__()
         self.unit = units
         self.stack_cnt = stack_cnt
         self.unit = units
@@ -134,9 +134,9 @@ class StemGNN(nn.Module):
         return multi_order_laplacian
 
     def latent_correlation_layer(self, x):
-        model_input, _ = self.GRU(x.permute(2, 0, 1).contiguous())
-        model_input = model_input.permute(1, 0, 2).contiguous()
-        attention = self.self_graph_attention(model_input)
+        inputs, _ = self.GRU(x.permute(2, 0, 1).contiguous())
+        inputs = inputs.permute(1, 0, 2).contiguous()
+        attention = self.self_graph_attention(inputs)
         attention = torch.mean(attention, dim=0)
         degree = torch.sum(attention, dim=1)
         # laplacian is sym or not
@@ -148,11 +148,11 @@ class StemGNN(nn.Module):
         mul_L = self.cheb_polynomial(laplacian)
         return mul_L, attention
 
-    def self_graph_attention(self, model_input):
-        model_input = model_input.permute(0, 2, 1).contiguous()
-        bat, N, fea = model_input.size()
-        key = torch.matmul(model_input, self.weight_key)
-        query = torch.matmul(model_input, self.weight_query)
+    def self_graph_attention(self, inputs):
+        inputs = inputs.permute(0, 2, 1).contiguous()
+        bat, N, fea = inputs.size()
+        key = torch.matmul(inputs, self.weight_key)
+        query = torch.matmul(inputs, self.weight_query)
         data = key.repeat(1, 1, N).view(bat, N * N, 1) + query.repeat(1, N, 1)
         data = data.squeeze(2)
         data = data.view(bat, N, -1)
@@ -161,8 +161,8 @@ class StemGNN(nn.Module):
         attention = self.dropout(attention)
         return attention
 
-    def graph_fft(self, model_input, eigenvectors):
-        return torch.matmul(eigenvectors, model_input)
+    def graph_fft(self, inputs, eigenvectors):
+        return torch.matmul(eigenvectors, inputs)
 
     def forward(self, x):
         mul_L, attention = self.latent_correlation_layer(x)
