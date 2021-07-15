@@ -45,7 +45,7 @@ def current_PE_relative_share_market(margin_of_safety, current_pe_relative_share
 
 
 # Current PE relativeShare:Sector to Historical PE relativeShare:Sector - (uses pe relative from ratios) -rule 6
-def current_PE_relative_share_market(margin_of_safety, current_pe_relative_share_sector,
+def current_PE_relative_share_sector(margin_of_safety, current_pe_relative_share_sector,
                                      historic_pe_relative_share_sector):
     if historic_pe_relative_share_sector - current_pe_relative_share_sector > margin_of_safety:
         return "cheap"
