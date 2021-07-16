@@ -32,11 +32,7 @@ def inference(model, data_loader, device, node_cnt, window_size, horizon):
             step = 0
             forecast_steps = np.zeros([inputs.size()[0], horizon, node_cnt], dtype=np.float)
             while step < horizon:
-                if model == 'MTGNN' or model == 'GWN':
-                    forecast_result = model(inputs)
-                    forecast_result = forecast_result.transpose(1, 3)
-                else:
-                    forecast_result, _ = model(inputs)
+                forecast_result, _ = model(inputs)
                 len_model_output = forecast_result.size()[1]
                 if len_model_output == 0:
                     raise Exception('Get blank inference result')
