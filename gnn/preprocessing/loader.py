@@ -7,8 +7,7 @@ import torch
 import torch.utils.data as torch_data
 from torch.autograd import Variable
 
-from gnn.utils import calculate_scaled_laplacian, symmetric_adjacency, asymmetric_adjacency, \
-    calculate_normalized_laplacian, normalized
+from gnn.utils import normalized
 
 
 class CustomDataLoader(object):
@@ -151,30 +150,16 @@ def load_pickle(pickle_file):
         with open(pickle_file, 'rb') as f:
             pickle_data = pickle.load(f, encoding='latin1')
     except Exception as e:
-        print('Unable to load data ', pickle_file, ':', e)
+        print('Unable to load_dataset data ', pickle_file, ':', e)
         raise
     return pickle_data
 
 
-def load_adj(pkl_filename, adj_type):
-    _, _, adj = load_pickle(pkl_filename)
-    if adj_type == "scaled_laplacian":
-        adj = [calculate_scaled_laplacian(adj)]
-    elif adj_type == "normalized_laplacian":
-        adj = [calculate_normalized_laplacian(adj).astype(np.float32).todense()]
-    elif adj_type == "symmetric_adjacency" or adj_type == "transition":
-        adj = [symmetric_adjacency(adj)]
-    elif adj_type == "double_transition":
-        adj = [asymmetric_adjacency(adj), asymmetric_adjacency(np.transpose(adj))]
-    elif adj_type == "identity":
-        adj = [np.diag(np.ones(adj.shape[0])).astype(np.float32)]
-    else:
-        error = 0
-        assert error, "Adjacency matrix type not defined"
-    return adj
+def load_adj(filename):
+    return pd.read_csv(filename, usecols=['s' + str(x) for x in range(1, 40)])
 
 
-def load(dataset, train_length, valid_length, test_length):
+def load_dataset(dataset, train_length, valid_length, test_length):
     data_file = os.path.join('data', dataset + '.csv')
     data = pd.read_csv(data_file).values
 
