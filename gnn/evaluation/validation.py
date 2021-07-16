@@ -11,14 +11,17 @@ from gnn.utils import denormalized
 def custom_inference(model, data_loader, device):
     model.eval()
     forecast_set = []
+    target_set = []
     with torch.no_grad():
         for i, (inputs, target) in enumerate(data_loader.get_iterator()):
             inputs = torch.Tensor(inputs).to(device).transpose(1, 3)
             target = torch.Tensor(target).to(device).transpose(1, 3)[:, 0, :, :]
             forecast_result = model(inputs).transpose(1, 3)
             forecast_set.append(forecast_result.squeeze())
+            target_set.append(target.detach().cpu().numpy())
 
-    return torch.cat(forecast_set, dim=0)[:target.size(0), ...], target
+    return torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...], \
+           torch.Tensor(np.concatenate(target_set, axis=0))
 
 
 def inference(model, data_loader, device, node_cnt, window_size, horizon):
@@ -102,6 +105,42 @@ def validate(model, model_name, data_loader, device, normalise_method, statistic
         step_to_print = 0
         forecasting_2d = forecast[:, step_to_print, :]
         forecasting_2d_target = target[:, step_to_print, :]
+
+        np.savetxt(f'{result_file}/target.csv', forecasting_2d_target, delimiter=",")
+        np.savetxt(f'{result_file}/predict.csv', forecasting_2d, delimiter=",")
+        np.savetxt(f'{result_file}/predict_abs_error.csv',
+                   np.abs(forecasting_2d - forecasting_2d_target), delimiter=",")
+        np.savetxt(f'{result_file}/predict_ape.csv',
+                   np.abs((forecasting_2d - forecasting_2d_target) / forecasting_2d_target), delimiter=",")
+
+    return dict(mae=score[1], mape=score[0], rmse=score[2], )
+
+
+def validate_baseline(model, data_loader, device, result_file=None):
+    model.eval()
+    forecast_set = []
+    target_set = []
+    with torch.no_grad():
+        for i, (inputs, target) in enumerate(data_loader):
+            inputs = torch.Tensor(inputs[:, :, 0]).to(device)
+            target_norm = torch.Tensor(target[:, :, 0]).to(device)
+            model.hidden = (torch.zeros(1, 1, model.hidden_layers),
+                            torch.zeros(1, 1, model.hidden_layers))
+            forecast_result = model(inputs)
+            forecast_set.append(forecast_result.squeeze())
+            target_set.append(target_norm.detach().cpu().numpy())
+
+    forecast = torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...]
+    target = np.concatenate(target_set, axis=0)
+    score = evaluate(target, forecast.detach().cpu().numpy())
+
+    print(f'NORM: MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f}.')
+    if result_file:
+        if not os.path.exists(result_file):
+            os.makedirs(result_file)
+        step_to_print = 0
+        forecasting_2d = forecast[:, step_to_print]
+        forecasting_2d_target = target[:, step_to_print]
 
         np.savetxt(f'{result_file}/target.csv', forecasting_2d_target, delimiter=",")
         np.savetxt(f'{result_file}/predict.csv', forecasting_2d, delimiter=",")
