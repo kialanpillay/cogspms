@@ -1,6 +1,6 @@
 # Historic Earnings Growth Rate - calc rule 1,
 # n = how many years eps was given over
-def historic_earnings_growth_rate(eps_list, n):
+def historic_earnings_growth_rate(eps_list, n): # needs list as 2012,2013,2014 therefore ascending order
     num_years = n - 1
     year = 0
     growth_rates = []
@@ -13,13 +13,15 @@ def historic_earnings_growth_rate(eps_list, n):
 
 
 # Historic Earnings Compound Annual Growth Rate
-def historic_earnings_cagr(eps_n, eps_prev_x, x):
+def historic_earnings_cagr(eps_n, eps_prev_x, x): # use 3 years ago for X
     cagr = ((eps_n / eps_prev_x) ** 1 / x) - 1
     return cagr
 
 
 # Historic Price to Earnings
-def historic_price_to_earnings(price, eps):
+def historic_price_to_earnings_share(price_list, eps_list):
+    price = sum(price_list)\len(price_list)
+    eps = sum(eps_list)\len(eps_list)
     return price / eps
 
 
@@ -39,17 +41,15 @@ def forward_price_to_earnings(share_price, forward_earnings):
 
 
 # Price to Earnings Relative Sector - calc rule 7, calc 8
-def pe_relative_sector(pe_share, pe_sector):
-    historic_pe_share = sum(pe_share) / len(pe_share)
+def pe_relative_sector(historic_price_to_earnings_share, pe_sector):
     historic_pe_sector = sum(pe_sector) / len(pe_sector)
-    return historic_pe_share / historic_pe_sector
+    return historic_price_to_earnings_share / historic_pe_sector
 
 
 # Price to Earnings Relative Market - calc rule 7, calc 9
-def pe_relative_market(pe_share, pe_market):
-    historic_pe_share = sum(pe_share) / len(pe_share)
-    historic_pe_sector = sum(pe_market) / len(pe_market)
-    return historic_pe_share / historic_pe_market
+def pe_relative_market(historic_price_to_earnings_share, pe_market):
+    historic_pe_market = sum(pe_market) / len(pe_market)
+    return historic_price_to_earnings_share / historic_pe_market
 
 
 # Return on Equity -calc rule 8, calc 10 - dont need
@@ -70,8 +70,8 @@ def relative_debt_to_equity(d_e, d_e_industry, ):
     return relative_d_e
 
 
+def current_pe_market(current_share_pe,current_market_pe):
+    return current_share_pe/current_market_pe
 
-
-def historic_pe_share(pe_list):
-    rolling_average = sum(pe_list) / len(pe_list)
-    return rolling_average
+def current_pe_sector(current_share_pe,current_sector_pe):
+    return current_share_pe/current_sector_pe
