@@ -6,7 +6,8 @@ import torch
 
 import gnn.evaluation.test_
 import gnn.train
-from gnn.preprocessing.loader import load
+from gnn.preprocessing.loader import load_dataset, load_adj
+from gnn.preprocessing.process import process_adjacency_matrix
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
@@ -15,7 +16,7 @@ parser.add_argument('--train', type=bool, default=True)
 parser.add_argument('--evaluate', type=bool, default=True)
 parser.add_argument('--dataset', type=str, default='ECG_data')
 parser.add_argument('--window_size', type=int, default=12)
-parser.add_argument('--horizon', type=int, default=3)
+parser.add_argument('--horizon', type=int, default=1)
 parser.add_argument('--train_length', type=float, default=7)
 parser.add_argument('--valid_length', type=float, default=2)
 parser.add_argument('--test_length', type=float, default=1)
@@ -77,21 +78,30 @@ if not os.path.exists(result_train_file):
 if not os.path.exists(result_test_file):
     os.makedirs(result_test_file)
 
-train_data, valid_data, test_data = load(args.dataset, args.train_length, args.valid_length, args.test_length)
+train_data, valid_data, test_data = load_dataset(args.dataset, args.train_length, args.valid_length, args.test_length)
 args.node_cnt = train_data.shape[1]
 
 if args.adj_data:
-    adj_matrix = gnn.preprocessing.loader.load_adj(args.adj_data, args.adj_type)
+    adj_matrix = process_adjacency_matrix(load_adj(args.adj_data), args.adj_type)
     args.supports = [torch.tensor(i).to(args.device) for i in adj_matrix]
 
-if args.apt_only:
-    args.supports = None
-    args.adj_init = None
+    if args.model == 'GWN':
+        if args.apt_only:
+            args.supports = None
+            args.adj_init = None
+        else:
+            if args.random_adj:
+                args.adj_init = None
+            else:
+                adj_init = args.supports[0]
+
+    if args.model == 'MTGNN':
+        adj_matrix = torch.tensor(adj_matrix) - torch.eye(args.node_cnt)
+        args.adj_matrix = adj_matrix.to(args.device)
 else:
-    if args.random_adj:
-        args.adj_init = None
-    else:
-        adj_init = args.supports[0]
+    args.adj_matrix = None
+    args.adj_init = None
+    args.supports = None
 
 torch.manual_seed(0)
 if __name__ == '__main__':
@@ -106,7 +116,10 @@ if __name__ == '__main__':
             print('Exiting from training early')
     if args.evaluate:
         before_evaluation = datetime.now().timestamp()
-        gnn.evaluation.test_.test(test_data, args, result_train_file, result_test_file)
+        if args.model == 'StemGNN':
+            gnn.evaluation.test_.test(test_data, args, result_train_file, result_test_file)
+        else:
+            gnn.evaluation.test_.custom_test(test_data, args, result_train_file, result_test_file)
         after_evaluation = datetime.now().timestamp()
         print(f'Evaluation took {(after_evaluation - before_evaluation) / 60} minutes')
     print('done')

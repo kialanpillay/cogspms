@@ -29,15 +29,15 @@ def init_model(model_name, args):
                             residual_channels=args.channels, dilation_channels=args.channels,
                             skip_channels=args.channels * 8, end_channels=args.channels * 16)
     else:
-        return MTGNN(args.gcn_true, args.buildA_true, args.gcn_depth, args.num_nodes,
-                     device=args.device,
-                     dropout=args.dropout, subgraph_size=args.subgraph_size,
+        return MTGNN(args.gcn_bool, args.build_adj, args.gcn_depth, args.node_cnt,
+                     device=args.device, adj_matrix=args.adj_matrix,
+                     dropout=args.dropout_rate, subgraph_size=args.subgraph_size,
                      node_dim=args.node_dim,
                      dilation_exponential=args.dilation_exponential,
                      conv_channels=args.conv_channels, residual_channels=args.residual_channels,
                      skip_channels=args.skip_channels, end_channels=args.end_channels,
                      seq_length=args.window_size, in_dim=args.in_dim, out_dim=args.horizon,
-                     layers=args.layers, propalpha=args.propalpha, tanhalpha=args.tanhalpha,
+                     layers=args.layers, propalpha=args.prop_alpha, tanhalpha=args.tanh_alpha,
                      layer_norm_affline=args.multi_step)
 
 
@@ -105,8 +105,6 @@ def train(train_data, valid_data, args, result_file):
         train_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_train, y_train, args.batch_size)
         valid_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_valid, y_valid, args.batch_size)
 
-    train_loader = get_iterable_loader(model_name, train_loader)
-
     forecast_loss = nn.MSELoss(reduction='mean').to(args.device)
 
     scaler = StandardScaler().fit(train_data)
@@ -132,7 +130,9 @@ def train(train_data, valid_data, args, result_file):
         loss_total = 0
         samples = 0
         cnt = 0
-        for i, (inputs, target) in enumerate(train_loader):
+        if model_name != 'StemGNN':
+            train_loader.shuffle()
+        for i, (inputs, target) in enumerate(get_iterable_loader(model_name, train_loader)):
             if model_name == 'MTGNN':
                 inputs = torch.Tensor(inputs).to(args.device).transpose(1, 3)
                 target = torch.Tensor(target).to(args.device).transpose(1, 3)
@@ -189,7 +189,7 @@ def train(train_data, valid_data, args, result_file):
                 optim.step()
                 loss_total += float(loss)
         print('| end of epoch {:3d} | time: {:5.2f}s | train_total_loss {:5.4f}'.format(epoch, (
-                time.time() - epoch_start_time), loss_total / cnt))
+                time.time() - epoch_start_time), loss_total))
         save_model(model, result_file, epoch)
         if (epoch + 1) % args.exponential_decay_step == 0:
             my_lr_scheduler.step()
@@ -200,7 +200,7 @@ def train(train_data, valid_data, args, result_file):
                 validate(model, model_name, valid_loader, args.device, args.norm_method, norm_statistic,
                          args.node_cnt, args.window_size, args.horizon,
                          result_file=result_file, scaler=scaler)
-            if best_validate_mae > performance_metrics['mae']:
+            if np.abs(best_validate_mae) > np.abs(performance_metrics['mae']):
                 best_validate_mae = performance_metrics['mae']
                 is_best = True
                 validate_score_non_decrease_count = 0
