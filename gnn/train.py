@@ -105,11 +105,11 @@ def train(train_data, valid_data, args, result_file):
         train_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_train, y_train, args.batch_size)
         valid_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_valid, y_valid, args.batch_size)
 
-    forecast_loss = nn.MSELoss(reduction='mean').to(args.device)
+    criterion = nn.MSELoss(reduction='mean').to(args.device)
 
     scaler = StandardScaler().fit(train_data)
     if model_name == 'MTGNN':
-        engine = Engine(model, forecast_loss, optim, args.clip, args.step_size1, args.horizon, scaler,
+        engine = Engine(model, criterion, optim, args.clip, args.step_size1, args.horizon, scaler,
                         args.device, args.cl)
 
     total_params = 0
@@ -159,7 +159,7 @@ def train(train_data, valid_data, args, result_file):
                         forecast = torch.squeeze(model(x, idx))
                         scale = inputs.scale.expand(forecast.size(0), inputs.shape[1])
                         scale = scale[:, idx]
-                        loss = forecast_loss(forecast * scale, y * scale)
+                        loss = criterion(forecast * scale, y * scale)
                         cnt += 1
                         loss.backward()
                         loss_total += loss.item()
@@ -173,7 +173,7 @@ def train(train_data, valid_data, args, result_file):
                 model.zero_grad()
                 forecast = model(inputs).transpose(1, 3)
                 target = torch.unsqueeze(target[:, 0, :, :], dim=1)
-                loss = forecast_loss(forecast, target)
+                loss = criterion(forecast, target)
                 cnt += 1
                 loss.backward()
                 optim.step()
@@ -183,7 +183,7 @@ def train(train_data, valid_data, args, result_file):
                 target = target.to(args.device)
                 model.zero_grad()
                 forecast, _ = model(inputs)
-                loss = forecast_loss(forecast, target)
+                loss = criterion(forecast, target)
                 cnt += 1
                 loss.backward()
                 optim.step()
