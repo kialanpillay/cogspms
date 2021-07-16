@@ -6,6 +6,7 @@ import torch
 
 import gnn.evaluation.test_
 import gnn.train
+import gnn.training.baseline
 from gnn.preprocessing.loader import load_dataset, load_adj
 from gnn.preprocessing.process import process_adjacency_matrix
 
@@ -73,10 +74,16 @@ args = parser.parse_args()
 print(f'Training configs: {args}')
 result_train_file = os.path.join('output', args.model, args.dataset, 'train')
 result_test_file = os.path.join('output', args.model, args.dataset, 'test')
+baseline_train_file = os.path.join('output', 'lstm', args.dataset, 'train')
+baseline_test_file = os.path.join('output', 'lstm', args.dataset, 'test')
 if not os.path.exists(result_train_file):
     os.makedirs(result_train_file)
 if not os.path.exists(result_test_file):
     os.makedirs(result_test_file)
+if not os.path.exists(baseline_train_file):
+    os.makedirs(baseline_train_file)
+if not os.path.exists(baseline_test_file):
+    os.makedirs(baseline_test_file)
 
 train_data, valid_data, test_data = load_dataset(args.dataset, args.train_length, args.valid_length, args.test_length)
 args.node_cnt = train_data.shape[1]
@@ -108,7 +115,8 @@ if __name__ == '__main__':
     if args.train:
         try:
             before_train = datetime.now().timestamp()
-            _, normalize_statistic = gnn.train.train(train_data, valid_data, args, result_train_file)
+            _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
+            _, _ = gnn.train.train(train_data, valid_data, args, result_train_file)
             after_train = datetime.now().timestamp()
             print(f'Training took {(after_train - before_train) / 60} minutes')
         except KeyboardInterrupt:
