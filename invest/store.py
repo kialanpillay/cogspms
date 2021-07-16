@@ -6,12 +6,14 @@ import invest.calculator.threshold as threshold
 # for loop for each company, work out ratios and thresholds and store.
 # consumer related data must include for market and sector. general must include for market and sector
 class Store:
-    def __init__(self, main_data, consumer_related_data, general_industrials_related_data, all_companies,
+    def __init__(self, main_data, consumer_market_data,consumer_sector_data, general_industrials_sector_data,general_industrials_market_data, all_companies,
                  consumer_companies,
                  general_companies, margin_of_safety, beta, year, inflation):
         self.main_data = main_data
-        self.consumer_related_data = consumer_related_data  # sector and market P/E
-        self.general_industrials_related_data_related_data = general_industrials_related_data  # sector and market P/E
+        self.consumer_sector_data = consumer_sector_data  # sector and market P/E
+        self.consumer_market_data = consumer_market_data  # sector and market P/E
+        self.general_industrials_sector_data = general_industrials_sector_data # sector and market P/E
+        self.general_industrials_market_data = general_industrials_market_data  # sector and market P/E
         self.all_companies = all_companies
         self.consumer_companies = consumer_companies
         self.general_companies = general_companies
@@ -24,7 +26,7 @@ class Store:
 # newDf
 column_names = ["negative_earnings", "negative_shareholders_equity", "beta_classify", "acceptable_stock",
                 "current_PE_relative_share_market_to_historical", "current_PE_relative_share_sector_to_historical", "forward_PE_current_to_historical", "roe_vs_coe",
-                "cagr_vs_inflation", "relative_debt_to_equity"]
+                "growth_cagr_vs_inflation", "relative_debt_to_equity"]
 share_data_frame = pd.DataFrame(columns=column_names)
 
 # calculate ratios
@@ -44,14 +46,14 @@ for company in all_companies:
 
     if company in consumer_companies:
         pe_relative_sector = ratios.pe_relative_sector(historic_price_to_earnings_share,
-                                                       consumer_related_data)  # consumer related data for sector for year. This value is historical
+                                                       consumer_sector_data)  # consumer related data for sector for year. This value is historical
         pe_relative_market = ratios.pe_relative_market(historic_price_to_earnings_share,
-                                                       consumer_related_data)  # consumer related for market pass in for year
+                                                       consumer_market_data)  # consumer related for market pass in for year
     else:
         pe_relative_sector = ratios.pe_relative_sector(historic_price_to_earnings_share, #historical
-                                                       general_industrials_related_data)  # general related data for sector for year
+                                                       general_industrials_sector_data)  # general related data for sector for year
         pe_relative_market = ratios.pe_relative_market(historic_price_to_earnings_share, #historical
-                                                       general_industrials_related_data)  # general related for market pass in for year
+                                                       general_industrials_market_data)  # general related for market pass in for year
 
     return_on_equity =  # only get ROE from main data for 2017
     cost_of_equity = ratios.cost_of_equity(market_rate_of_return, risk_free_rate_of_return, beta)
