@@ -53,10 +53,8 @@ def validate(model, model_name, data_loader, device, normalise_method, statistic
     if model_name == 'StemGNN':
         forecast_norm, target_norm = inference(model, data_loader, device,
                                                node_cnt, window_size, horizon)
-        print(forecast_norm.shape, target_norm.shape)
     else:
         forecast_norm, target_norm = custom_inference(model, data_loader, device)
-
     if model_name == 'StemGNN':
         if normalise_method and statistic:
             forecast = denormalized(forecast_norm, normalise_method, statistic)
@@ -72,12 +70,20 @@ def validate(model, model_name, data_loader, device, normalise_method, statistic
         rmse = ([], [])
         for i in range(horizon):
             if normalise_method and statistic:
-                forecast = torch.Tensor(scaler.inverse_transform(forecast_norm[:, :, i]))
-                target = torch.Tensor(scaler.inverse_transform(target_norm[:, :, i]))
+                if horizon == 1:
+                    forecast = torch.Tensor(scaler.inverse_transform(forecast_norm))
+                    target = torch.Tensor(scaler.inverse_transform(torch.squeeze(target_norm)))
+                else:
+                    forecast = torch.Tensor(scaler.inverse_transform(forecast_norm[:, :, i]))
+                    target = torch.Tensor(scaler.inverse_transform(target_norm[:, :, i]))
             else:
-                forecast, target = forecast_norm, target_norm
+                forecast, target = forecast_norm, torch.squeeze(target_norm)
+
             score = evaluate_multiple(target, forecast)
-            score_norm = evaluate_multiple(target_norm[:, :, i], forecast_norm[:, :, i])
+            if horizon == 1:
+                score_norm = evaluate_multiple(torch.squeeze(target_norm), forecast_norm)
+            else:
+                score_norm = evaluate_multiple(target_norm[:, :, i], forecast_norm[:, :, i])
 
             mae[0].append(score[0])
             mape[0].append(score[1])
