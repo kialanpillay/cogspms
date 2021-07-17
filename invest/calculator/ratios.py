@@ -41,7 +41,6 @@ def forward_price_to_earnings(share_price, forward_earnings):
 
 # Price to Earnings Relative Sector - calc rule 7, calc 8
 def pe_relative_sector(historic_price_to_earnings_share, pe_sector_list):
-    print(pe_sector_list)
     historic_pe_sector = sum(pe_sector_list) / len(pe_sector_list)
     return historic_price_to_earnings_share / historic_pe_sector
 
@@ -61,7 +60,7 @@ def return_on_equity(net_income, total_shareholder_equity):
 def cost_of_equity(market_return_rate, risk_free_return_rate, share_beta):
     equity_risk_premium = market_return_rate - risk_free_return_rate
     cost_of_equity = risk_free_return_rate + share_beta * equity_risk_premium
-    return cost_of_equity
+    return cost_of_equity*100  #*100 is not part of the formula
 
 
 # Relative Debt to Equity - changed from paper formula
@@ -71,7 +70,8 @@ def relative_debt_to_equity(d_e, d_e_industry, ):
 
 
 def current_pe_market(current_share_pe,current_market_pe):
-    return current_share_pe/current_market_pe
+    current_pe = current_share_pe / current_market_pe
+    return current_pe
 
 def current_pe_sector(current_share_pe,current_sector_pe):
-    return current_share_pe/current_sector_pe
+    return current_share_pe / current_sector_pe
