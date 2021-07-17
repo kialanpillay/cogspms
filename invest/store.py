@@ -1,10 +1,10 @@
 import pandas as pd
 import invest.calculator.ratios as ratios
 import invest.calculator.threshold as threshold
+import numpy as np
 
 
-
-
+# import invest.calculator.threshold as threshold
 
 
 class Store:
@@ -24,13 +24,12 @@ class Store:
 
     def process(self):
         # newDf
-        global shares_data_frame
         column_names = ["negative_earnings", "negative_shareholders_equity", "beta_classify", "acceptable_stock",
                         "current_PE_relative_share_market_to_historical",
                         "current_PE_relative_share_sector_to_historical",
                         "forward_PE_current_to_historical", "roe_vs_coe",
                         "growth_cagr_vs_inflation", "relative_debt_to_equity"]
-        share_data_frame = pd.DataFrame(columns=column_names)
+        shares_data_frame = pd.DataFrame(columns=column_names)
 
 
         # calculate ratios
@@ -188,13 +187,13 @@ class Store:
                 print("Relative Debt Equity:(Rule 9):",relative_debt_to_equity)
 
                 # add row to dataframe
-                company_row = {negative_earnings, negative_shareholders_equity, beta_classify, acceptable_stock,
-                               pe_relative_market,
-                               pe_relative_sector, forward_pe, roe_coe, cagr_inflation, relative_debt_to_equity}
+                company_row = {"negative_earnings":negative_earnings, "negative_shareholders_equity":negative_shareholders_equity, "beta_classify":beta_classify,
+                               "acceptable_stock":acceptable_stock,"current_PE_relative_share_market_to_historical":pe_relative_market,
+                               "current_PE_relative_share_sector_to_historical":pe_relative_sector, "forward_PE_current_to_historical":forward_pe,"roe_vs_coe": roe_coe, "growth_cagr_vs_inflation":cagr_inflation,"relative_debt_to_equity": relative_debt_to_equity}
                 shares_data_frame = shares_data_frame.append(company_row, ignore_index=True)
 
             else:
-                company_row = {negative_earnings, negative_shareholders_equity, beta_classify,
-                               acceptable_stock}  # only these values are calculated
+                company_row = {"negative_earnings":negative_earnings, "negative_shareholders_equity":negative_shareholders_equity, "beta_classify":beta_classify,
+                               "acceptable_stock":acceptable_stock}  # only these values are calculated
                 shares_data_frame = shares_data_frame.append(company_row, ignore_index=True)
         print(shares_data_frame)
