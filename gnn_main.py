@@ -12,6 +12,7 @@ from gnn.preprocessing.process import process_adjacency_matrix
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
+parser.add_argument('--baseline', type=bool, default=False)
 # StemGNN arguments
 parser.add_argument('--train', type=bool, default=True)
 parser.add_argument('--evaluate', type=bool, default=True)
@@ -28,7 +29,7 @@ parser.add_argument('--device', type=str, default='cpu')
 parser.add_argument('--validate_freq', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--norm_method', type=str, default='z_score')
-parser.add_argument('--optim', type=str, default='RMSProp')
+parser.add_argument('--optimizer', type=str, default='RMSProp')
 parser.add_argument('--early_stop', type=bool, default=False)
 parser.add_argument('--exponential_decay_step', type=int, default=5)
 parser.add_argument('--decay_rate', type=float, default=0.5)
@@ -115,7 +116,8 @@ if __name__ == '__main__':
     if args.train:
         try:
             before_train = datetime.now().timestamp()
-            _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
+            if args.baseline:
+                _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
             _, _ = gnn.train.train(train_data, valid_data, args, result_train_file)
             after_train = datetime.now().timestamp()
             print(f'Training took {(after_train - before_train) / 60} minutes')
