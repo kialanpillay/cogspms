@@ -30,7 +30,6 @@ parser.add_argument("--beta", type=float, default=0.10)
 args = parser.parse_args()
 print(args.margin_of_safety, args.beta)
 df = data_loader.load_dummy_data()
-print(df.columns)
 store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
               args.margin_of_safety,
               args.beta, 2017)

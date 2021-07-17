@@ -13,9 +13,18 @@ def load_data():
     print(final_df['Name'].nunique())
     print(final_df)
 def load_dummy_data():
-    df = pd.read_csv("/Users/insaafdhansay/desktop/cogspms/invest/preprocessing/data/dummy_data.csv", sep=';')
-    print(df)
-    return df
+    df = pd.read_csv("/Users/insaafdhansay/desktop/cogspms/invest/preprocessing/data/dummy_data_use.csv", sep=';')
+
+    df['PEMarket'] = [x.replace(',', '.') for x in df['PEMarket']]
+    df['PESector'] = [x.replace(',', '.') for x in df['PESector']]
+    df['MarketRateOfReturn'] = [x.replace(',', '.') for x in df['MarketRateOfReturn']]
+    df['RiskFreeRateOfReturn'] = [x.replace(',', '.') for x in df['RiskFreeRateOfReturn']]
+    df['Share Beta'] = [x.replace(',', '.') for x in df['Share Beta']]
+    df['Shareholders Equity'] = [x.replace(',', '.') for x in df['Shareholders Equity']]
+    df['Inflation Rate'] = [x.replace(',', '.') for x in df['Inflation Rate']]
+    data_frame_trimmed = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
+
+    return data_frame_trimmed
 
 
 
