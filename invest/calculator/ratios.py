@@ -40,8 +40,8 @@ def forward_price_to_earnings(share_price, forward_earnings):
 
 
 # Price to Earnings Relative Sector - calc rule 7, calc 8
-def pe_relative_sector(historic_price_to_earnings_share, pe_sector):
-    historic_pe_sector = sum(pe_sector) / len(pe_sector)
+def pe_relative_sector(historic_price_to_earnings_share, pe_sector_list):
+    historic_pe_sector = sum(pe_sector_list) / len(pe_sector_list)
     return historic_price_to_earnings_share / historic_pe_sector
 
 

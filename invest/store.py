@@ -1,5 +1,7 @@
 import pandas as pd
 import invest.calculator.ratios as ratios
+
+
 # import invest.calculator.threshold as threshold
 
 
@@ -25,51 +27,84 @@ class Store:
 
     def process(self):
 
-    # calculate ratios
+        # calculate ratios
         for company in self.all_companies:
-            indexes = []
-            eps_list=[]
-            #preprocessing to gets lists etc
-            year=2012
-            years = self.years #year after data value being used , this case is using 2016 latest as final
-            for i in range(year,years):
-                mask = (self.main_data['Date'] >= str(i) +'-'+ '01-01') & (self.main_data['Date'] <= str(i) + '12-31') & (self.main_data['Name'] == company)
-                company_df_by_year = self.main_data.loc[mask]
+            eps_year_list = []
+            eps_list_3_years = []
+            price_list_3_years = []
+            pe_sector_list=[]
+            pe_market_list=[]
+
+            # preprocessing to gets lists etc
+            year = 2012
+            years = self.years  # year after data value being used , this case is using 2016 latest as final
+            for i in range(year, years):
+                maskEPS = (self.main_data['Date'] >= str(i) + '-' + '01-01') & (
+                            self.main_data['Date'] <= str(i) + '12-31') & (self.main_data['Name'] == company)
+                company_df_by_year = self.main_data.loc[maskEPS]
                 # last_row_index = company_df_by_year.last_valid_index()
-                eps= company_df_by_year.iloc[-1]['EPS'] #gets last row for frame, and EPS column
-                eps_list.append(eps)           # add eps value to list
+                eps = company_df_by_year.iloc[-1]['EPS']  # gets last row for frame, and EPS column
+                eps_year_list.append(eps)  # add eps value to list- by year
                 # print("i:"+str(i),"year:"+str(year),"years:"+str(years))
+                mask_current_price = (self.main_data['Date'] >= '2016-01-01') & (
+                            self.main_data['Date'] < '2017-01-01')& (self.main_data['Name'] == company)
+                current_year_data = self.main_data.loc[mask_current_price]
+                current_price = current_year_data.iloc[-1]['Price']
+
+                mask_pe_sector_market= (self.main_data['Date'] >= '2014-01-01') & (self.main_data['Date'] < '2017-01-01') & (self.main_data['Name'] == company)
+                pe_sector_3_years = self.main_data.loc[mask_pe_sector_market]
+                pe_market_3_years = self.main_data.loc[mask_pe_sector_market]
+                pe_sector_list = (pe_sector_3_years['PESector'].tolist()) #need to convert to int
+                print(pe_sector_list)
+                pe_market_list = (pe_market_3_years['PEMarket'].tolist()) #need to convert to int
 
 
-            print(eps_list)
 
 
-            #only use this companies data
-            historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_list, 5)
-            print(historic_earnings_growth_rate)
-            # historic_earnings_cagr = ratios.historic_earnings_cagr(eps_n, eps_prev_x, x)
-            # historic_price_to_earnings_share = ratios.historic_price_to_earnings_share(price_list, eps_list)
-            # forward_earnings_current_year = ratios.forward_earnings(eps_latest,
-            #                                                         historic_earnings_growth_rate)  # for the current
-            # # forward earnings for 3 years ago
-            # historic_earnings_growth_rate_past = ratios.historic_earnings_growth_rate(eps_list_from_past,
-            #                                                                           3)  # intermediate, list from past can be 2013 since year is 3
-            # forward_earnings_past = ratios.forward_earnings(eps_past_year,
-            #                                                 historic_earnings_growth_rate_past)  # intermediate
-            # forward_earnings_cagr = ratios.forward_earnings_cagr(forward_earnings_current_year, forward_earnings_past, 3)
-            # forward_price_to_earnings = ratios.forward_price_to_earnings(price, forward_earnings_current_year)
-            #
-            # if company in self.consumer_companies:
-            #     pe_relative_sector = ratios.pe_relative_sector(historic_price_to_earnings_share,
-            #                                                    consumer_sector_data)  # consumer related data for sector for year. This value is historical
-            #     pe_relative_market = ratios.pe_relative_market(historic_price_to_earnings_share,
-            #                                                    consumer_market_data)  # consumer related for market pass in for year
-            # else:
-            #     pe_relative_sector = ratios.pe_relative_sector(historic_price_to_earnings_share,  # historical
-            #                                                    general_industrials_sector_data)  # general related data for sector for year
-            #     pe_relative_market = ratios.pe_relative_market(historic_price_to_earnings_share,  # historical
-            #                                                    general_industrials_market_data)  # general related for market pass in for year
-            #
+
+
+            # historic_earnings_growth_rate
+            historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_year_list, 5)
+            print("Historic Earnings growth rate: ", historic_earnings_growth_rate)
+
+            # historic_earnings_cagr
+            historic_earnings_cagr = ratios.historic_earnings_cagr(eps_year_list[len(eps_year_list) - 1],
+                                                                   eps_year_list[1], 3)  # pass it the last position
+            print("HistoricEarnings Compound annual GrowthRate: ", historic_earnings_cagr)
+
+            # historic_price_to_earnings_share
+            maskPE = (self.main_data['Date'] >= '2014-01-01') & (self.main_data['Date'] < '2017-01-01')& (self.main_data['Name'] == company)
+            company_df_3_years = self.main_data.loc[maskPE]
+            price_list_3_years = (company_df_3_years['Price'].tolist())
+            eps_list_3_years = (company_df_3_years['EPS'].tolist())
+            historic_price_to_earnings_share = ratios.historic_price_to_earnings_share(price_list_3_years,
+                                                                                       eps_list_3_years)
+            print("HistoricPriceToEarnings:", historic_price_to_earnings_share)
+
+            # forward_earnings_current_year
+            forward_earnings_current_year = ratios.forward_earnings(eps_year_list[len(eps_year_list) - 1],
+                                                           historic_earnings_growth_rate)  # for the current
+            print("ForwardEarnings: ",forward_earnings_current_year)
+            # forward earnings for 3 years ago
+            historic_earnings_growth_rate_past = ratios.historic_earnings_growth_rate(eps_year_list,3) # intermediate, list from past can be 2013 since year is 3
+            forward_earnings_past = ratios.forward_earnings(eps_year_list[1],
+                                                            historic_earnings_growth_rate_past)  # intermediate
+            forward_earnings_cagr = ratios.forward_earnings_cagr(forward_earnings_current_year, forward_earnings_past, 3)
+            print("forward_earnings_cagr:", forward_earnings_cagr)
+
+
+            forward_price_to_earnings = ratios.forward_price_to_earnings(current_price, forward_earnings_current_year)
+            print("forward_price_to_earnings",forward_price_to_earnings)
+
+            # #Price to earning relative
+            pe_relative_sector = ratios.pe_relative_sector(historic_price_to_earnings_share,
+                                                           pe_sector_list)  # consumer related data for sector for year. This value is historical
+            print(" pe_relative_sector",pe_relative_sector)
+            pe_relative_market = ratios.pe_relative_market(historic_price_to_earnings_share, pe_market_list)
+            print(" pe_relative_market", pe_relative_market)
+
+
+
             # # return_on_equity = # only get ROE from main data for 2017
             # cost_of_equity = ratios.cost_of_equity(market_rate_of_return, risk_free_rate_of_return, beta)
             # relative_debt_equity = ratios.relative_debt_to_equity(d_e, d_e_industry)  # debt equity is from data directly
