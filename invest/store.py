@@ -166,7 +166,7 @@ class Store:
                 pe_relative_sector = threshold.current_PE_relative_share_sector(self.margin_of_safety,
                                                                                 pe_current_share_sector,
                                                                                 pe_relative_sector)
-                print("pe_relative_sector (Rule4):", pe_relative_sector)
+                print("pe_relative_sector (Rule5):", pe_relative_sector)
 
                 # forward_pe
                 forward_pe = threshold.forward_PE(self.margin_of_safety, forward_price_to_earnings,
@@ -196,4 +196,4 @@ class Store:
                 company_row = {"negative_earnings":negative_earnings, "negative_shareholders_equity":negative_shareholders_equity, "beta_classify":beta_classify,
                                "acceptable_stock":acceptable_stock}  # only these values are calculated
                 shares_data_frame = shares_data_frame.append(company_row, ignore_index=True)
-        print(shares_data_frame)
+
