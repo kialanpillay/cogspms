@@ -72,18 +72,18 @@ def train(train_data, valid_data, args, result_file):
         with open(os.path.join(result_file, 'norm_stat.json'), 'w') as f:
             json.dump(norm_statistic, f)
 
-    if args.optim == 'RMSProp':
-        optim = torch.optim.RMSprop(params=model.parameters(), lr=args.lr, eps=1e-08)
-    elif args.optim == 'SGD':
-        optim = torch.optim.SGD(params=model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    elif args.optim == 'Adagrad':
-        optim = torch.optim.Adagrad(params=model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    elif args.optim == 'Adadelta':
-        optim = torch.optim.Adadelta(params=model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    if args.optimizer == 'RMSProp':
+        optimizer = torch.optim.RMSprop(params=model.parameters(), lr=args.lr, eps=1e-08)
+    elif args.optimizer == 'SGD':
+        optimizer = torch.optim.SGD(params=model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    elif args.optimizer == 'Adagrad':
+        optimizer = torch.optim.Adagrad(params=model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    elif args.optimizer == 'Adadelta':
+        optimizer = torch.optim.Adadelta(params=model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     else:
-        optim = torch.optim.Adam(params=model.parameters(), lr=args.lr, betas=(0.9, 0.999))
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr, betas=(0.9, 0.999))
 
-    my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optim, gamma=args.decay_rate)
+    lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=args.decay_rate)
 
     if model_name == 'StemGNN':
 
@@ -109,7 +109,7 @@ def train(train_data, valid_data, args, result_file):
 
     scaler = StandardScaler().fit(train_data)
     if model_name == 'MTGNN':
-        engine = Engine(model, criterion, optim, args.clip, args.step_size1, args.horizon, scaler,
+        engine = Engine(model, criterion, optimizer, args.clip, args.step_size1, args.horizon, scaler,
                         args.device, args.cl)
 
     total_params = 0
@@ -176,7 +176,7 @@ def train(train_data, valid_data, args, result_file):
                 loss = criterion(forecast, target)
                 cnt += 1
                 loss.backward()
-                optim.step()
+                optimizer.step()
                 loss_total += float(loss)
             else:
                 inputs = inputs.to(args.device)
@@ -186,13 +186,13 @@ def train(train_data, valid_data, args, result_file):
                 loss = criterion(forecast, target)
                 cnt += 1
                 loss.backward()
-                optim.step()
+                optimizer.step()
                 loss_total += float(loss)
         print('| end of epoch {:3d} | time: {:5.2f}s | train_total_loss {:5.4f}'.format(epoch, (
                 time.time() - epoch_start_time), loss_total))
         save_model(model, result_file, epoch)
         if (epoch + 1) % args.exponential_decay_step == 0:
-            my_lr_scheduler.step()
+            lr_scheduler.step()
         if (epoch + 1) % args.validate_freq == 0:
             is_best = False
             print('------ VALIDATE ------')
