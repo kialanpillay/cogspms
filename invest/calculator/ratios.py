@@ -1,14 +1,13 @@
 # Historic Earnings Growth Rate - calc rule 1,
 # n = how many years eps was given over
 def historic_earnings_growth_rate(eps_list, n): # needs list as 2012,2013,2014 therefore ascending order
-    num_years = n - 1
     year = 0
     growth_rates = []
-    for num_years in eps_list:
+    for i in range(0,n-1):
         growth_rate = eps_list[year + 1] / eps_list[year]
         growth_rates.append(growth_rate)
         year += 1
-    historic_earning_growth_rate = sum(growth_rates) / len(growth_rates)
+    historic_earning_growth_rate = sum(growth_rates)/len(growth_rates)
     return historic_earning_growth_rate
 
 

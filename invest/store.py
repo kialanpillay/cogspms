@@ -1,5 +1,5 @@
 import pandas as pd
-# import invest.calculator.ratios as ratios
+import invest.calculator.ratios as ratios
 # import invest.calculator.threshold as threshold
 
 
@@ -14,7 +14,7 @@ class Store:
         self.margin_of_safety = margin_of_safety
         self.beta = beta
         self.years = years
-        self.process(self)
+        self.process()
 
     # newDf
     column_names = ["negative_earnings", "negative_shareholders_equity", "beta_classify", "acceptable_stock",
@@ -28,21 +28,25 @@ class Store:
     # calculate ratios
         for company in self.all_companies:
             indexes = []
+            eps_list=[]
             #preprocessing to gets lists etc
-            year = 2012
-            years = 2017 #year after data value being used , this case is using 2016 latest as final
-            for year in years:
-                mask = (self.main_data['Date'] > str(year) +'-'+ '01-01') & (self.main_data['date'] <= year + '12-31')
-                company_df = self.main_data.loc[self.main_data['Name'] == company and mask]
-                last_row = company_df.last_valid_index()
-                indexes.append(last_row)
-                # add eps value to list
-                year += 1
-        print(indexes)
-            #
-            #
-            # # only use this companies data
-            # historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_list, 3)
+            year=2012
+            years = self.years #year after data value being used , this case is using 2016 latest as final
+            for i in range(year,years):
+                mask = (self.main_data['Date'] >= str(i) +'-'+ '01-01') & (self.main_data['Date'] <= str(i) + '12-31') & (self.main_data['Name'] == company)
+                company_df_by_year = self.main_data.loc[mask]
+                # last_row_index = company_df_by_year.last_valid_index()
+                eps= company_df_by_year.iloc[-1]['EPS'] #gets last row for frame, and EPS column
+                eps_list.append(eps)           # add eps value to list
+                # print("i:"+str(i),"year:"+str(year),"years:"+str(years))
+
+
+            print(eps_list)
+
+
+            #only use this companies data
+            historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_list, 5)
+            print(historic_earnings_growth_rate)
             # historic_earnings_cagr = ratios.historic_earnings_cagr(eps_n, eps_prev_x, x)
             # historic_price_to_earnings_share = ratios.historic_price_to_earnings_share(price_list, eps_list)
             # forward_earnings_current_year = ratios.forward_earnings(eps_latest,
