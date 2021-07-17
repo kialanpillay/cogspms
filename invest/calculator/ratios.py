@@ -20,8 +20,8 @@ def historic_earnings_cagr(eps_n, eps_prev_x, x): # use 3 years ago for X
 
 # Historic Price to Earnings
 def historic_price_to_earnings_share(price_list, eps_list):
-    price = sum(price_list)\len(price_list)
-    eps = sum(eps_list)\len(eps_list)
+    price = sum(price_list)/len(price_list)
+    eps = sum(eps_list)/len(eps_list)
     return price / eps
 
 

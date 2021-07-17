@@ -1,6 +1,4 @@
 import pandas as pd
-
-#print(df.columns)
 companies= ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD", "FAMOUS BRANDS", "ITALTILE",
           "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE", "SPAR GROUP",
           "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN", "WOOLWORTHS HDG",
@@ -14,6 +12,12 @@ def load_data():
     print(final_df['Name'].unique())
     print(final_df['Name'].nunique())
     print(final_df)
+def load_dummy_data():
+    df = pd.read_csv("/Users/insaafdhansay/desktop/cogspms/invest/preprocessing/data/dummy_data.csv", sep=';')
+    print(df)
+    return df
+
+
 
 
 # functions to pass it data for X period of time- one year
