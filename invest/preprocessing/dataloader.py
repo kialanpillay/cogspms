@@ -29,5 +29,4 @@ def load_dummy_data():
 
 
 
-# functions to pass it data for X period of time- one year
-#mask = (df['Date'] > '2012-1-1') & (df['date'] <= '2000-6-10')
+
