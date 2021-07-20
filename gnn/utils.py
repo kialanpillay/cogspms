@@ -67,8 +67,8 @@ def denormalized(data, normalise_method, norm_statistic):
     return data
 
 
-def correlation_adjacency_matrix(data):
-    return pd.DataFrame(data).corr().to_numpy()
+def correlation_adjacency_matrix(dataset):
+    return pd.read_csv(dataset).corr().to_numpy()
 
 
 def symmetric_adjacency(adj):
