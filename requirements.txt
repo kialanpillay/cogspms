@@ -1,3 +1,4 @@
+cairosvg
 numpy
 matplotlib
 pandas

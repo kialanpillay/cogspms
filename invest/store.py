@@ -4,7 +4,6 @@ import invest.calculator.ratios as ratios
 import invest.calculator.threshold as threshold
 
 
-
 class Store:
     def __init__(self, main_data, all_companies,
                  consumer_companies,
@@ -35,9 +34,9 @@ class Store:
             pe_market_list = []
 
             # Preprocessing
-            year = 2012
-            years = self.years  # year after data value being used, this case is using 2016 latest as final
-            for i in range(year, years):
+            start_year = 2012
+            end_year = self.years  # year after data value being used, this case is using 2016 latest as final
+            for i in range(start_year, end_year):
                 mask_eps = (self.main_data['Date'] >= str(i) + '-' + '01-01') & (
                         self.main_data['Date'] <= str(i) + '12-31') & (self.main_data['Name'] == company)
                 company_df_by_year = self.main_data.loc[mask_eps]
@@ -64,7 +63,6 @@ class Store:
 
             # historic_earnings_growth_rate
             historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_year_list, 5)
-            print("Historic Earnings growth rate (Calc1):", historic_earnings_growth_rate)
 
             # historic_earnings_cagr
             historic_earnings_cagr = ratios.historic_earnings_cagr(eps_year_list[len(eps_year_list) - 1],
@@ -115,7 +113,7 @@ class Store:
             relative_debt_equity = ratios.relative_debt_to_equity(float(d_e), float(
                 d_e_industry))  # debt equity is from data directly
 
-            # threshold
+            # Threshold
             # negative_earnings
             negative_earnings = threshold.negative_earnings(forward_earnings_current_year)
 
@@ -166,7 +164,6 @@ class Store:
 
                 relative_debt_to_equity = threshold.relative_debt_to_equity(self.margin_of_safety, relative_debt_equity)
 
-                # add row to dataframe
                 company_row = {"negative_earnings": negative_earnings,
                                "negative_shareholders_equity": negative_shareholders_equity,
                                "beta_classify": beta_classify,
@@ -184,4 +181,3 @@ class Store:
                                "beta_classify": beta_classify,
                                "acceptable_stock": acceptable_stock}  # only these values are calculated
                 df_shares = df_shares.append(company_row, ignore_index=True)
-
