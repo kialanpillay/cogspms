@@ -47,8 +47,8 @@ class GCN(nn.Module):
 
 
 class GraphWaveNet(nn.Module):
-    def __init__(self, device, num_nodes, dropout=0.3, supports=None, gcn_bool=True, adapt_adj=True, apt_init=None,
-                 in_dim=2, out_dim=12, residual_channels=32, dilation_channels=32, skip_channels=256, end_channels=512,
+    def __init__(self, device, node_cnt, dropout=0.3, supports=None, gcn_bool=True, adapt_adj=True, adj_init=None,
+                 in_dim=1, out_dim=12, residual_channels=32, dilation_channels=32, skip_channels=256, end_channels=512,
                  kernel_size=2, blocks=4, layers=2):
         super(GraphWaveNet, self).__init__()
         self.dropout = dropout
@@ -76,16 +76,16 @@ class GraphWaveNet(nn.Module):
             self.supports_len += len(supports)
 
         if gcn_bool and adapt_adj:
-            if apt_init is None:
+            if adj_init is None:
                 if supports is None:
                     self.supports = []
-                self.nodevec1 = nn.Parameter(torch.randn(num_nodes, 10).to(device), requires_grad=True).to(device)
-                self.nodevec2 = nn.Parameter(torch.randn(10, num_nodes).to(device), requires_grad=True).to(device)
+                self.nodevec1 = nn.Parameter(torch.randn(node_cnt, 10).to(device), requires_grad=True).to(device)
+                self.nodevec2 = nn.Parameter(torch.randn(10, node_cnt).to(device), requires_grad=True).to(device)
                 self.supports_len += 1
             else:
                 if supports is None:
                     self.supports = []
-                m, p, n = torch.svd(apt_init)
+                m, p, n = torch.svd(adj_init)
                 initemb1 = torch.mm(m[:, :10], torch.diag(p[:10] ** 0.5))
                 initemb2 = torch.mm(torch.diag(p[:10] ** 0.5), n[:, :10].t())
                 self.nodevec1 = nn.Parameter(initemb1, requires_grad=True).to(device)
@@ -133,18 +133,18 @@ class GraphWaveNet(nn.Module):
 
         self.receptive_field = receptive_field
 
-    def forward(self, model_input):
-        in_len = model_input.size(3)
+    def forward(self, inputs):
+        in_len = inputs.size(3)
         if in_len < self.receptive_field:
-            x = nn.functional.pad(model_input, (self.receptive_field - in_len, 0, 0, 0))
+            x = nn.functional.pad(inputs, (self.receptive_field - in_len, 0, 0, 0))
         else:
-            x = model_input
+            x = inputs
         x = self.start_conv(x)
         skip = 0
 
-        # calculate the current adaptive adj matrix once per iteration
+        # calculate the current adaptive adjacency matrix once per iteration
         new_supports = None
-        if self.gcn_bool and self.addaptadj and self.supports is not None:
+        if self.gcn_bool and self.adapt_adj and self.supports is not None:
             adp = F.softmax(F.relu(torch.mm(self.nodevec1, self.nodevec2)), dim=1)
             new_supports = self.supports + [adp]
 

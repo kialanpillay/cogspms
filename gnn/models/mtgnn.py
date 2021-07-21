@@ -12,8 +12,8 @@ class NConv(nn.Module):
     def __init__(self):
         super(NConv, self).__init__()
 
-    def forward(self, x, A):
-        x = torch.einsum('ncwl,vw->ncvl', (x, A))
+    def forward(self, x, adj):
+        x = torch.einsum('ncwl,vw->ncvl', (x, adj))
         return x.contiguous()
 
 
@@ -21,8 +21,8 @@ class DyNConv(nn.Module):
     def __init__(self):
         super(DyNConv, self).__init__()
 
-    def forward(self, x, A):
-        x = torch.einsum('ncvl,nvwl->ncwl', (x, A))
+    def forward(self, x, adj):
+        x = torch.einsum('ncvl,nvwl->ncwl', (x, adj))
         return x.contiguous()
 
 
@@ -93,8 +93,6 @@ class DyMixPropagation(nn.Module):
         self.lin2 = Linear(c_in, c_in)
 
     def forward(self, x):
-        # adj = adj + torch.eye(adj.size(0)).to(x.device)
-        # d = adj.sum(1)
         x1 = torch.tanh(self.lin1(x))
         x2 = torch.tanh(self.lin2(x))
         adj = self.nconv(x1.transpose(2, 1), x2)
@@ -121,47 +119,47 @@ class DyMixPropagation(nn.Module):
 
 
 class Dilated1D(nn.Module):
-    def __init__(self, cin, cout, dilation_factor=2):
+    def __init__(self, c_in, c_out, dilation_factor=2):
         super(Dilated1D, self).__init__()
         self.tconv = nn.ModuleList()
         self.kernel_set = [2, 3, 6, 7]
-        self.tconv = nn.Conv2d(cin, cout, (1, 7), dilation=(1, dilation_factor))
+        self.tconv = nn.Conv2d(c_in, c_out, (1, 7), dilation=(1, dilation_factor))
 
-    def forward(self, input):
-        x = self.tconv(input)
+    def forward(self, inputs):
+        x = self.tconv(inputs)
         return x
 
 
 class DilatedInception(nn.Module):
-    def __init__(self, cin, cout, dilation_factor=2):
+    def __init__(self, c_in, c_out, dilation_factor=2):
         super(DilatedInception, self).__init__()
         self.tconv = nn.ModuleList()
         self.kernel_set = [2, 3, 6, 7]
-        cout = int(cout / len(self.kernel_set))
+        c_out = int(c_out / len(self.kernel_set))
         for kern in self.kernel_set:
-            self.tconv.append(nn.Conv2d(cin, cout, (1, kern), dilation=(1, dilation_factor)))
+            self.tconv.append(nn.Conv2d(c_in, c_out, (1, kern), dilation=(1, dilation_factor)))
 
-    def forward(self, input):
+    def forward(self, inputs):
         x = []
         for i in range(len(self.kernel_set)):
-            x.append(self.tconv[i](input))
+            x.append(self.tconv[i](inputs))
         for i in range(len(self.kernel_set)):
             x[i] = x[i][..., -x[-1].size(3):]
         x = torch.cat(x, dim=1)
         return x
 
 
-class graph_constructor(nn.Module):
-    def __init__(self, nnodes, k, dim, device, alpha=3, static_feat=None):
-        super(graph_constructor, self).__init__()
-        self.nnodes = nnodes
+class GraphConstructor(nn.Module):
+    def __init__(self, nodes, k, dim, device, alpha=3, static_feat=None):
+        super(GraphConstructor, self).__init__()
+        self.nodes = nodes
         if static_feat is not None:
             xd = static_feat.shape[1]
             self.lin1 = nn.Linear(xd, dim)
             self.lin2 = nn.Linear(xd, dim)
         else:
-            self.emb1 = nn.Embedding(nnodes, dim)
-            self.emb2 = nn.Embedding(nnodes, dim)
+            self.emb1 = nn.Embedding(nodes, dim)
+            self.emb2 = nn.Embedding(nodes, dim)
             self.lin1 = nn.Linear(dim, dim)
             self.lin2 = nn.Linear(dim, dim)
 
@@ -173,16 +171,16 @@ class graph_constructor(nn.Module):
 
     def forward(self, idx):
         if self.static_feat is None:
-            nodevec1 = self.emb1(idx)
-            nodevec2 = self.emb2(idx)
+            node_vec1 = self.emb1(idx)
+            node_vec2 = self.emb2(idx)
         else:
-            nodevec1 = self.static_feat[idx, :]
-            nodevec2 = nodevec1
+            node_vec1 = self.static_feat[idx, :]
+            node_vec2 = node_vec1
 
-        nodevec1 = torch.tanh(self.alpha * self.lin1(nodevec1))
-        nodevec2 = torch.tanh(self.alpha * self.lin2(nodevec2))
+        node_vec1 = torch.tanh(self.alpha * self.lin1(node_vec1))
+        node_vec2 = torch.tanh(self.alpha * self.lin2(node_vec2))
 
-        a = torch.mm(nodevec1, nodevec2.transpose(1, 0)) - torch.mm(nodevec2, nodevec1.transpose(1, 0))
+        a = torch.mm(node_vec1, node_vec2.transpose(1, 0)) - torch.mm(node_vec2, node_vec1.transpose(1, 0))
         adj = F.relu(torch.tanh(self.alpha * a))
         mask = torch.zeros(idx.size(0), idx.size(0)).to(self.device)
         mask.fill_(float('0'))
@@ -191,108 +189,19 @@ class graph_constructor(nn.Module):
         adj = adj * mask
         return adj
 
-    def fullA(self, idx):
+    def full_adj(self, idx):
         if self.static_feat is None:
-            nodevec1 = self.emb1(idx)
-            nodevec2 = self.emb2(idx)
+            node_vec1 = self.emb1(idx)
+            node_vec2 = self.emb2(idx)
         else:
-            nodevec1 = self.static_feat[idx, :]
-            nodevec2 = nodevec1
+            node_vec1 = self.static_feat[idx, :]
+            node_vec2 = node_vec1
 
-        nodevec1 = torch.tanh(self.alpha * self.lin1(nodevec1))
-        nodevec2 = torch.tanh(self.alpha * self.lin2(nodevec2))
+        node_vec1 = torch.tanh(self.alpha * self.lin1(node_vec1))
+        node_vec2 = torch.tanh(self.alpha * self.lin2(node_vec2))
 
-        a = torch.mm(nodevec1, nodevec2.transpose(1, 0)) - torch.mm(nodevec2, nodevec1.transpose(1, 0))
+        a = torch.mm(node_vec1, node_vec2.transpose(1, 0)) - torch.mm(node_vec2, node_vec1.transpose(1, 0))
         adj = F.relu(torch.tanh(self.alpha * a))
-        return adj
-
-
-class graph_global(nn.Module):
-    def __init__(self, nnodes, k, dim, device, alpha=3, static_feat=None):
-        super(graph_global, self).__init__()
-        self.nnodes = nnodes
-        self.A = nn.Parameter(torch.randn(nnodes, nnodes).to(device), requires_grad=True).to(device)
-
-    def forward(self, idx):
-        return F.relu(self.A)
-
-
-class graph_undirected(nn.Module):
-    def __init__(self, nnodes, k, dim, device, alpha=3, static_feat=None):
-        super(graph_undirected, self).__init__()
-        self.nnodes = nnodes
-        if static_feat is not None:
-            xd = static_feat.shape[1]
-            self.lin1 = nn.Linear(xd, dim)
-        else:
-            self.emb1 = nn.Embedding(nnodes, dim)
-            self.lin1 = nn.Linear(dim, dim)
-
-        self.device = device
-        self.k = k
-        self.dim = dim
-        self.alpha = alpha
-        self.static_feat = static_feat
-
-    def forward(self, idx):
-        if self.static_feat is None:
-            nodevec1 = self.emb1(idx)
-            nodevec2 = self.emb1(idx)
-        else:
-            nodevec1 = self.static_feat[idx, :]
-            nodevec2 = nodevec1
-
-        nodevec1 = torch.tanh(self.alpha * self.lin1(nodevec1))
-        nodevec2 = torch.tanh(self.alpha * self.lin1(nodevec2))
-
-        a = torch.mm(nodevec1, nodevec2.transpose(1, 0))
-        adj = F.relu(torch.tanh(self.alpha * a))
-        mask = torch.zeros(idx.size(0), idx.size(0)).to(self.device)
-        mask.fill_(float('0'))
-        s1, t1 = adj.topk(self.k, 1)
-        mask.scatter_(1, t1, s1.fill_(1))
-        adj = adj * mask
-        return adj
-
-
-class GraphDirected(nn.Module):
-    def __init__(self, nnodes, k, dim, device, alpha=3, static_feat=None):
-        super(GraphDirected, self).__init__()
-        self.nnodes = nnodes
-        if static_feat is not None:
-            xd = static_feat.shape[1]
-            self.lin1 = nn.Linear(xd, dim)
-            self.lin2 = nn.Linear(xd, dim)
-        else:
-            self.emb1 = nn.Embedding(nnodes, dim)
-            self.emb2 = nn.Embedding(nnodes, dim)
-            self.lin1 = nn.Linear(dim, dim)
-            self.lin2 = nn.Linear(dim, dim)
-
-        self.device = device
-        self.k = k
-        self.dim = dim
-        self.alpha = alpha
-        self.static_feat = static_feat
-
-    def forward(self, idx):
-        if self.static_feat is None:
-            nodevec1 = self.emb1(idx)
-            nodevec2 = self.emb2(idx)
-        else:
-            nodevec1 = self.static_feat[idx, :]
-            nodevec2 = nodevec1
-
-        nodevec1 = torch.tanh(self.alpha * self.lin1(nodevec1))
-        nodevec2 = torch.tanh(self.alpha * self.lin2(nodevec2))
-
-        a = torch.mm(nodevec1, nodevec2.transpose(1, 0))
-        adj = F.relu(torch.tanh(self.alpha * a))
-        mask = torch.zeros(idx.size(0), idx.size(0)).to(self.device)
-        mask.fill_(float('0'))
-        s1, t1 = adj.topk(self.k, 1)
-        mask.scatter_(1, t1, s1.fill_(1))
-        adj = adj * mask
         return adj
 
 
@@ -332,28 +241,28 @@ class LayerNorm(nn.Module):
 
 
 class MTGNN(nn.Module):
-    def __init__(self, gcn_true, buildA_true, gcn_depth, num_nodes, device, predefined_A=None, static_feat=None,
+    def __init__(self, gcn_true, build_adj, gcn_depth, num_nodes, device, adj_matrix=None, static_feat=None,
                  dropout=0.3, subgraph_size=20, node_dim=40, dilation_exponential=1, conv_channels=32,
                  residual_channels=32, skip_channels=64, end_channels=128, seq_length=12, in_dim=2, out_dim=12,
                  layers=3, propalpha=0.05, tanhalpha=3, layer_norm_affline=True):
         super(MTGNN, self).__init__()
         self.gcn_true = gcn_true
-        self.buildA_true = buildA_true
+        self.build_adj = build_adj
         self.num_nodes = num_nodes
         self.dropout = dropout
-        self.predefined_A = predefined_A
+        self.predefined_A = adj_matrix
         self.filter_convs = nn.ModuleList()
         self.gate_convs = nn.ModuleList()
         self.residual_convs = nn.ModuleList()
         self.skip_convs = nn.ModuleList()
-        self.gconv1 = nn.ModuleList()
-        self.gconv2 = nn.ModuleList()
+        self.g_conv1 = nn.ModuleList()
+        self.g_conv2 = nn.ModuleList()
         self.norm = nn.ModuleList()
         self.start_conv = nn.Conv2d(in_channels=in_dim,
                                     out_channels=residual_channels,
                                     kernel_size=(1, 1))
-        self.gc = graph_constructor(num_nodes, subgraph_size, node_dim, device, alpha=tanhalpha,
-                                    static_feat=static_feat)
+        self.gc = GraphConstructor(num_nodes, subgraph_size, node_dim, device, alpha=tanhalpha,
+                                   static_feat=static_feat)
 
         self.seq_length = seq_length
         kernel_size = 7
@@ -393,8 +302,8 @@ class MTGNN(nn.Module):
                                                      kernel_size=(1, self.receptive_field - rf_size_j + 1)))
 
                 if self.gcn_true:
-                    self.gconv1.append(MixPropagation(conv_channels, residual_channels, gcn_depth, dropout, propalpha))
-                    self.gconv2.append(MixPropagation(conv_channels, residual_channels, gcn_depth, dropout, propalpha))
+                    self.g_conv1.append(MixPropagation(conv_channels, residual_channels, gcn_depth, dropout, propalpha))
+                    self.g_conv2.append(MixPropagation(conv_channels, residual_channels, gcn_depth, dropout, propalpha))
 
                 if self.seq_length > self.receptive_field:
                     self.norm.append(LayerNorm((residual_channels, num_nodes, self.seq_length - rf_size_j + 1),
@@ -436,7 +345,7 @@ class MTGNN(nn.Module):
             model_input = nn.functional.pad(model_input, (self.receptive_field - self.seq_length, 0, 0, 0))
 
         if self.gcn_true:
-            if self.buildA_true:
+            if self.build_adj:
                 if idx is None:
                     adp = self.gc(self.idx)
                 else:
@@ -448,17 +357,17 @@ class MTGNN(nn.Module):
         skip = self.skip0(F.dropout(model_input, self.dropout, training=self.training))
         for i in range(self.layers):
             residual = x
-            filter = self.filter_convs[i](x)
-            filter = torch.tanh(filter)
+            filter_ = self.filter_convs[i](x)
+            filter_ = torch.tanh(filter_)
             gate = self.gate_convs[i](x)
             gate = torch.sigmoid(gate)
-            x = filter * gate
+            x = filter_ * gate
             x = F.dropout(x, self.dropout, training=self.training)
             s = x
             s = self.skip_convs[i](s)
             skip = s + skip
             if self.gcn_true:
-                x = self.gconv1[i](x, adp) + self.gconv2[i](x, adp.transpose(1, 0))
+                x = self.g_conv1[i](x, adp) + self.g_conv2[i](x, adp.transpose(1, 0))
             else:
                 x = self.residual_convs[i](x)
 
