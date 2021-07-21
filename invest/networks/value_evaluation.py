@@ -87,16 +87,16 @@ def value_network():
     ve_model.addArc(ve_model.idFromName('ValueRelativeToPrice'), ve_model.idFromName('utility_value_relative_to_price'))
 
     # Utilities
-    ve_model.utility(ve_model.idFromName('utility_expensive'))[{'Expensive_e': 'Yes'}] = [[100], [25], [-100]]
+    ve_model.utility(ve_model.idFromName('utility_expensive'))[{'Expensive_e': 'Yes'}] = [[100], [75], [-50]]
     # 3 states for FutureSharePerformance node, 2 states for Expensive_e node
-    ve_model.utility(ve_model.idFromName('utility_expensive'))[{'Expensive_e': 'No'}] = [[50], [75], [-100]]
+    ve_model.utility(ve_model.idFromName('utility_expensive'))[{'Expensive_e': 'No'}] = [[50], [25], [-100]]
 
     # 3 states for PERelative_ShareSector node, 3 states for ValueRelativeToPrice node
     ve_model.utility(ve_model.idFromName('utility_value_relative_to_price'))[{'ValueRelativeToPrice': 'Cheap'}] = \
-        [[-50], [25], [100]]
+        [[-10], [25], [50]]
 
     ve_model.utility(ve_model.idFromName('utility_value_relative_to_price'))[{'ValueRelativeToPrice': 'FairValue'}] = \
-        [[-50], [25], [100]]
+        [[-20], [5], [50]]
     ve_model.utility(ve_model.idFromName('utility_value_relative_to_price'))[{'ValueRelativeToPrice': 'Expensive'}] = \
         [[-50], [25], [100]]
 
@@ -117,7 +117,6 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[0] = 0  # Positive
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 0  # Stagnant
 
-    print(ve_model.cpt(ve_model.idFromName('FutureSharePerformance')))
     # pe_relative_market
     if pe_relative_market_state == "Cheap":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[0] = 1  # Cheap
@@ -134,7 +133,6 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[0] = 0  # Cheap
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[1] = 0  # FairValue
 
-    print(ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket')))
     # pe_relative_sector
     if pe_relative_sector_state == "Cheap":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[0] = 1  # Cheap
@@ -151,8 +149,6 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[0] = 0  # Cheap
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[1] = 0  # FairValue
 
-    print(ve_model.cpt(ve_model.idFromName('PERelative_ShareSector')))
-
     if forward_pe_current_vs_history_state == "Cheap":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'Yes'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'No'}] = [1, 0, 0]
@@ -164,8 +160,6 @@ def value_network():
     else:
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'Yes'}] = [0, 0, 1]
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'No'}] = [0, 0, 1]
-
-    print(ve_model.cpt(ve_model.idFromName('PERelative_ShareSector')))
 
     output_file = os.path.join('nets', 'v_e')
     if not os.path.exists(output_file):
