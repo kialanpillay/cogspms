@@ -1,8 +1,8 @@
 numpy
 matplotlib
 pandas
+pyAgrum
 seaborn
 scipy
 scikit-learn
 torch==1.7.1
-pyAgrum
