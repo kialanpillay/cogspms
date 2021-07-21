@@ -1,5 +1,4 @@
 import os
-import pickle
 
 import numpy as np
 import pandas as pd
@@ -110,19 +109,19 @@ class CustomSimpleDataLoader(object):
 
 
 class ForecastDataset(torch_data.Dataset):
-    def __init__(self, df, window_size, horizon, normalise_method=None, norm_statistic=None, interval=1):
+    def __init__(self, df, window_size, horizon, normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
         self.interval = interval
         self.horizon = horizon
-        self.normalize_method = normalise_method
+        self.normalize_method = normalize_method
         self.norm_statistic = norm_statistic
         df = pd.DataFrame(df)
         df = df.fillna(method='ffill', limit=len(df)).fillna(method='bfill', limit=len(df)).values
         self.data = df
         self.df_length = len(df)
         self.x_end_idx = self.get_x_end_idx()
-        if normalise_method:
-            self.data, _ = normalized(self.data, normalise_method, norm_statistic)
+        if normalize_method:
+            self.data, _ = normalized(self.data, normalize_method, norm_statistic)
 
     def __getitem__(self, index):
         hi = self.x_end_idx[index]
@@ -140,23 +139,6 @@ class ForecastDataset(torch_data.Dataset):
         x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
         x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
         return x_end_idx
-
-
-def load_pickle(pickle_file):
-    try:
-        with open(pickle_file, 'rb') as f:
-            pickle_data = pickle.load(f)
-    except UnicodeDecodeError:
-        with open(pickle_file, 'rb') as f:
-            pickle_data = pickle.load(f, encoding='latin1')
-    except Exception as e:
-        print('Unable to load_dataset data ', pickle_file, ':', e)
-        raise
-    return pickle_data
-
-
-def load_adj(filename):
-    return pd.read_csv(filename, usecols=['s' + str(x) for x in range(1, 40)])
 
 
 def load_dataset(dataset, train_length, valid_length, test_length):

@@ -8,7 +8,7 @@ from gnn.metrics.error import evaluate, evaluate_multiple
 from gnn.utils import denormalized
 
 
-def custom_inference(model, data_loader, device):
+def custom_inference(model, data_loader, device='cpu'):
     model.eval()
     forecast_set = []
     target_set = []
@@ -50,18 +50,17 @@ def inference(model, data_loader, device, node_cnt, window_size, horizon):
     return np.concatenate(forecast_set, axis=0), np.concatenate(target_set, axis=0)
 
 
-def validate(model, model_name, data_loader, device, normalise_method, statistic,
-             node_cnt, window_size, horizon,
-             result_file=None, scaler=None):
+def validate(model, model_name, data_loader, device, normalize_method, statistic,
+             node_cnt, window_size, horizon, result_file=None, scaler=None):
     if model_name == 'StemGNN':
         forecast_norm, target_norm = inference(model, data_loader, device,
                                                node_cnt, window_size, horizon)
     else:
         forecast_norm, target_norm = custom_inference(model, data_loader, device)
     if model_name == 'StemGNN':
-        if normalise_method and statistic:
-            forecast = denormalized(forecast_norm, normalise_method, statistic)
-            target = denormalized(target_norm, normalise_method, statistic)
+        if normalize_method and statistic:
+            forecast = denormalized(forecast_norm, normalize_method, statistic)
+            target = denormalized(target_norm, normalize_method, statistic)
         else:
             forecast, target = forecast_norm, target_norm
         score = evaluate(target, forecast)
@@ -72,7 +71,7 @@ def validate(model, model_name, data_loader, device, normalise_method, statistic
         mape = ([], [])
         rmse = ([], [])
         for i in range(horizon):
-            if normalise_method and statistic:
+            if normalize_method and statistic:
                 if horizon == 1:
                     forecast = torch.Tensor(scaler.inverse_transform(forecast_norm))
                     target = torch.Tensor(scaler.inverse_transform(torch.squeeze(target_norm)))

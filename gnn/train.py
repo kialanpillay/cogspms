@@ -89,11 +89,11 @@ def train(train_data, valid_data, args, result_file):
 
         train_set = gnn.preprocessing.loader.ForecastDataset(train_data, window_size=args.window_size,
                                                              horizon=args.horizon,
-                                                             normalise_method=args.norm_method,
+                                                             normalize_method=args.norm_method,
                                                              norm_statistic=norm_statistic)
         valid_set = gnn.preprocessing.loader.ForecastDataset(valid_data, window_size=args.window_size,
                                                              horizon=args.horizon,
-                                                             normalise_method=args.norm_method,
+                                                             normalize_method=args.norm_method,
                                                              norm_statistic=norm_statistic)
 
         train_loader = torch.utils.data.DataLoader(train_set, batch_size=args.batch_size, drop_last=False, shuffle=True,
@@ -107,7 +107,8 @@ def train(train_data, valid_data, args, result_file):
 
     criterion = nn.MSELoss(reduction='mean').to(args.device)
 
-    scaler = StandardScaler().fit(train_data)
+    scaler = StandardScaler()
+    scaler.fit(train_data)
     if model_name == 'MTGNN':
         engine = Engine(model, criterion, optimizer, args.clip, args.step_size1, args.horizon, scaler,
                         args.device, args.cl)

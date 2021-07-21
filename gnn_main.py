@@ -7,7 +7,7 @@ import torch
 import gnn.evaluation.test_
 import gnn.train
 import gnn.training.baseline
-from gnn.preprocessing.loader import load_dataset, load_adj
+from gnn.preprocessing.loader import load_dataset
 from gnn.preprocessing.process import process_adjacency_matrix
 
 parser = argparse.ArgumentParser()
@@ -16,7 +16,7 @@ parser.add_argument('--baseline', type=bool, default=False)
 # StemGNN arguments
 parser.add_argument('--train', type=bool, default=True)
 parser.add_argument('--evaluate', type=bool, default=True)
-parser.add_argument('--dataset', type=str, default='ECG_data')
+parser.add_argument('--dataset', type=str, default='SP500')
 parser.add_argument('--window_size', type=int, default=12)
 parser.add_argument('--horizon', type=int, default=12)
 parser.add_argument('--train_length', type=float, default=6)
@@ -37,7 +37,7 @@ parser.add_argument('--dropout_rate', type=float, default=0.5)
 parser.add_argument('--leakyrelu_rate', type=int, default=0.2)
 
 # GWN arguments
-parser.add_argument('--adj_data', type=str, default=None)
+parser.add_argument('--adj_data', type=bool, default=False)
 parser.add_argument('--adj_type', type=str, default='double_transition')
 parser.add_argument('--gcn_bool', type=bool, default=True)
 parser.add_argument('--apt_only', type=bool, default=True)
@@ -90,7 +90,7 @@ train_data, valid_data, test_data = load_dataset(args.dataset, args.train_length
 args.node_cnt = train_data.shape[1]
 
 if args.adj_data:
-    adj_matrix = process_adjacency_matrix(load_adj(args.adj_data), args.adj_type)
+    adj_matrix = process_adjacency_matrix(os.path.join('data', args.dataset + '.csv'), args.adj_type)
     args.supports = [torch.tensor(i).to(args.device) for i in adj_matrix]
 
     if args.model == 'GWN':

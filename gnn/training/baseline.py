@@ -3,6 +3,7 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.utils.data
 
 import gnn.preprocessing.loader
 from gnn.evaluation.validation import validate_baseline
