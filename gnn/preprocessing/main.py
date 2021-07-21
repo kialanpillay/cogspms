@@ -14,17 +14,16 @@ def clean(arguments):
             clean_df = pd.DataFrame()
             for path in os.listdir(arguments.raw_folder):
                 name = path[path.index("-") + 1:path.index("2") - 1]
-                print(name)
                 df = pd.read_csv(os.path.join(arguments.raw_folder, path), delimiter=';')
                 clean_df[name] = pd.to_numeric(df['Closing (c)'])
+                clean_df[name].fillna(0, inplace=True)
 
-            clean_df.to_csv(arguments.output, index=False)
+            clean_df.reindex(index=clean_df.index[::-1]).to_csv(arguments.output, index=False)
             print("Processing Time: {:5.2f}s".format(time.time() - start_time))
 
         df = pd.read_csv(arguments.output)
         sample_df = df[['PROSUS', 'ANGGOLD', 'NEDBANK', 'SASOL', "VODACOM", "BHP"]]
         corr = sample_df.corr()
-        print(corr.to_numpy())
         if arguments.plot:
             sn.heatmap(corr, annot=True)
             plt.show()
@@ -58,6 +57,6 @@ if __name__ == '__main__':
     parser.add_argument('--raw', type=str, default='data/all_stocks_5yr.csv')
     parser.add_argument('--raw_folder', type=str, default='data/JSE')
     parser.add_argument('--output', type=str, default='data/JSE_clean.csv')
-    parser.add_argument('--plot', type=bool, default=True)
+    parser.add_argument('--plot', type=bool, default=False)
     args = parser.parse_args()
     clean(args)
