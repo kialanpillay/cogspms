@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pyAgrum as gum
 
 
@@ -178,4 +179,9 @@ def value_network():
     print('Final decision for ValueRelativeToPrice: {0}'.format(ie.posterior('ValueRelativeToPrice')))
     print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
     print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
-    print()
+
+    var = ie.posteriorUtility('ValueRelativeToPrice').variable('ValueRelativeToPrice')
+
+    decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())
+    decision = var.label(int(decision_index))
+    print('Final decision for Value Network: {0}'.format(decision))
