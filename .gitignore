@@ -5,3 +5,4 @@
 *.csv
 __pycache__/
 *.xls
+.DS_Store
