@@ -2,9 +2,9 @@ import argparse
 import os
 import time
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sn
-import matplotlib.pyplot as plt
 
 
 def clean(arguments):

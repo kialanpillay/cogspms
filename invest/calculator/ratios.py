@@ -1,26 +1,26 @@
 # Historic Earnings Growth Rate - calc rule 1,
 # n = how many years eps was given over
-def historic_earnings_growth_rate(eps_list, n): # needs list as 2012,2013,2014 therefore ascending order
+def historic_earnings_growth_rate(eps_list, n):  # needs list as 2012,2013,2014 therefore ascending order
     year = 0
     growth_rates = []
-    for i in range(0,n-1):
+    for i in range(0, n - 1):
         growth_rate = eps_list[year + 1] / eps_list[year]
         growth_rates.append(growth_rate)
         year += 1
-    historic_earning_growth_rate = sum(growth_rates)/len(growth_rates)
+    historic_earning_growth_rate = sum(growth_rates) / len(growth_rates)
     return historic_earning_growth_rate
 
 
 # Historic Earnings Compound Annual Growth Rate
-def historic_earnings_cagr(eps_n, eps_prev_x, x): # use 3 years ago for X
+def historic_earnings_cagr(eps_n, eps_prev_x, x):  # use 3 years ago for X
     cagr = ((eps_n / eps_prev_x) ** 1 / x) - 1
     return cagr
 
 
 # Historic Price to Earnings
 def historic_price_to_earnings_share(price_list, eps_list):
-    price = sum(price_list)/len(price_list)
-    eps = sum(eps_list)/len(eps_list)
+    price = sum(price_list) / len(price_list)
+    eps = sum(eps_list) / len(eps_list)
     return price / eps
 
 
@@ -60,7 +60,7 @@ def return_on_equity(net_income, total_shareholder_equity):
 def cost_of_equity(market_return_rate, risk_free_return_rate, share_beta):
     equity_risk_premium = market_return_rate - risk_free_return_rate
     cost_of_equity = risk_free_return_rate + share_beta * equity_risk_premium
-    return cost_of_equity*100  #*100 is not part of the formula
+    return cost_of_equity * 100  # *100 is not part of the formula
 
 
 # Relative Debt to Equity - changed from paper formula
@@ -69,9 +69,10 @@ def relative_debt_to_equity(d_e, d_e_industry, ):
     return relative_d_e
 
 
-def current_pe_market(current_share_pe,current_market_pe):
+def current_pe_market(current_share_pe, current_market_pe):
     current_pe = current_share_pe / current_market_pe
     return current_pe
 
-def current_pe_sector(current_share_pe,current_sector_pe):
+
+def current_pe_sector(current_share_pe, current_sector_pe):
     return current_share_pe / current_sector_pe

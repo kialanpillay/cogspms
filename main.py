@@ -1,6 +1,7 @@
 import argparse
-from invest.store import Store
+
 import invest.preprocessing.dataloader as data_loader
+from invest.store import Store
 
 consumer_services_companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
                                "FAMOUS BRANDS", "ITALTILE",
