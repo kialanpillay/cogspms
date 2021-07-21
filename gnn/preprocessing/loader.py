@@ -1,5 +1,4 @@
 import os
-import pickle
 
 import numpy as np
 import pandas as pd
@@ -140,23 +139,6 @@ class ForecastDataset(torch_data.Dataset):
         x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
         x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
         return x_end_idx
-
-
-def load_pickle(pickle_file):
-    try:
-        with open(pickle_file, 'rb') as f:
-            pickle_data = pickle.load(f)
-    except UnicodeDecodeError:
-        with open(pickle_file, 'rb') as f:
-            pickle_data = pickle.load(f, encoding='latin1')
-    except Exception as e:
-        print('Unable to load_dataset data ', pickle_file, ':', e)
-        raise
-    return pickle_data
-
-
-def load_adj(filename):
-    return pd.read_csv(filename, usecols=['s' + str(x) for x in range(1, 40)])
 
 
 def load_dataset(dataset, train_length, valid_length, test_length):
