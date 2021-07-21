@@ -2,6 +2,8 @@ import argparse
 
 import invest.preprocessing.dataloader as data_loader
 from invest.store import Store
+import invest.networks.value_evaluation as value_eval_network
+
 
 consumer_services_companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
                                "FAMOUS BRANDS", "ITALTILE",
@@ -32,3 +34,7 @@ df = data_loader.load_dummy_data()
 store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
               args.margin_of_safety,
               args.beta, 2017)
+
+
+value_eval_network.value_network()
+

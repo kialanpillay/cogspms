@@ -4,6 +4,7 @@ import invest.calculator.ratios as ratios
 import invest.calculator.threshold as threshold
 
 
+
 class Store:
     def __init__(self, main_data, all_companies,
                  consumer_companies,
@@ -183,3 +184,4 @@ class Store:
                                "beta_classify": beta_classify,
                                "acceptable_stock": acceptable_stock}  # only these values are calculated
                 df_shares = df_shares.append(company_row, ignore_index=True)
+
