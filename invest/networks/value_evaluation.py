@@ -166,7 +166,7 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'No'}] = \
             [[0, 0, 1], [0, 0, 1], [0, 0, 1]]
 
-    output_file = os.path.join('nets', 'v_e')
+    output_file = os.path.join('res', 'v_e')
     if not os.path.exists(output_file):
         os.makedirs(output_file)
     gum.saveBN(ve_model, os.path.join(output_file, 'v_e.bifxml'))
