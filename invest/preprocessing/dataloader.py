@@ -9,7 +9,7 @@ companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "
 
 
 def load_data():
-    df = pd.read_csv("/Users/insaafdhansay/desktop/cogspms/invest/preprocessing/data/invest_data.csv", sep=';')
+    df = pd.read_csv("data/invest_data.csv", sep=';')
     mask = (df['Date'] > '2012-01-01')
     int_df = df.loc[df['Name'].isin(companies)]  # 36 Shares
     final_df = int_df.loc[mask]
@@ -19,7 +19,7 @@ def load_data():
 
 
 def load_dummy_data():
-    df = pd.read_csv("/Users/insaafdhansay/desktop/cogspms/invest/preprocessing/data/dummy_data_use.csv", sep=';')
+    df = pd.read_csv("data/dummy_data_use.csv", sep=';')
 
     df['PEMarket'] = [x.replace(',', '.') for x in df['PEMarket']]
     df['PESector'] = [x.replace(',', '.') for x in df['PESector']]
