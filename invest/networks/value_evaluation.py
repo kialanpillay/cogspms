@@ -12,8 +12,8 @@ def value_network():
 
     ve_model = gum.InfluenceDiagram()
 
-    # Decision node for Expensive_e
-    expensive_decision = gum.LabelizedVariable('Expensive_e', '', 2)
+    # Decision node for Expensive_E
+    expensive_decision = gum.LabelizedVariable('Expensive_E', '', 2)
     expensive_decision.changeLabel(0, 'No')
     expensive_decision.changeLabel(1, 'Yes')
     ve_model.addDecisionNode(expensive_decision)
@@ -54,11 +54,11 @@ def value_network():
     ve_model.addChanceNode(forward_pe_current_vs_history)
 
     # Utility node for utility_expensive
-    utility_expensive = gum.LabelizedVariable('utility_expensive', '', 1)
+    utility_expensive = gum.LabelizedVariable('Expensive_Utility', '', 1)
     ve_model.addUtilityNode(utility_expensive)
 
     # Utility node for utility_value_relative_to_price
-    utility_value_relative_to_price = gum.LabelizedVariable('utility_value_relative_to_price', '', 1)
+    utility_value_relative_to_price = gum.LabelizedVariable('VRP_Utility', '', 1)
     ve_model.addUtilityNode(utility_value_relative_to_price)
 
     # Arcs
@@ -66,37 +66,37 @@ def value_network():
     ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('PERelative_ShareMarket'))
     ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('PERelative_ShareSector'))
     ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('ForwardPE_CurrentVsHistory'))
-    ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('utility_expensive'))
+    ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('Expensive_Utility'))
 
-    ve_model.addArc(ve_model.idFromName('PERelative_ShareMarket'), ve_model.idFromName('Expensive_e'))
+    ve_model.addArc(ve_model.idFromName('PERelative_ShareMarket'), ve_model.idFromName('Expensive_E'))
     ve_model.addArc(ve_model.idFromName('PERelative_ShareMarket'), ve_model.idFromName('ValueRelativeToPrice'))
 
-    ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'), ve_model.idFromName('Expensive_e'))
+    ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'), ve_model.idFromName('Expensive_E'))
     ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'), ve_model.idFromName('ValueRelativeToPrice'))
     ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'),
-                    ve_model.idFromName('utility_value_relative_to_price'))
+                    ve_model.idFromName('VRP_Utility'))
 
     ve_model.addArc(ve_model.idFromName('ForwardPE_CurrentVsHistory'), ve_model.idFromName('ValueRelativeToPrice'))
 
-    ve_model.addArc(ve_model.idFromName('Expensive_e'), ve_model.idFromName('ForwardPE_CurrentVsHistory'))
-    ve_model.addArc(ve_model.idFromName('Expensive_e'), ve_model.idFromName('ValueRelativeToPrice'))
-    ve_model.addArc(ve_model.idFromName('Expensive_e'), ve_model.idFromName('utility_expensive'))
+    ve_model.addArc(ve_model.idFromName('Expensive_E'), ve_model.idFromName('ForwardPE_CurrentVsHistory'))
+    ve_model.addArc(ve_model.idFromName('Expensive_E'), ve_model.idFromName('ValueRelativeToPrice'))
+    ve_model.addArc(ve_model.idFromName('Expensive_E'), ve_model.idFromName('Expensive_Utility'))
 
-    ve_model.addArc(ve_model.idFromName('ValueRelativeToPrice'), ve_model.idFromName('utility_value_relative_to_price'))
+    ve_model.addArc(ve_model.idFromName('ValueRelativeToPrice'), ve_model.idFromName('VRP_Utility'))
 
     # Utilities
-    ve_model.utility(ve_model.idFromName('utility_expensive'))[{'Expensive_e': 'Yes'}] = [[-100], [-75], [-50]]
-    # 3 states for FutureSharePerformance node, 2 states for Expensive_e node
-    ve_model.utility(ve_model.idFromName('utility_expensive'))[{'Expensive_e': 'No'}] = [[50], [25], [100]]
-    print(ve_model.utility(ve_model.idFromName('utility_expensive')))
+    ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'Yes'}] = [[-100], [-75], [-50]]
+    # 3 states for FutureSharePerformance node, 2 states for Expensive_E node
+    ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'No'}] = [[50], [25], [100]]
+    print(ve_model.utility(ve_model.idFromName('Expensive_Utility')))
 
     # 3 states for PERelative_ShareSector node, 3 states for ValueRelativeToPrice node
-    ve_model.utility(ve_model.idFromName('utility_value_relative_to_price'))[{'ValueRelativeToPrice': 'Cheap'}] = \
+    ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'Cheap'}] = \
         [[-10], [25], [50]]
 
-    ve_model.utility(ve_model.idFromName('utility_value_relative_to_price'))[{'ValueRelativeToPrice': 'FairValue'}] = \
+    ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'FairValue'}] = \
         [[-20], [5], [50]]
-    ve_model.utility(ve_model.idFromName('utility_value_relative_to_price'))[{'ValueRelativeToPrice': 'Expensive'}] = \
+    ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'Expensive'}] = \
         [[-50], [25], [100]]
 
     # CPTs
@@ -149,21 +149,21 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
 
     if forward_pe_current_vs_history_state == "Cheap":
-        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'Yes'}] = \
+        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
-        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'No'}] = \
+        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
 
     elif forward_pe_current_vs_history_state == "FairValue":
-        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'Yes'}] = \
+        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
             [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
-        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'No'}] = \
+        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
 
     else:
-        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'Yes'}] = \
+        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
             [[0, 0, 1], [0, 0, 1], [0, 0, 1]]
-        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_e': 'No'}] = \
+        ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[0, 0, 1], [0, 0, 1], [0, 0, 1]]
 
     output_file = os.path.join('res', 'v_e')
@@ -172,12 +172,12 @@ def value_network():
     gum.saveBN(ve_model, os.path.join(output_file, 'v_e.bifxml'))
 
     ie = gum.ShaferShenoyLIMIDInference(ve_model)
-    ie.addNoForgettingAssumption(['Expensive_e', 'ValueRelativeToPrice'])
+    ie.addNoForgettingAssumption(['Expensive_E', 'ValueRelativeToPrice'])
     ie.makeInference()
     print('--- Inference with default evidence ---')
 
-    print('Final decision for Expensive_e: {0}'.format(ie.posterior('Expensive_e')))
-    print('Final reward for Expensive_e: {0}'.format(ie.posteriorUtility('Expensive_e')))
+    print('Final decision for Expensive_E: {0}'.format(ie.posterior('Expensive_E')))
+    print('Final reward for Expensive_E: {0}'.format(ie.posteriorUtility('Expensive_E')))
     print('Final decision for ValueRelativeToPrice: {0}'.format(ie.posterior('ValueRelativeToPrice')))
     print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
     print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
