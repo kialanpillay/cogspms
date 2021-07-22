@@ -115,10 +115,10 @@ else:
 torch.manual_seed(0)
 if __name__ == '__main__':
     if args.train:
+        if args.baseline:
+            _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
         try:
             before_train = datetime.now().timestamp()
-            if args.baseline:
-                _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
             _, _ = gnn.train.train(train_data, valid_data, args, result_train_file)
             after_train = datetime.now().timestamp()
             print(f'Training took {(after_train - before_train) / 60} minutes')
@@ -126,6 +126,8 @@ if __name__ == '__main__':
             print('-' * 99)
             print('Exiting from training early')
     if args.evaluate:
+        if args.baseline:
+            _ = gnn.evaluation.test_.baseline_test(train_data, valid_data, args, baseline_train_file)
         before_evaluation = datetime.now().timestamp()
         if args.model == 'StemGNN':
             gnn.evaluation.test_.test(test_data, args, result_train_file, result_test_file)

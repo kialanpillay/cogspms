@@ -6,7 +6,7 @@ import torch.utils.data
 from sklearn.preprocessing import StandardScaler
 
 import gnn.preprocessing.loader
-from gnn.evaluation.validation import validate
+from gnn.evaluation.validation import validate, validate_baseline
 from gnn.preprocessing.utils import process_data
 from gnn.utils import load_model
 
@@ -24,6 +24,17 @@ def test(test_data, args, result_train_file, result_test_file):
     performance_metrics = validate(model, args.model, test_loader, args.device, args.norm_method, normalize_statistic,
                                    node_cnt, args.window_size, args.horizon,
                                    result_file=result_test_file)
+    mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+
+
+def baseline_test(test_data, args, result_train_file, result_test_file):
+    model = load_model(result_train_file)
+    test_set = gnn.preprocessing.loader.ForecastDataset(test_data, window_size=args.window_size, horizon=args.horizon,
+                                                        normalize_method=args.norm_method)
+    test_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size, drop_last=False,
+                                              shuffle=False, num_workers=0)
+    performance_metrics = validate_baseline(model, args.model, test_loader, args.device, args.norm_method)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
     print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
 

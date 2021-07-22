@@ -1,12 +1,9 @@
-import json
-import os
 import time
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 import gnn.preprocessing.loader
 from gnn.evaluation.validation import validate_baseline
