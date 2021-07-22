@@ -4,7 +4,7 @@ from gnn.utils import calculate_scaled_laplacian, symmetric_adjacency, asymmetri
     calculate_normalized_laplacian, correlation_adjacency_matrix
 
 
-def transform(data, window_size, horizon):
+def process_data(data, window_size, horizon):
     x_offsets = np.sort(np.concatenate((np.arange(-(window_size - 1), 1, 1),)))
     y_offsets = np.sort(np.arange(1, (horizon + 1), 1))
     samples, nodes = data.shape[0], data.shape[1]

@@ -6,7 +6,7 @@ import torch
 import torch.utils.data as torch_data
 from torch.autograd import Variable
 
-from gnn.utils import normalized
+from gnn.utils import transform_
 
 
 class CustomDataLoader(object):
@@ -121,7 +121,7 @@ class ForecastDataset(torch_data.Dataset):
         self.df_length = len(df)
         self.x_end_idx = self.get_x_end_idx()
         if normalize_method:
-            self.data, _ = normalized(self.data, normalize_method, norm_statistic)
+            self.data, _ = transform_(self.data, normalize_method, norm_statistic)
 
     def __getitem__(self, index):
         hi = self.x_end_idx[index]

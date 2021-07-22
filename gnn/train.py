@@ -14,7 +14,7 @@ from gnn.evaluation.validation import validate
 from gnn.models.gwnet import GraphWaveNet
 from gnn.models.mtgnn import MTGNN
 from gnn.models.stemgnn import Model
-from gnn.preprocessing.process import transform
+from gnn.preprocessing.utils import process_data
 from gnn.training.engine import Engine
 from gnn.utils import save_model
 
@@ -84,6 +84,8 @@ def train(train_data, valid_data, args, result_file):
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr, betas=(0.9, 0.999))
 
     lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=args.decay_rate)
+    scaler = StandardScaler()
+    scaler.fit(train_data)
 
     if model_name == 'StemGNN':
 
@@ -100,15 +102,17 @@ def train(train_data, valid_data, args, result_file):
                                                    num_workers=0)
         valid_loader = torch.utils.data.DataLoader(valid_set, batch_size=args.batch_size, shuffle=False, num_workers=0)
     else:
-        x_train, y_train = transform(train_data, args.window_size, args.horizon)
-        x_valid, y_valid = transform(valid_data, args.window_size, args.horizon)
+        if args.norm_method == 'z_score':
+            x_train, y_train = process_data(scaler.transform(train_data), args.window_size, args.horizon)
+            x_valid, y_valid = process_data(scaler.transform(valid_data), args.window_size, args.horizon)
+        else:
+            x_train, y_train = process_data(train_data, args.window_size, args.horizon)
+            x_valid, y_valid = process_data(valid_data, args.window_size, args.horizon)
         train_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_train, y_train, args.batch_size)
         valid_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_valid, y_valid, args.batch_size)
 
     criterion = nn.MSELoss(reduction='mean').to(args.device)
 
-    scaler = StandardScaler()
-    scaler.fit(train_data)
     if model_name == 'MTGNN':
         engine = Engine(model, criterion, optimizer, args.clip, args.step_size1, args.horizon, scaler,
                         args.device, args.cl)

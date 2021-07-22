@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 import gnn.preprocessing.loader
 from gnn.evaluation.validation import validate
-from gnn.preprocessing.process import transform
+from gnn.preprocessing.utils import process_data
 from gnn.utils import load_model
 
 
@@ -34,7 +34,7 @@ def custom_test(test_data, args, result_train_file, result_test_file):
     model = load_model(result_train_file)
     scaler = StandardScaler()
     scaler.fit(test_data)
-    x, y = transform(test_data, args.window_size, args.horizon)
+    x, y = process_data(test_data, args.window_size, args.horizon)
     test_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x, y, args.batch_size)
     performance_metrics = validate(model, args.model, test_loader, args.device, args.norm_method, normalize_statistic,
                                    args.node_cnt, args.window_size, args.horizon,

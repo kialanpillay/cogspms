@@ -5,7 +5,7 @@ import torch
 import torch.utils.data
 
 from gnn.metrics.error import evaluate, evaluate_multiple
-from gnn.utils import denormalized
+from gnn.utils import inverse_transform_
 
 
 def custom_inference(model, data_loader, device='cpu'):
@@ -59,8 +59,8 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
         forecast_norm, target_norm = custom_inference(model, data_loader, device)
     if model_name == 'StemGNN':
         if normalize_method and statistic:
-            forecast = denormalized(forecast_norm, normalize_method, statistic)
-            target = denormalized(target_norm, normalize_method, statistic)
+            forecast = inverse_transform_(forecast_norm, normalize_method, statistic)
+            target = inverse_transform_(target_norm, normalize_method, statistic)
         else:
             forecast, target = forecast_norm, target_norm
         score = evaluate(target, forecast)

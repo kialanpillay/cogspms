@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 import gnn.preprocessing.loader
 from gnn.evaluation.validation import inference as inference_, custom_inference as custom_inference_
 from gnn.preprocessing.loader import load_dataset
-from gnn.utils import load_model, denormalized
+from gnn.utils import load_model, inverse_transform_
 
 
 def future_share_price_performance():
@@ -34,7 +34,7 @@ def inference(data, model_name, result_file):
     if model_name == 'StemGNN':
         forecast_norm, target_norm = inference_(model, data_loader, 'cpu',
                                                 data.shape[1], 12, 12)
-        forecast = denormalized(forecast_norm, 'z_score', normalize_statistic)
+        forecast = inverse_transform_(forecast_norm, 'z_score', normalize_statistic)
         return forecast[-1, :]
     else:
         forecast_norm, target_norm = custom_inference_(model, data_loader)
