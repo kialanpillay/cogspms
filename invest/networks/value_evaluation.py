@@ -1,7 +1,13 @@
 import os
-
 import numpy as np
 import pyAgrum as gum
+import pyAgrum.lib.notebook as gnb
+from pylab import *
+import matplotlib.pyplot as plt
+from IPython.core.display import display,HTML
+import math
+
+
 
 
 def value_network():
@@ -170,6 +176,8 @@ def value_network():
     if not os.path.exists(output_file):
         os.makedirs(output_file)
     gum.saveBN(ve_model, os.path.join(output_file, 'v_e.bifxml'))
+    diag=gum.loadID("res/v_e/v_e.bifxml")
+    gnb.showInfluenceDiagram(diag)
 
     ie = gum.ShaferShenoyLIMIDInference(ve_model)
     ie.addNoForgettingAssumption(['Expensive_E', 'ValueRelativeToPrice'])
@@ -188,4 +196,8 @@ def value_network():
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())
     decision = var.label(int(decision_index))
     print('Final decision for Value Network: {0}'.format(decision))
+
+    #image
+    # Get and save an influence diagram
+
     return format(decision)

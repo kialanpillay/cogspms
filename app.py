@@ -36,8 +36,8 @@ def main(arguments):
                   args.beta, 2017,extension)
 
     value_decision = value_eval_network.value_network()
-    quality_decision = quality_eval_network.quality_network(extension)
-    invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
+#     quality_decision = quality_eval_network.quality_network(extension)
+#     invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
 
 
 if __name__ == '__main__':
