@@ -5,7 +5,7 @@ import torch
 import torch.utils.data
 
 from gnn.metrics.error import evaluate, evaluate_multiple
-from gnn.utils import denormalized
+from gnn.utils import inverse_transform_
 
 
 def custom_inference(model, data_loader, device='cpu'):
@@ -59,8 +59,8 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
         forecast_norm, target_norm = custom_inference(model, data_loader, device)
     if model_name == 'StemGNN':
         if normalize_method and statistic:
-            forecast = denormalized(forecast_norm, normalize_method, statistic)
-            target = denormalized(target_norm, normalize_method, statistic)
+            forecast = inverse_transform_(forecast_norm, normalize_method, statistic)
+            target = inverse_transform_(target_norm, normalize_method, statistic)
         else:
             forecast, target = forecast_norm, target_norm
         score = evaluate(target, forecast)
@@ -115,7 +115,7 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     return dict(mae=score[1], mape=score[0], rmse=score[2], )
 
 
-def validate_baseline(model, data_loader, device, result_file=None):
+def validate_baseline(model, data_loader, device, norm_method, result_file=None):
     model.eval()
     forecast_set = []
     target_set = []
@@ -129,23 +129,26 @@ def validate_baseline(model, data_loader, device, result_file=None):
             forecast_set.append(forecast_result.squeeze())
             target_set.append(target_norm.detach().cpu().numpy())
 
-    forecast = torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...]
-    target = np.concatenate(target_set, axis=0)
-    score = evaluate(target, forecast.detach().cpu().numpy())
+    forecast_norm = torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...].detach().cpu() \
+        .numpy()
+    target_norm = np.concatenate(target_set, axis=0)
 
-    print(f'NORM: MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f}.')
-    if result_file:
-        if not os.path.exists(result_file):
-            os.makedirs(result_file)
-        step_to_print = 0
-        forecasting_2d = forecast[:, step_to_print]
-        forecasting_2d_target = target[:, step_to_print]
+    print(forecast_norm.shape, target_norm.shape)
 
-        np.savetxt(f'{result_file}/target.csv', forecasting_2d_target, delimiter=",")
-        np.savetxt(f'{result_file}/predict.csv', forecasting_2d, delimiter=",")
-        np.savetxt(f'{result_file}/predict_abs_error.csv',
-                   np.abs(forecasting_2d - forecasting_2d_target), delimiter=",")
-        np.savetxt(f'{result_file}/predict_ape.csv',
-                   np.abs((forecasting_2d - forecasting_2d_target) / forecasting_2d_target), delimiter=",")
+    if norm_method == 'z_score':
+        forecast_scale = np.max(forecast_norm, axis=0) - np.min(forecast_norm, axis=0)
+        target_scale = np.max(target_norm, axis=0) - np.min(target_norm, axis=0)
+        forecast = forecast_norm * forecast_scale + np.min(forecast_norm, axis=0)
+        target = target_norm * target_scale + np.min(target_norm)
+    elif norm_method == 'min_max':
+        forecast = forecast_norm * np.std(forecast_norm, axis=0) + np.mean(forecast_norm, axis=0)
+        target = target_norm * np.std(target_norm, axis=0) + np.mean(target_norm, axis=0)
+    else:
+        forecast, target = forecast_norm, target_norm
+    score = evaluate(target, forecast)
+    score_norm = evaluate(target_norm, forecast_norm)
+
+    print(f'NORM: MAPE {score_norm[0]:7.9%}; MAE {score_norm[1]:7.9f}; RMSE {score_norm[2]:7.9f}.')
+    print(f'RAW : MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f}.')
 
     return dict(mae=score[1], mape=score[0], rmse=score[2], )

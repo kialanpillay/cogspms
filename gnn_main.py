@@ -8,7 +8,8 @@ import gnn.evaluation.test_
 import gnn.train
 import gnn.training.baseline
 from gnn.preprocessing.loader import load_dataset
-from gnn.preprocessing.process import process_adjacency_matrix
+from gnn.preprocessing.utils import process_adjacency_matrix
+from gnn.utils import correlation_adjacency_matrix
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
@@ -90,10 +91,9 @@ train_data, valid_data, test_data = load_dataset(args.dataset, args.train_length
 args.node_cnt = train_data.shape[1]
 
 if args.adj_data:
-    adj_matrix = process_adjacency_matrix(os.path.join('data', args.dataset + '.csv'), args.adj_type)
-    args.supports = [torch.tensor(i).to(args.device) for i in adj_matrix]
-
     if args.model == 'GWN':
+        adj_matrix = process_adjacency_matrix(os.path.join('data', args.dataset + '.csv'), args.adj_type)
+        args.supports = [torch.tensor(i).to(args.device) for i in adj_matrix]
         if args.apt_only:
             args.supports = None
             args.adj_init = None
@@ -104,6 +104,7 @@ if args.adj_data:
                 adj_init = args.supports[0]
 
     if args.model == 'MTGNN':
+        adj_matrix = correlation_adjacency_matrix(os.path.join('data', args.dataset + '.csv'))
         adj_matrix = torch.tensor(adj_matrix) - torch.eye(args.node_cnt)
         args.adj_matrix = adj_matrix.to(args.device)
 else:
@@ -114,10 +115,10 @@ else:
 torch.manual_seed(0)
 if __name__ == '__main__':
     if args.train:
+        if args.baseline:
+            _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
         try:
             before_train = datetime.now().timestamp()
-            if args.baseline:
-                _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
             _, _ = gnn.train.train(train_data, valid_data, args, result_train_file)
             after_train = datetime.now().timestamp()
             print(f'Training took {(after_train - before_train) / 60} minutes')
@@ -125,6 +126,8 @@ if __name__ == '__main__':
             print('-' * 99)
             print('Exiting from training early')
     if args.evaluate:
+        if args.baseline:
+            _ = gnn.evaluation.test_.baseline_test(train_data, valid_data, args, baseline_train_file)
         before_evaluation = datetime.now().timestamp()
         if args.model == 'StemGNN':
             gnn.evaluation.test_.test(test_data, args, result_train_file, result_test_file)

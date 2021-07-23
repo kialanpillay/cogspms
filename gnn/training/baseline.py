@@ -19,13 +19,13 @@ def train(train_data, valid_data, args, result_file):
     if len(valid_data) == 0:
         raise Exception('Cannot organize enough validation data')
 
-    if args.optim == 'RMSProp':
+    if args.optimizer == 'RMSProp':
         optimizer = torch.optim.RMSprop(params=model.parameters(), lr=args.lr)
-    elif args.optim == 'SGD':
+    elif args.optimizer == 'SGD':
         optimizer = torch.optim.SGD(params=model.parameters(), lr=args.lr)
-    elif args.optim == 'Adagrad':
+    elif args.optimizer == 'Adagrad':
         optimizer = torch.optim.Adagrad(params=model.parameters(), lr=args.lr)
-    elif args.optim == 'Adadelta':
+    elif args.optimizer == 'Adadelta':
         optimizer = torch.optim.Adadelta(params=model.parameters(), lr=args.lr)
     else:
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr, betas=(0.9, 0.999))
@@ -33,9 +33,9 @@ def train(train_data, valid_data, args, result_file):
     lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=args.decay_rate)
 
     train_set = gnn.preprocessing.loader.ForecastDataset(train_data, window_size=args.window_size,
-                                                         horizon=args.horizon)
+                                                         horizon=args.horizon, normalize_method=args.norm_method)
     valid_set = gnn.preprocessing.loader.ForecastDataset(valid_data, window_size=args.window_size,
-                                                         horizon=args.horizon)
+                                                         horizon=args.horizon, normalize_method=args.norm_method)
 
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=args.batch_size, drop_last=False, shuffle=True,
                                                num_workers=0)
@@ -77,7 +77,7 @@ def train(train_data, valid_data, args, result_file):
             is_best = False
             print('------ VALIDATE ------')
             performance_metrics = \
-                validate_baseline(model, valid_loader, args.device, result_file=result_file)
+                validate_baseline(model, valid_loader, args.device, args.norm_method)
             if np.abs(best_validate_mae) > np.abs(performance_metrics['mae']):
                 best_validate_mae = performance_metrics['mae']
                 is_best = True

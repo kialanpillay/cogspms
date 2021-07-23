@@ -33,14 +33,14 @@ def load_model(model_dir, epoch=None):
     return model
 
 
-def normalized(data, normalise_method, norm_statistic=None):
-    if normalise_method == 'min_max':
+def transform_(data, normalize_method, norm_statistic=None):
+    if normalize_method == 'min_max':
         if not norm_statistic:
             norm_statistic = dict(max=np.max(data, axis=0), min=np.min(data, axis=0))
         scale = norm_statistic['max'] - norm_statistic['min'] + 1e-5
         data = (data - norm_statistic['min']) / scale
         data = np.clip(data, 0.0, 1.0)
-    elif normalise_method == 'z_score':
+    elif normalize_method == 'z_score':
         if not norm_statistic:
             norm_statistic = dict(mean=np.mean(data, axis=0), std=np.std(data, axis=0))
         mean = norm_statistic['mean']
@@ -51,13 +51,13 @@ def normalized(data, normalise_method, norm_statistic=None):
     return data, norm_statistic
 
 
-def denormalized(data, normalise_method, norm_statistic):
-    if normalise_method == 'min_max':
+def inverse_transform_(data, normalize_method, norm_statistic=None):
+    if normalize_method == 'min_max':
         if not norm_statistic:
             norm_statistic = dict(max=np.max(data, axis=0), min=np.min(data, axis=0))
         scale = norm_statistic['max'] - norm_statistic['min'] + 1e-8
         data = data * scale + norm_statistic['min']
-    elif normalise_method == 'z_score':
+    elif normalize_method == 'z_score':
         if not norm_statistic:
             norm_statistic = dict(mean=np.mean(data, axis=0), std=np.std(data, axis=0))
         mean = norm_statistic['mean']
