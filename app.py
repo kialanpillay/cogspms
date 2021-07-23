@@ -1,6 +1,8 @@
 import argparse
 
 import invest.networks.value_evaluation as value_eval_network
+import invest.networks.quality_evaluation as quality_eval_network
+import invest.networks.invest_recommendation as invest_recommendation_network
 import invest.preprocessing.dataloader as data_loader
 from invest.store import Store
 
@@ -32,7 +34,12 @@ def main(arguments):
                   args.margin_of_safety,
                   args.beta, 2017)
 
-    value_eval_network.value_network()
+    value_decision = value_eval_network.value_network()
+    quality_decision=  quality_eval_network.quality_network()
+    invest_recommendation_network.investment_recommendation(value_decision,quality_decision)
+
+
+
 
 
 if __name__ == '__main__':
