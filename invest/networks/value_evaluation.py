@@ -86,7 +86,6 @@ def value_network():
 
     # Utilities
     ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'Yes'}] = [[-100], [-75], [-50]]
-    # 3 states for FutureSharePerformance node, 2 states for Expensive_E node
     ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'No'}] = [[50], [25], [100]]
     print(ve_model.utility(ve_model.idFromName('Expensive_Utility')))
 
@@ -148,9 +147,10 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 0, 1]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
 
+    # forwardPE
     if forward_pe_current_vs_history_state == "Cheap":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
-            [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
+            [[1, 0, 0], [1, 0, 0], [1, 0, 0]] #cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
 
@@ -182,8 +182,10 @@ def value_network():
     print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
     print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
 
+    #getting index of label which is the final decison
     var = ie.posteriorUtility('ValueRelativeToPrice').variable('ValueRelativeToPrice')
 
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())
     decision = var.label(int(decision_index))
     print('Final decision for Value Network: {0}'.format(decision))
+    return format(decision)
