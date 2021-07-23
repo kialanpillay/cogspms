@@ -53,7 +53,7 @@ def clean(arguments):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--raw', type=str, default='data/all_stocks_5yr.csv')
+    parser.add_argument('--raw', type=str, default='data/SP500_raw.csv')
     parser.add_argument('--raw_folder', type=str, default='data/JSE')
     parser.add_argument('--output', type=str, default='data/JSE')
     parser.add_argument('--plot', type=bool, default=False)

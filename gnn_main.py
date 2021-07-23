@@ -17,7 +17,7 @@ parser.add_argument('--baseline', type=bool, default=False)
 # StemGNN arguments
 parser.add_argument('--train', type=bool, default=True)
 parser.add_argument('--evaluate', type=bool, default=True)
-parser.add_argument('--dataset', type=str, default='SP500')
+parser.add_argument('--dataset', type=str, default='SP500_clean')
 parser.add_argument('--window_size', type=int, default=12)
 parser.add_argument('--horizon', type=int, default=12)
 parser.add_argument('--train_length', type=float, default=6)
