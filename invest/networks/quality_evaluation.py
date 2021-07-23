@@ -4,11 +4,12 @@ import numpy as np
 import pyAgrum as gum
 
 
-def quality_network():
+def quality_network(extension):
     ROEvsCOE_state = "EqualTo"
     ReIDE_state = "EqualTo"
     CAGRvsInflation_state = "Inflation"
     future_share_performance_state = "Positive"
+    systematic_risk_state = "greater"
     qe_model = gum.InfluenceDiagram()
 
     # decision node
@@ -135,6 +136,39 @@ def quality_network():
         qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Positive'}] = [0, 0, 1]
         qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 0, 1]
         qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
+
+     #extension
+    if(extension==True):
+
+        #add chance node
+        systematic_risk = gum.LabelizedVariable('SystematicRisk', '', 3)
+        systematic_risk.changeLabel(0, 'greater') #greater than market
+        systematic_risk.changeLabel(1, 'EqualTo')
+        systematic_risk.changeLabel(2, 'lower')
+        qe_model.addChanceNode(systematic_risk)
+
+         #add arcs
+        qe_model.addArc(qe_model.idFromName('FutureSharePerformance'), qe_model.idFromName('SystematicRisk'))
+        qe_model.addArc(qe_model.idFromName('SystematicRisk'), qe_model.idFromName('Quality'))
+
+         #add cpt
+         # systematic risk
+        if systematic_risk_state == "greater":
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [1, 0, 0]
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [1, 0, 0]
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [1, 0, 0]
+
+        elif systematic_risk_state == "EqualTo":
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [0, 1, 0]
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 1, 0]
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [0, 1, 0]
+
+        else: #lower than market risk
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [0, 0, 1]
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 0, 1]
+            qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
+
+
 
     output_file = os.path.join('res', 'q_e')
     if not os.path.exists(output_file):
