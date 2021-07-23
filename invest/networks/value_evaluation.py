@@ -105,7 +105,7 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 0.9  # Stagnant
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[2] = 0.53  # Negative
 
-    elif future_share_performance_state == "FairValue":
+    elif future_share_performance_state == "Stagnant":
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 1  # Stagnant
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[0] = 0  # Positive
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[2] = 0  # Negative
