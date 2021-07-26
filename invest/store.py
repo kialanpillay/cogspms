@@ -7,7 +7,7 @@ import invest.calculator.threshold as threshold
 class Store:
     def __init__(self, main_data, all_companies,
                  consumer_companies,
-                 general_companies, margin_of_safety, beta, years):
+                 general_companies, margin_of_safety, beta, years,extension):
         self.main_data = main_data
         self.all_companies = all_companies
         self.consumer_companies = consumer_companies
@@ -15,6 +15,7 @@ class Store:
         self.margin_of_safety = margin_of_safety
         self.beta = beta
         self.years = years
+        self.extension=extension
         self.process()
 
     def process(self):
@@ -22,7 +23,7 @@ class Store:
                         "current_PE_relative_share_market_to_historical",
                         "current_PE_relative_share_sector_to_historical",
                         "forward_PE_current_to_historical", "roe_vs_coe",
-                        "growth_cagr_vs_inflation", "relative_debt_to_equity"]
+                        "growth_cagr_vs_inflation", "relative_debt_to_equity","systematic_risk"]
         df_shares = pd.DataFrame(columns=column_names)
 
         # Calculate Ratios
@@ -34,9 +35,9 @@ class Store:
             pe_market_list = []
 
             # Preprocessing
-            year = 2012
-            years = self.years  # year after data value being used, this case is using 2016 latest as final
-            for i in range(year, years):
+            start_year = 2012
+            end_year = self.years  # year after data value being used, this case is using 2016 latest as final
+            for i in range(start_year, end_year):
                 mask_eps = (self.main_data['Date'] >= str(i) + '-' + '01-01') & (
                         self.main_data['Date'] <= str(i) + '12-31') & (self.main_data['Name'] == company)
                 company_df_by_year = self.main_data.loc[mask_eps]
@@ -63,7 +64,6 @@ class Store:
 
             # historic_earnings_growth_rate
             historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_year_list, 5)
-            print("Historic Earnings growth rate (Calc1):", historic_earnings_growth_rate)
 
             # historic_earnings_cagr
             historic_earnings_cagr = ratios.historic_earnings_cagr(eps_year_list[len(eps_year_list) - 1],
@@ -114,7 +114,7 @@ class Store:
             relative_debt_equity = ratios.relative_debt_to_equity(float(d_e), float(
                 d_e_industry))  # debt equity is from data directly
 
-            # threshold
+            # Threshold
             # negative_earnings
             negative_earnings = threshold.negative_earnings(forward_earnings_current_year)
 
@@ -126,9 +126,9 @@ class Store:
             beta_classify = threshold.beta_classify(float(share_beta), self.beta)
 
             # acceptable stock
-            acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
-                                                          beta_classify)
-            # acceptable_stock = True
+#             acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
+#                                                           beta_classify)
+            acceptable_stock = True
 
             if acceptable_stock:  # only if stock is investable do you continue the process
                 current_share_pe = current_year_data.iloc[-1]['PE']
@@ -165,7 +165,13 @@ class Store:
 
                 relative_debt_to_equity = threshold.relative_debt_to_equity(self.margin_of_safety, relative_debt_equity)
 
-                # add row to dataframe
+                #extension
+                if self.extension == True:
+                    systematic_risk = threshold.systematic_risk_classification(float(share_beta))
+                else:
+                    systematic_risk = None
+
+
                 company_row = {"negative_earnings": negative_earnings,
                                "negative_shareholders_equity": negative_shareholders_equity,
                                "beta_classify": beta_classify,
@@ -174,8 +180,11 @@ class Store:
                                "current_PE_relative_share_sector_to_historical": pe_relative_sector,
                                "forward_PE_current_to_historical": forward_pe, "roe_vs_coe": roe_coe,
                                "growth_cagr_vs_inflation": cagr_inflation,
-                               "relative_debt_to_equity": relative_debt_to_equity}
+                               "relative_debt_to_equity": relative_debt_to_equity,
+                               "systematic_risk":systematic_risk}
                 df_shares = df_shares.append(company_row, ignore_index=True)
+                print(df_shares)
+
 
             else:
                 company_row = {"negative_earnings": negative_earnings,

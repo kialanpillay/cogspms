@@ -1,6 +1,8 @@
+cairosvg
 numpy
 matplotlib
 pandas
+pyAgrum
 seaborn
 scipy
 scikit-learn

@@ -76,3 +76,4 @@ def current_pe_market(current_share_pe, current_market_pe):
 
 def current_pe_sector(current_share_pe, current_sector_pe):
     return current_share_pe / current_sector_pe
+
