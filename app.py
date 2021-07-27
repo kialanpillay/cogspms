@@ -5,6 +5,7 @@ import invest.networks.quality_evaluation as quality_eval_network
 import invest.networks.value_evaluation as value_eval_network
 import invest.preprocessing.dataloader as data_loader
 from invest.store import Store
+import invest.evaluation.evaluation as evaluation
 
 
 def main(arguments):
@@ -31,9 +32,17 @@ def main(arguments):
     general_industrials_companies_dummy = []
     extension=False
     df = data_loader.load_dummy_data()
-    investment_portfolio = []
+    prices_current_JGIND = {"2017":[],"2016":[],"2015":[]}
+    prices_current_JCSEV = {"2017":[],"2016":[],"2015":[]}
+    prices_initial_JGIND={"2017":[],"2016":[],"2015":[]}
+    prices_initial_JCSEV={"2017":[],"2016":[],"2015":[]}
+    share_betas_JGIND={"2017":[],"2016":[],"2015":[]}
+    share_betas_JCSEV={"2017":[],"2016":[],"2015":[]}
+
+
 
     for year in range (2015,2018):
+        investment_portfolio = []
         store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
                       args.margin_of_safety,
                       args.beta, year,extension)
@@ -57,7 +66,31 @@ def main(arguments):
                 decision = invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
                 if(decision=="Yes"):
                     investment_portfolio.append(company)
+                    mask_year = (df['Date'] >= str(year) + '-' + '01-01') & (
+                    df['Date'] <= str(year) + '12-31') & (df['Name'] == company)
+                    data_year = df[mask_year]
+                    share_beta = data_year["Share beta"].mean()
+                    price_current = data_year.iloc[-1]['Price']
+                    price_initial = data_year.iloc[0]['Price']
 
+                    #add values to dictionary
+                    if company in consumer_services_companies:
+                        prices_current_JCSEV[str(year)].append(price_current)
+                        prices_initial_JCSEV[str(year)].append(price_initial)
+                        share_betas_JCSEV[str(year)].append(share_beta)
+                    else:
+                        prices_current_JGIND[str(year)].append(price_current)
+                        prices_initial_JGIND[str(year)].append(price_initial)
+                        share_betas_JGIND[str(year)].append(share_beta)
+
+
+
+    #call it twice, pass it index
+    #create 2 list, one for each index
+
+    evaluation.process_ratios(data,benchmark_data,prices_current_JGIND,prices_initial_JGIND,share_betas_JGIND,2015,2018,"JGIND")
+    evaluation.process_ratios(data,benchmark_data,prices_current_JCSEV,prices_initial_JCSEV,share_betas_JCSEV,2015,2018,"JCSEV")
+    #pass in correct benchmark
 
 
 if __name__ == '__main__':
