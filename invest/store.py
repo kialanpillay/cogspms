@@ -7,7 +7,7 @@ import invest.calculator.threshold as threshold
 class Store:
     def __init__(self, main_data, all_companies,
                  consumer_companies,
-                 general_companies, margin_of_safety, beta, years,extension):
+                 general_companies, margin_of_safety, beta, years, extension):
         self.main_data = main_data
         self.all_companies = all_companies
         self.consumer_companies = consumer_companies
@@ -15,19 +15,17 @@ class Store:
         self.margin_of_safety = margin_of_safety
         self.beta = beta
         self.years = years
-        self.extension=extension
-        self.column_names = ["company_name","negative_earnings", "negative_shareholders_equity", "beta_classify", "acceptable_stock",
-                        "current_PE_relative_share_market_to_historical",
-                        "current_PE_relative_share_sector_to_historical",
-                        "forward_PE_current_to_historical", "roe_vs_coe",
-                        "growth_cagr_vs_inflation", "relative_debt_to_equity","systematic_risk"]
+        self.extension = extension
+        self.column_names = ["company_name", "negative_earnings", "negative_shareholders_equity", "beta_classify",
+                             "acceptable_stock",
+                             "current_PE_relative_share_market_to_historical",
+                             "current_PE_relative_share_sector_to_historical",
+                             "forward_PE_current_to_historical", "roe_vs_coe",
+                             "growth_cagr_vs_inflation", "relative_debt_to_equity", "systematic_risk"]
         self.df_shares = pd.DataFrame(columns=self.column_names)
         self.process()
 
-
     def process(self):
-
-
         # Calculate Ratios
         for company in self.all_companies:
             eps_year_list = []
@@ -47,12 +45,12 @@ class Store:
                 eps = company_df_by_year.iloc[-1]['EPS']  # gets last row for frame and EPS column
                 eps_year_list.append(eps)  # add eps value to list by year
 
-                mask_current_price = (self.main_data['Date'] >= str(end_year-1) + '-' + '01-01') & (
+                mask_current_price = (self.main_data['Date'] >= str(end_year - 1) + '-' + '01-01') & (
                         self.main_data['Date'] < str(end_year) + '-' + '01-01') & (self.main_data['Name'] == company)
                 current_year_data = self.main_data.loc[mask_current_price]
                 current_price = current_year_data.iloc[-1]['Price']
 
-                mask_pe_sector_market = (self.main_data['Date'] >= str(end_year-3) + '-' + '01-01') & (
+                mask_pe_sector_market = (self.main_data['Date'] >= str(end_year - 3) + '-' + '01-01') & (
                         self.main_data['Date'] < str(end_year) + '-' + '01-01') & (self.main_data['Name'] == company)
                 pe_sector_3_years = self.main_data.loc[mask_pe_sector_market]
                 pe_market_3_years = self.main_data.loc[mask_pe_sector_market]
@@ -65,16 +63,18 @@ class Store:
                     pe_market_list.append(float(item))
 
             # historic_earnings_growth_rate
-            growth_years_n = end_year-start_year
+            growth_years_n = end_year - start_year
             historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_year_list, growth_years_n)
 
             # historic_earnings_cagr
             historic_earnings_cagr = ratios.historic_earnings_cagr(eps_year_list[len(eps_year_list) - 1],
-                                                                   eps_year_list[len(eps_year_list) - 4], 3)  # needs 3 years
+                                                                   eps_year_list[len(eps_year_list) - 4],
+                                                                   3)  # needs 3 years
 
             # historic_price_to_earnings_share
-            mask_pe = (self.main_data['Date'] >= str(end_year-1) + '-' + '01-01') & (self.main_data['Date'] < str(end_year) + '-' + '01-01') & (
-                    self.main_data['Name'] == company)
+            mask_pe = (self.main_data['Date'] >= str(end_year - 1) + '-' + '01-01') & (
+                        self.main_data['Date'] < str(end_year) + '-' + '01-01') & (
+                              self.main_data['Name'] == company)
             company_df_3_years = self.main_data.loc[mask_pe]
             price_list_3_years = (company_df_3_years['Price'].to_numpy())
             eps_list_3_years = (company_df_3_years['EPS'].to_numpy())
@@ -129,8 +129,8 @@ class Store:
             beta_classify = threshold.beta_classify(float(share_beta), self.beta)
 
             # acceptable stock
-#             acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
-#                                                           beta_classify)
+            # acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
+            #                                                           beta_classify)
             acceptable_stock = True
 
             if acceptable_stock:  # only if stock is investable do you continue the process
@@ -163,19 +163,17 @@ class Store:
                 # CAGR inflation
                 inflation = current_year_data.iloc[-1]['Inflation Rate']
                 cagr_inflation = threshold.cagr_inflation(self.margin_of_safety, historic_earnings_cagr,
-                                                          float(inflation)
-                                                          )  # or use forecast consensus if available
+                                                          float(inflation))
+                # or use forecast consensus if available
 
                 relative_debt_to_equity = threshold.relative_debt_to_equity(self.margin_of_safety, relative_debt_equity)
 
-                #extension
-                if self.extension == True:
+                if self.extension:
                     systematic_risk = threshold.systematic_risk_classification(float(share_beta))
                 else:
                     systematic_risk = None
 
-
-                company_row = {"company_name":company,
+                company_row = {"company_name": company,
                                "negative_earnings": negative_earnings,
                                "negative_shareholders_equity": negative_shareholders_equity,
                                "beta_classify": beta_classify,
@@ -185,44 +183,41 @@ class Store:
                                "forward_PE_current_to_historical": forward_pe, "roe_vs_coe": roe_coe,
                                "growth_cagr_vs_inflation": cagr_inflation,
                                "relative_debt_to_equity": relative_debt_to_equity,
-                               "systematic_risk":systematic_risk}
+                               "systematic_risk": systematic_risk}
                 self.df_shares = self.df_shares.append(company_row, ignore_index=True)
                 print(self.df_shares)
 
 
             else:
-                company_row = {"company_name":company,
+                company_row = {"company_name": company,
                                "negative_earnings": negative_earnings,
                                "negative_shareholders_equity": negative_shareholders_equity,
                                "beta_classify": beta_classify,
                                "acceptable_stock": acceptable_stock}  # only these values are calculated
                 self.df_shares = self.df_shares.append(company_row, ignore_index=True)
 
-     def get_acceptable_stock(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"acceptable_stock"].iloc[0]
+    def get_acceptable_stock(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company, "acceptable_stock"].iloc[0]
 
-    def get_pe_relative_market(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"current_PE_relative_share_market_to_historical"].iloc[0]
+    def get_pe_relative_market(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company,
+                                  "current_PE_relative_share_market_to_historical"].iloc[0]
 
-    def get_pe_relative_sector(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"current_PE_relative_share_sector_to_historical"].iloc[0]
+    def get_pe_relative_sector(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company,
+                                  "current_PE_relative_share_sector_to_historical"].iloc[0]
 
-    def get_forward_pe(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"forward_PE_current_to_historical"].iloc[0]
+    def get_forward_pe(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company, "forward_PE_current_to_historical"].iloc[0]
 
-    def get_roe_vs_coe(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"roe_vs_coe"].iloc[0]
+    def get_roe_vs_coe(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company, "roe_vs_coe"].iloc[0]
 
-    def get_rel_DE(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"relative_debt_to_equity"].iloc[0]
+    def get_rel_de(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company, "relative_debt_to_equity"].iloc[0]
 
-    def get_cagr_vs_inflation(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"growth_cagr_vs_inflation"].iloc[0]
+    def get_cagr_vs_inflation(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company, "growth_cagr_vs_inflation"].iloc[0]
 
-
-    def get_systematic_risk(self,company):
-        return self.df_shares.loc[df['company_name'] == company,"systematic_risk"].iloc[0]
-
-
-
-
+    def get_systematic_risk(self, company):
+        return self.df_shares.loc[self.df_shares['company_name'] == company, "systematic_risk"].iloc[0]

@@ -2,11 +2,11 @@ import argparse
 
 import pandas as pd
 
-import invest.evaluation.evaluation as evaluation
-import invest.networks.invest_recommendation as invest_recommendation_network
-import invest.networks.quality_evaluation as quality_eval_network
-import invest.networks.value_evaluation as value_eval_network
-import invest.preprocessing.dataloader as data_loader
+import invest.evaluation.validation as validation
+from invest.networks.invest_recommendation import investment_recommendation
+from invest.networks.quality_evaluation import quality_network
+from invest.networks.value_evaluation import value_network
+from invest.preprocessing.dataloader import load_data, load_dummy_data
 from invest.store import Store
 
 
@@ -33,7 +33,7 @@ def main():
     consumer_services_companies_dummy = ["SPUR"]
     general_industrials_companies_dummy = []
     extension = False
-    df = data_loader.load_dummy_data()
+    df = load_dummy_data()
     prices_current_JGIND = {"2017": [], "2016": [], "2015": []}
     prices_current_JCSEV = {"2017": [], "2016": [], "2015": []}
     prices_initial_JGIND = {"2017": [], "2016": [], "2015": []}
@@ -53,14 +53,14 @@ def main():
                 forward_pe = store.get_forward_pe(company)
 
                 roe_vs_coe = store.get_roe_vs_coe(company)
-                rel_DE = store.get_rel_DE(company)
+                rel_de = store.get_rel_de(company)
                 cagr_vs_inflation = store.get_cagr_vs_inflation(company)
                 systematic_risk = store.get_systematic_risk(company)
 
-                value_decision = value_eval_network.value_network(pe_relative_market, pe_relative_sector, forward_pe)
-                quality_decision = quality_eval_network.quality_network(roe_vs_coe, rel_DE, cagr_vs_inflation,
-                                                                        systematic_risk, extension)
-                decision = invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
+                value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
+                quality_decision = quality_network(roe_vs_coe, rel_de, cagr_vs_inflation,
+                                                   systematic_risk, extension)
+                decision = investment_recommendation(value_decision, quality_decision)
                 if decision == "Yes":
                     investment_portfolio.append(company)
                     mask_year = (df['Date'] >= str(year) + '-' + '01-01') & (
@@ -83,9 +83,9 @@ def main():
     df = pd.DataFrame()
     df_benchmark = pd.read_csv('data/benchmark_data.csv', delimiter=';', index_col=False)
 
-    evaluation.process_metrics(df, df_benchmark, prices_current_JGIND, prices_initial_JGIND, share_betas_JGIND, 2015,
+    validation.process_metrics(df, df_benchmark, prices_current_JGIND, prices_initial_JGIND, share_betas_JGIND, 2015,
                                2018, "JGIND")
-    evaluation.process_metrics(df, df_benchmark, prices_current_JCSEV, prices_initial_JCSEV, share_betas_JCSEV, 2015,
+    validation.process_metrics(df, df_benchmark, prices_current_JCSEV, prices_initial_JCSEV, share_betas_JCSEV, 2015,
                                2018, "JCSEV")
 
 
