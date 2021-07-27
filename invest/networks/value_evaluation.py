@@ -2,10 +2,10 @@ import os
 import numpy as np
 import pyAgrum as gum
 
-def value_network():
-    pe_relative_market_state = "Cheap"
-    pe_relative_sector_state = "Cheap"
-    forward_pe_current_vs_history_state = "Cheap"
+def value_network(pe_relative_market,pe_relative_sector,forward_pe_current_vs_history):
+    pe_relative_market_state = pe_relative_market
+    pe_relative_sector_state = pe_relative_sector
+    forward_pe_current_vs_history_state = forward_pe_current_vs_history
     future_share_performance_state = "Positive"
 
 
@@ -115,12 +115,12 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 0  # Stagnant
 
     # pe_relative_market
-    if pe_relative_market_state == "Cheap":
+    if pe_relative_market_state == "cheap":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Positive'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Stagnant'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [1, 0, 0]
 
-    elif pe_relative_market_state == "FairValue":
+    elif pe_relative_market_state == "fairValue":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Positive'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [0, 1, 0]
@@ -131,12 +131,12 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
 
     # pe_relative_sector
-    if pe_relative_sector_state == "Cheap":
+    if pe_relative_sector_state == "cheap":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Positive'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [1, 0, 0]
 
-    elif pe_relative_sector_state == "FairValue":
+    elif pe_relative_sector_state == "fairValue":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Positive'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [0, 1, 0]
@@ -147,13 +147,13 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
 
     # forwardPE
-    if forward_pe_current_vs_history_state == "Cheap":
+    if forward_pe_current_vs_history_state == "cheap":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]] #cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
 
-    elif forward_pe_current_vs_history_state == "FairValue":
+    elif forward_pe_current_vs_history_state == "fairValue":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
             [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \

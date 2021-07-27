@@ -31,14 +31,33 @@ def main(arguments):
     general_industrials_companies_dummy = []
     extension=False
     df = data_loader.load_dummy_data()
-    store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
-                  args.margin_of_safety,
-                  args.beta, 2017,extension)
+    investment_portfolio = []
 
-    #running bayesian networks
-    value_decision = value_eval_network.value_network()
-    quality_decision = quality_eval_network.quality_network(extension)
-    invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
+    for year in range (2015,2018):
+        store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
+                      args.margin_of_safety,
+                      args.beta, year,extension)
+        for company in all_companies:
+            if store.get_acceptable_stock(company) == True:
+
+            #get all necessary values from pandas data frame - value network
+                pe_relative_market= store.get_pe_relative_market(company)
+                pe_relative_sector= store.get_pe_relative_sector(company)
+                forward_pe = store.get_forward_pe(company)
+
+                #get all necessary values from pandas data frame - quality network
+                roe_vs_coe = store.get_roe_vs_coe(company)
+                rel_DE = store.get_rel_DE(company)
+                cagr_vs_inflation = store.get_cagr_vs_inflation(company)
+                systematic_risk = store.get_systematic_risk(company)
+
+                #running bayesian networks
+                value_decision = value_eval_network.value_network(pe_relative_market,pe_relative_sector,forward_pe)
+                quality_decision = quality_eval_network.quality_network(roe_vs_coe,rel_DE,cagr_vs_inflation,systematic_risk,extension)
+                decision = invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
+                if(decision=="Yes"):
+                    investment_portfolio.append(company)
+
 
 
 if __name__ == '__main__':
