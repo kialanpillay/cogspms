@@ -7,7 +7,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data
-from sklearn.preprocessing import StandardScaler
 
 import gnn.preprocessing.loader
 from gnn.evaluation.validation import validate
@@ -84,8 +83,7 @@ def train(train_data, valid_data, args, result_file):
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr, betas=(0.9, 0.999))
 
     lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=args.decay_rate)
-    scaler = StandardScaler()
-    scaler.fit(train_data)
+    scaler = None
 
     if model_name == 'StemGNN':
 
@@ -102,14 +100,15 @@ def train(train_data, valid_data, args, result_file):
                                                    num_workers=0)
         valid_loader = torch.utils.data.DataLoader(valid_set, batch_size=args.batch_size, shuffle=False, num_workers=0)
     else:
-        if args.norm_method == 'z_score':
-            x_train, y_train = process_data(scaler.transform(train_data), args.window_size, args.horizon)
-            x_valid, y_valid = process_data(scaler.transform(valid_data), args.window_size, args.horizon)
-        else:
-            x_train, y_train = process_data(train_data, args.window_size, args.horizon)
-            x_valid, y_valid = process_data(valid_data, args.window_size, args.horizon)
-        train_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_train, y_train, args.batch_size)
-        valid_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x_valid, y_valid, args.batch_size)
+        x_train, y_train = process_data(train_data, args.window_size, args.horizon)
+        x_valid, y_valid = process_data(valid_data, args.window_size, args.horizon)
+
+        scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x_train.mean(), std=x_train.std())
+
+        train_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(scaler.transform(x_train),
+                                                                       scaler.transform(y_train), args.batch_size)
+        valid_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(scaler.transform(x_valid),
+                                                                       scaler.transform(y_valid), args.batch_size)
 
     criterion = nn.MSELoss(reduction='mean').to(args.device)
 
@@ -141,6 +140,7 @@ def train(train_data, valid_data, args, result_file):
             if model_name == 'MTGNN':
                 inputs = torch.Tensor(inputs).to(args.device).transpose(1, 3)
                 target = torch.Tensor(target).to(args.device).transpose(1, 3)
+                model.zero_grad()
                 if i % args.step_size2 == 0:
                     perm = np.random.permutation(range(args.node_cnt))
                 sub = int(args.node_cnt / args.splits)
@@ -177,6 +177,7 @@ def train(train_data, valid_data, args, result_file):
                 inputs = F.pad(inputs, (1, 0, 0, 0))
                 model.zero_grad()
                 forecast = model(inputs).transpose(1, 3)
+                forecast = torch.unsqueeze(forecast[:, 0, :, :], dim=1)
                 target = torch.unsqueeze(target[:, 0, :, :], dim=1)
                 loss = criterion(forecast, target)
                 cnt += 1
@@ -215,4 +216,4 @@ def train(train_data, valid_data, args, result_file):
                 save_model(model, result_file)
         if args.early_stop and validate_score_non_decrease_count >= args.early_stop_step:
             break
-    return performance_metrics, norm_statistic
+    return performance_metrics

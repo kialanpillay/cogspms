@@ -4,72 +4,20 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.utils.data as torch_data
-from torch.autograd import Variable
 
 from gnn.utils import transform_
 
 
-class CustomDataLoader(object):
-    def __init__(self, file_name, train, valid, device, window_size, horizon, normalize=2):
-        self.P = window_size
-        self.h = horizon
-        self.raw_dat = np.loadtxt(file_name, delimiter=',')
-        self.dat = np.zeros(self.raw_dat.shape)
-        self.n, self.m = self.dat.shape
-        self.normalise = 2
-        self._normalized(normalize)
-        self._split(int(train * self.n), int((train + valid) * self.n))
-        self.scale = Variable(self.scale.to(torch.from_numpy(np.ones(self.m).astype(np.float64))))
-        self.device = device
+class CustomStandardScaler:
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
 
-    def _normalized(self, normalize):
-        if normalize == 0:
-            self.dat = self.raw_dat
+    def transform(self, data):
+        return (data - self.mean) / self.std
 
-        if normalize == 1:
-            self.dat = self.raw_dat / np.max(self.raw_dat)
-
-        if normalize == 2:
-            for i in range(self.m):
-                self.scale[i] = np.max(np.abs(self.raw_dat[:, i]))
-                self.dat[:, i] = self.raw_dat[:, i] / np.max(np.abs(self.raw_dat[:, i]))
-
-    def _split(self, train, valid):
-
-        train_set = range(self.P + self.h - 1, train)
-        valid_set = range(train, valid)
-        test_set = range(valid, self.n)
-        self.train = self._batchify(train_set)
-        self.valid = self._batchify(valid_set)
-        self.test = self._batchify(test_set)
-
-    def _batchify(self, idx_set):
-        n = len(idx_set)
-        X = torch.zeros((n, self.P, self.m))
-        Y = torch.zeros((n, self.m))
-        for i in range(n):
-            end = idx_set[i] - self.h + 1
-            start = end - self.P
-            X[i, :, :] = torch.from_numpy(self.dat[start:end, :])
-            Y[i, :] = torch.from_numpy(self.dat[idx_set[i], :])
-        return [X, Y]
-
-    def get_batches(self, inputs, targets, batch_size, shuffle=True):
-        length = len(inputs)
-        if shuffle:
-            index = torch.randperm(length)
-        else:
-            index = torch.LongTensor(range(length))
-        start_idx = 0
-        while start_idx < length:
-            end_idx = min(length, start_idx + batch_size)
-            excerpt = index[start_idx:end_idx]
-            X = inputs[excerpt]
-            Y = targets[excerpt]
-            X = X.to(self.device)
-            Y = Y.to(self.device)
-            yield Variable(X), Variable(Y)
-            start_idx += batch_size
+    def inverse_transform(self, data):
+        return (data * self.std) + self.mean
 
 
 class CustomSimpleDataLoader(object):
@@ -121,7 +69,7 @@ class ForecastDataset(torch_data.Dataset):
         self.df_length = len(df)
         self.x_end_idx = self.get_x_end_idx()
         if normalize_method:
-            self.data, _ = transform_(self.data, normalize_method, norm_statistic)
+            self.data = transform_(self.data, normalize_method, norm_statistic)
 
     def __getitem__(self, index):
         hi = self.x_end_idx[index]

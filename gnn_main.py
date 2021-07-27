@@ -17,13 +17,13 @@ parser.add_argument('--baseline', type=bool, default=False)
 # StemGNN arguments
 parser.add_argument('--train', type=bool, default=True)
 parser.add_argument('--evaluate', type=bool, default=True)
-parser.add_argument('--dataset', type=str, default='SP500_clean')
-parser.add_argument('--window_size', type=int, default=12)
-parser.add_argument('--horizon', type=int, default=12)
+parser.add_argument('--dataset', type=str, default='JSE_clean_truncated')
+parser.add_argument('--window_size', type=int, default=28)
+parser.add_argument('--horizon', type=int, default=5)
 parser.add_argument('--train_length', type=float, default=6)
 parser.add_argument('--valid_length', type=float, default=2)
 parser.add_argument('--test_length', type=float, default=2)
-parser.add_argument('--epoch', type=int, default=5)
+parser.add_argument('--epoch', type=int, default=50)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--multi_layer', type=int, default=5)
 parser.add_argument('--device', type=str, default='cpu')
@@ -127,7 +127,7 @@ if __name__ == '__main__':
             print('Exiting from training early')
     if args.evaluate:
         if args.baseline:
-            _ = gnn.evaluation.test_.baseline_test(train_data, valid_data, args, baseline_train_file)
+            gnn.evaluation.test_.baseline_test(test_data, args, baseline_train_file, baseline_test_file)
         before_evaluation = datetime.now().timestamp()
         if args.model == 'StemGNN':
             gnn.evaluation.test_.test(test_data, args, result_train_file, result_test_file)

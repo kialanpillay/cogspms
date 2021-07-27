@@ -48,7 +48,7 @@ def transform_(data, normalize_method, norm_statistic=None):
         std = [1 if i == 0 else i for i in std]
         data = (data - mean) / std
         norm_statistic['std'] = std
-    return data, norm_statistic
+    return data
 
 
 def inverse_transform_(data, normalize_method, norm_statistic=None):

@@ -4,9 +4,8 @@ import os
 import numpy as np
 import torch
 import torch.utils.data
-from sklearn.preprocessing import StandardScaler
 
-import gnn.preprocessing.loader
+from gnn.preprocessing.loader import CustomStandardScaler, ForecastDataset
 from gnn.evaluation.validation import inference as inference_, custom_inference as custom_inference_
 from gnn.preprocessing.loader import load_dataset
 from gnn.utils import load_model, inverse_transform_
@@ -21,15 +20,14 @@ def future_share_price_performance(model_name):
     return classify(y, y_hat)
 
 
-def inference(data, model_name, result_file, window_size=12, horizon=12):
+def inference(data, model_name, result_file, window_size=28, horizon=5):
     with open(os.path.join(result_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
-    scaler = StandardScaler()
-    scaler.fit(data)
+    scaler = CustomStandardScaler(mean=data.mean(), std=data.std())
     model = load_model(result_file)
-    test_set = gnn.preprocessing.loader.ForecastDataset(data, window_size=window_size, horizon=horizon,
-                                                        normalize_method='z_score',
-                                                        norm_statistic=normalize_statistic)
+    test_set = ForecastDataset(data, window_size=window_size, horizon=horizon,
+                               normalize_method='z_score',
+                               norm_statistic=normalize_statistic)
     data_loader = torch.utils.data.DataLoader(test_set, batch_size=32, drop_last=False,
                                               shuffle=False, num_workers=0)
     if model_name == 'StemGNN':
@@ -40,9 +38,7 @@ def inference(data, model_name, result_file, window_size=12, horizon=12):
         return np.swapaxes(forecast[-1, :], 0, 1)
     else:
         forecast_norm, target_norm = custom_inference_(model, data_loader)
-        forecast = torch.Tensor()
-        for i in range(12):
-            forecast = torch.Tensor(scaler.inverse_transform(forecast_norm[:, :, i]))
+        forecast = scaler.inverse_transform(forecast_norm)
 
         # N x H
         return forecast[-1, :, :]
