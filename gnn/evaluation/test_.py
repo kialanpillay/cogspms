@@ -3,7 +3,6 @@ import os
 
 import torch
 import torch.utils.data
-from sklearn.preprocessing import StandardScaler
 
 import gnn.preprocessing.loader
 from gnn.evaluation.validation import validate, validate_baseline
@@ -34,7 +33,7 @@ def baseline_test(test_data, args, result_train_file, result_test_file):
                                                         normalize_method=args.norm_method)
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size, drop_last=False,
                                               shuffle=False, num_workers=0)
-    performance_metrics = validate_baseline(model, args.model, test_loader, args.device, args.norm_method)
+    performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
     print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
 
@@ -43,10 +42,10 @@ def custom_test(test_data, args, result_train_file, result_test_file):
     with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
     model = load_model(result_train_file)
-    scaler = StandardScaler()
-    scaler.fit(test_data)
     x, y = process_data(test_data, args.window_size, args.horizon)
-    test_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(x, y, args.batch_size)
+    scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=y.std())
+    test_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(scaler.transform(x), scaler.transform(y),
+                                                                  args.batch_size)
     performance_metrics = validate(model, args.model, test_loader, args.device, args.norm_method, normalize_statistic,
                                    args.node_cnt, args.window_size, args.horizon,
                                    result_file=result_test_file, scaler=scaler)
