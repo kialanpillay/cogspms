@@ -29,13 +29,12 @@ def main(arguments):
     all_companies_dummy = ["SPUR"]
     consumer_services_companies_dummy = ["SPUR"]
     general_industrials_companies_dummy = []
-    extension=False
+    extension = False
     df = data_loader.load_dummy_data()
     store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
                   args.margin_of_safety,
-                  args.beta, 2017,extension)
+                  args.beta, 2017, extension)
 
-    #running bayesian networks
     value_decision = value_eval_network.value_network()
     quality_decision = quality_eval_network.quality_network(extension)
     invest_recommendation_network.investment_recommendation(value_decision, quality_decision)
