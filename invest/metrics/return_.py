@@ -1,6 +1,6 @@
 import numpy as np
 
-# 2 lists of prices  - this year and year before
+
 def annual_return(pv, pv_, axis=None):
     return np.mean(np.abs(pv_ / pv), axis).astype(np.float64) - 1
 
