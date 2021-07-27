@@ -35,7 +35,7 @@ class Store:
             pe_market_list = []
 
             # Preprocessing
-            start_year = 2012
+            start_year = 2011
             end_year = self.years  # year after data value being used, this case is using 2016 latest as final
             for i in range(start_year, end_year):
                 mask_eps = (self.main_data['Date'] >= str(i) + '-' + '01-01') & (
@@ -45,13 +45,13 @@ class Store:
                 eps = company_df_by_year.iloc[-1]['EPS']  # gets last row for frame and EPS column
                 eps_year_list.append(eps)  # add eps value to list by year
 
-                mask_current_price = (self.main_data['Date'] >= '2016-01-01') & (
-                        self.main_data['Date'] < '2017-01-01') & (self.main_data['Name'] == company)
+                mask_current_price = (self.main_data['Date'] >= end_year-1 + '-' + '01-01') & (
+                        self.main_data['Date'] < end_year + '-' + '01-01') & (self.main_data['Name'] == company)
                 current_year_data = self.main_data.loc[mask_current_price]
                 current_price = current_year_data.iloc[-1]['Price']
 
-                mask_pe_sector_market = (self.main_data['Date'] >= '2014-01-01') & (
-                        self.main_data['Date'] < '2017-01-01') & (self.main_data['Name'] == company)
+                mask_pe_sector_market = (self.main_data['Date'] >= end_year-3 + '-' + '01-01') & (
+                        self.main_data['Date'] < end_year + '-' + '01-01') & (self.main_data['Name'] == company)
                 pe_sector_3_years = self.main_data.loc[mask_pe_sector_market]
                 pe_market_3_years = self.main_data.loc[mask_pe_sector_market]
                 pe_sector_list_string = pe_sector_3_years['PESector'].to_numpy()
@@ -63,14 +63,15 @@ class Store:
                     pe_market_list.append(float(item))
 
             # historic_earnings_growth_rate
-            historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_year_list, 5)
+            growth_years_n = end_year-start_year
+            historic_earnings_growth_rate = ratios.historic_earnings_growth_rate(eps_year_list, growth_years_n)
 
             # historic_earnings_cagr
             historic_earnings_cagr = ratios.historic_earnings_cagr(eps_year_list[len(eps_year_list) - 1],
-                                                                   eps_year_list[1], 3)  # pass it the last position
+                                                                   eps_year_list[len(eps_year_list) - 4], 3)  # needs 3 years
 
             # historic_price_to_earnings_share
-            mask_pe = (self.main_data['Date'] >= '2014-01-01') & (self.main_data['Date'] < '2017-01-01') & (
+            mask_pe = (self.main_data['Date'] >= end_year-3 + '-' + '01-01') & (self.main_data['Date'] < end_year + '-' + '01-01') & (
                     self.main_data['Name'] == company)
             company_df_3_years = self.main_data.loc[mask_pe]
             price_list_3_years = (company_df_3_years['Price'].to_numpy())
@@ -86,7 +87,7 @@ class Store:
             historic_earnings_growth_rate_past = ratios.historic_earnings_growth_rate(eps_year_list, 3)
             # intermediate, list from past can be 2013 since year is 3
 
-            forward_earnings_past = ratios.forward_earnings(eps_year_list[1],
+            forward_earnings_past = ratios.forward_earnings(eps_year_list[len(eps_year_list) - 1],
                                                             historic_earnings_growth_rate_past)  # intermediate
             forward_earnings_cagr = ratios.forward_earnings_cagr(forward_earnings_current_year, forward_earnings_past,
                                                                  3)
