@@ -6,49 +6,47 @@ import invest.evaluation.validation as validation
 from invest.networks.invest_recommendation import investment_recommendation
 from invest.networks.quality_evaluation import quality_network
 from invest.networks.value_evaluation import value_network
-from invest.preprocessing.dataloader import load_data, load_dummy_data
+from invest.preprocessing.dataloader import load_data
 from invest.store import Store
 
 
 def main():
-    consumer_services_companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
-                                   "FAMOUS BRANDS", "ITALTILE",
-                                   "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
-                                   "SPAR GROUP",
-                                   "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN",
-                                   "WOOLWORTHS HDG"]
-    general_industrials_companies = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL",
-                                     "INVICTA",
-                                     "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
-                                     "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
-                                     "WLSN.BAYLY HOLMES-OVCON"]
-    all_companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD", "FAMOUS BRANDS",
-                     "ITALTILE",
-                     "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE", "SPAR GROUP",
-                     "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN", "WOOLWORTHS HDG",
-                     "AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL", "INVICTA",
-                     "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
-                     "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR", "WLSN.BAYLY HOLMES-OVCON"]
-    all_companies_dummy = ["SPUR"]
-    consumer_services_companies_dummy = ["SPUR"]
-    general_industrials_companies_dummy = []
-    extension = False
-    df = load_dummy_data()
-    prices_current_JGIND = {"2017": [], "2016": [], "2015": []}
-    prices_current_JCSEV = {"2017": [], "2016": [], "2015": []}
-    prices_initial_JGIND = {"2017": [], "2016": [], "2015": []}
-    prices_initial_JCSEV = {"2017": [], "2016": [], "2015": []}
-    share_betas_JGIND = {"2017": [], "2016": [], "2015": []}
-    share_betas_JCSEV = {"2017": [], "2016": [], "2015": []}
-    investable__shares_JGIND = {"2017": [], "2016": [], "2015": []}
-    investable__shares_JCSEV = {"2017": [], "2016": [], "2015": []}
+    companies_jcsev = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
+                       "FAMOUS BRANDS", "ITALTILE",
+                       "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
+                       "SPAR GROUP",
+                       "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN",
+                       "WOOLWORTHS HDG"]
+    companies_jgind = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL",
+                       "INVICTA",
+                       "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
+                       "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
+                       "WLSN.BAYLY HOLMES-OVCON"]
+    companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD", "FAMOUS BRANDS",
+                 "ITALTILE",
+                 "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE", "SPAR GROUP",
+                 "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN", "WOOLWORTHS HDG",
+                 "AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL", "INVICTA",
+                 "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
+                 "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR", "WLSN.BAYLY HOLMES-OVCON"]
+
+    df = load_data()
+    df_benchmark = pd.read_csv('data/benchmark_data.csv', delimiter=';', index_col=False)
+
+    prices_current_jgind = {"2017": [], "2016": [], "2015": []}
+    prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
+    prices_initial_jgind = {"2017": [], "2016": [], "2015": []}
+    prices_initial_jcsev = {"2017": [], "2016": [], "2015": []}
+    share_betas_jgind = {"2017": [], "2016": [], "2015": []}
+    share_betas_jcsev = {"2017": [], "2016": [], "2015": []}
+    investable_shares_jgind = {"2017": [], "2016": [], "2015": []}
+    investable_shares_jcsev = {"2017": [], "2016": [], "2015": []}
 
     for year in range(2015, 2018):
-        investment_portfolio = []
-        store = Store(df, all_companies_dummy, consumer_services_companies_dummy, general_industrials_companies_dummy,
+        store = Store(df, companies, companies_jcsev, companies_jgind,
                       args.margin_of_safety,
-                      args.beta, year, extension)
-        for company in all_companies:
+                      args.beta, year, args.extension)
+        for company in companies:
             if store.get_acceptable_stock(company):
                 pe_relative_market = store.get_pe_relative_market(company)
                 pe_relative_sector = store.get_pe_relative_sector(company)
@@ -61,9 +59,9 @@ def main():
 
                 value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
                 quality_decision = quality_network(roe_vs_coe, rel_debt_equity, cagr_vs_inflation,
-                                                   systematic_risk, extension)
+                                                   systematic_risk, args.extension)
                 decision = investment_recommendation(value_decision, quality_decision)
-                if decision == "Yes":
+                if decision == "No":
 
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
@@ -72,24 +70,20 @@ def main():
                     price_current = df_year.iloc[-1]['Price']
                     price_initial = df_year.iloc[0]['Price']
 
-                    # add values to dictionary
-                    if company in consumer_services_companies:
-                        investable__shares_JCSEV[str(year)].append(company)
-                        prices_current_JCSEV[str(year)].append(price_current)
-                        prices_initial_JCSEV[str(year)].append(price_initial)
-                        share_betas_JCSEV[str(year)].append(share_beta)
+                    if company in companies_jcsev:
+                        investable_shares_jcsev[str(year)].append(company)
+                        prices_current_jcsev[str(year)].append(price_current)
+                        prices_initial_jcsev[str(year)].append(price_initial)
+                        share_betas_jcsev[str(year)].append(share_beta)
                     else:
-                        investable__shares_JGIND[str(year)].append(company)
-                        prices_current_JGIND[str(year)].append(price_current)
-                        prices_initial_JGIND[str(year)].append(price_initial)
-                        share_betas_JGIND[str(year)].append(share_beta)
+                        investable_shares_jgind[str(year)].append(company)
+                        prices_current_jgind[str(year)].append(price_current)
+                        prices_initial_jgind[str(year)].append(price_initial)
+                        share_betas_jgind[str(year)].append(share_beta)
 
-    df = pd.DataFrame()
-    df_benchmark = pd.read_csv('data/benchmark_data.csv', delimiter=';', index_col=False)
-
-    validation.process_metrics(df, df_benchmark, prices_current_JGIND, prices_initial_JGIND, share_betas_JGIND, 2015,
+    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind, 2015,
                                2018, "JGIND")
-    validation.process_metrics(df, df_benchmark, prices_current_JCSEV, prices_initial_JCSEV, share_betas_JCSEV, 2015,
+    validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev, 2015,
                                2018, "JCSEV")
 
 
@@ -99,5 +93,6 @@ if __name__ == '__main__':
                                      epilog='Version 0.1')
     parser.add_argument("--margin_of_safety", type=float, default=0.10)
     parser.add_argument("--beta", type=float, default=0.10)
+    parser.add_argument("--extension", type=bool, default=False)
     args = parser.parse_args()
     main()
