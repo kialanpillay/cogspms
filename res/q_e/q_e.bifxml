@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+
+<BIF VERSION="0.3">
+<NETWORK>
+
+<!-- Variables -->
+<VARIABLE TYPE="decision">
+	<NAME>Quality</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>High</OUTCOME>
+	<OUTCOME>Medium</OUTCOME>
+	<OUTCOME>Low</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>FutureSharePerformance</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>Positive</OUTCOME>
+	<OUTCOME>Stagnant</OUTCOME>
+	<OUTCOME>Negative</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>CAGRvsInflation</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>InflationPlus</OUTCOME>
+	<OUTCOME>Inflation</OUTCOME>
+	<OUTCOME>InflationMinus</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>ROEvsCOE</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>Above</OUTCOME>
+	<OUTCOME>EqualTo</OUTCOME>
+	<OUTCOME>Below</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>ReIDE</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>Above</OUTCOME>
+	<OUTCOME>EqualTo</OUTCOME>
+	<OUTCOME>Below</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="utility">
+	<NAME>Q_Utility</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>0</OUTCOME>
+</VARIABLE>
+
+<!-- Probability distributions -->
+<DEFINITION>
+	<FOR>Quality</FOR>
+	<GIVEN>CAGRvsInflation</GIVEN>
+	<GIVEN>ReIDE</GIVEN>
+	<GIVEN>ROEvsCOE</GIVEN>
+</DEFINITION>
+<DEFINITION>
+	<FOR>FutureSharePerformance</FOR>
+	<TABLE>0.219 0.767 0.0137 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>CAGRvsInflation</FOR>
+	<GIVEN>FutureSharePerformance</GIVEN>
+	<TABLE>0 0 1 0 0 1 0 0 1 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>ROEvsCOE</FOR>
+	<GIVEN>FutureSharePerformance</GIVEN>
+	<TABLE>0 1 0 0 1 0 0 1 0 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>ReIDE</FOR>
+	<GIVEN>FutureSharePerformance</GIVEN>
+	<TABLE>0 1 0 0 1 0 0 1 0 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>Q_Utility</FOR>
+	<GIVEN>Quality</GIVEN>
+	<GIVEN>FutureSharePerformance</GIVEN>
+	<TABLE>-100 -75 -50 50 25 100 50 25 100 </TABLE>
+</DEFINITION>
+
+</NETWORK>
+</BIF>

@@ -11,12 +11,24 @@ from gnn.preprocessing.loader import load_dataset
 from gnn.preprocessing.utils import process_adjacency_matrix
 from gnn.utils import correlation_adjacency_matrix
 
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
-parser.add_argument('--baseline', type=bool, default=False)
+parser.add_argument('--baseline', type=str2bool, default=False)
 # StemGNN arguments
-parser.add_argument('--train', type=bool, default=True)
-parser.add_argument('--evaluate', type=bool, default=True)
+parser.add_argument('--train', type=str2bool, default=True)
+parser.add_argument('--evaluate', type=str2bool, default=True)
 parser.add_argument('--dataset', type=str, default='JSE_clean_truncated')
 parser.add_argument('--window_size', type=int, default=28)
 parser.add_argument('--horizon', type=int, default=5)
@@ -31,28 +43,27 @@ parser.add_argument('--validate_freq', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--norm_method', type=str, default='z_score')
 parser.add_argument('--optimizer', type=str, default='RMSProp')
-parser.add_argument('--early_stop', type=bool, default=False)
+parser.add_argument('--early_stop', type=str2bool, default=False)
 parser.add_argument('--exponential_decay_step', type=int, default=5)
 parser.add_argument('--decay_rate', type=float, default=0.5)
 parser.add_argument('--dropout_rate', type=float, default=0.5)
 parser.add_argument('--leakyrelu_rate', type=int, default=0.2)
 
 # GWN arguments
-parser.add_argument('--adj_data', type=bool, default=False)
+parser.add_argument('--adj_data', type=str2bool, default=False)
 parser.add_argument('--adj_type', type=str, default='double_transition')
-parser.add_argument('--gcn_bool', type=bool, default=True)
-parser.add_argument('--apt_only', type=bool, default=True)
-parser.add_argument('--adapt_adj', type=bool, default=False)
-parser.add_argument('--random_adj', type=bool, default=True)
+parser.add_argument('--gcn_bool', type=str2bool, default=True)
+parser.add_argument('--apt_only', type=str2bool, default=True)
+parser.add_argument('--adapt_adj', type=str2bool, default=False)
+parser.add_argument('--random_adj', type=str2bool, default=True)
 parser.add_argument('--channels', type=int, default=32)
 parser.add_argument('--in_dim', type=int, default=1)
 parser.add_argument('--weight_decay', type=float, default=0.0001)
 
 # MTGNN arguments
-
-parser.add_argument('--build_adj', type=bool, default=True)
-parser.add_argument('--load_static_feature', type=bool, default=False)
-parser.add_argument('--cl', type=bool, default=True)
+parser.add_argument('--build_adj', type=str2bool, default=True)
+parser.add_argument('--load_static_feature', type=str2bool, default=False)
+parser.add_argument('--cl', type=str2bool, default=True)
 parser.add_argument('--gcn_depth', type=int, default=2)
 parser.add_argument('--subgraph_size', type=int, default=20)
 parser.add_argument('--node_dim', type=int, default=40)
@@ -69,8 +80,7 @@ parser.add_argument('--seed', type=int, default=101)
 parser.add_argument('--prop_alpha', type=float, default=0.05)
 parser.add_argument('--tanh_alpha', type=float, default=3)
 parser.add_argument('--splits', type=int, default=1)
-parser.add_argument('--runs', type=int, default=10)
-parser.add_argument('--multi_step', type=bool, default=True)
+parser.add_argument('--multi_step', type=str2bool, default=True)
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
@@ -119,7 +129,7 @@ if __name__ == '__main__':
             _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
         try:
             before_train = datetime.now().timestamp()
-            _, _ = gnn.train.train(train_data, valid_data, args, result_train_file)
+            _ = gnn.train.train(train_data, valid_data, args, result_train_file)
             after_train = datetime.now().timestamp()
             print(f'Training took {(after_train - before_train) / 60} minutes')
         except KeyboardInterrupt:
