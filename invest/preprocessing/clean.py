@@ -8,17 +8,17 @@ import pandas as pd
 
 from dataloader import load_data
 
-consumer_services_companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
-                               "FAMOUS BRANDS", "ITALTILE",
-                               "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
-                               "SPAR GROUP",
-                               "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN",
-                               "WOOLWORTHS HDG"]
-general_industrials_companies = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL",
-                                 "INVICTA",
-                                 "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
-                                 "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
-                                 "WLSN.BAYLY HOLMES-OVCON"]
+companies_jcsev = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
+                   "FAMOUS BRANDS", "ITALTILE",
+                   "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
+                   "SPAR GROUP",
+                   "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN",
+                   "WOOLWORTHS HDG"]
+companies_jgind = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL",
+                   "INVICTA",
+                   "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
+                   "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
+                   "WLSN.BAYLY HOLMES-OVCON"]
 
 
 def clean():
@@ -89,7 +89,7 @@ def clean():
             df.loc[mask, 'PEMarket'] = [x.replace(',', '.') for x in df.loc[mask, 'PEMarket']]
 
         df['PESector'] = np.nan
-        sectors = [('PESector_CS.csv', consumer_services_companies), ('PESector_GI.csv', general_industrials_companies)]
+        sectors = [('PESector_CS.csv', companies_jcsev), ('PESector_GI.csv', companies_jgind)]
 
         for sector in sectors:
             df_ = pd.read_csv(os.path.join(args.raw_folder, sector[0]), delimiter=';')
