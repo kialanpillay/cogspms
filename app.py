@@ -53,12 +53,12 @@ def main():
                 forward_pe = store.get_forward_pe(company)
 
                 roe_vs_coe = store.get_roe_vs_coe(company)
-                rel_debt_equity = store.get_rel_debt_equity(company)
+                relative_debt_equity = store.get_relative_debt_equity(company)
                 cagr_vs_inflation = store.get_cagr_vs_inflation(company)
                 systematic_risk = store.get_systematic_risk(company)
 
                 value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
-                quality_decision = quality_network(roe_vs_coe, rel_debt_equity, cagr_vs_inflation,
+                quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
                                                    systematic_risk, args.extension)
                 decision = investment_recommendation(value_decision, quality_decision)
                 if decision == "No":

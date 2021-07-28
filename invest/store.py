@@ -5,10 +5,10 @@ import invest.calculator.threshold as threshold
 
 
 class Store:
-    def __init__(self, main_data, all_companies, companies_jcsev, companies_jgind, margin_of_safety,
+    def __init__(self, main_data, companies, companies_jcsev, companies_jgind, margin_of_safety,
                  beta, years, extension):
         self.df_main = main_data
-        self.all_companies = all_companies
+        self.companies = companies
         self.companies_jcsev = companies_jcsev
         self.companies_jgind = companies_jgind
         self.margin_of_safety = margin_of_safety
@@ -26,14 +26,14 @@ class Store:
 
     def process(self):
         # Calculate Ratios
-        for company in self.all_companies:
+        for company in self.companies:
             eps_year_list = []
             pe_sector_list = []
             pe_market_list = []
 
             # Preprocessing
             start_year = 2011
-            end_year = self.years  # year after data value being used, this case is using 2016 latest as final
+            end_year = self.years
             df_current_year = None
             current_price = None
             for i in range(start_year, end_year):
@@ -94,7 +94,7 @@ class Store:
 
             forward_price_to_earnings = ratios.forward_price_to_earnings(current_price, forward_earnings_current_year)
 
-            # Price to earning relative
+            # PE Relative
             pe_relative_sector = ratios.pe_relative_sector(historic_price_to_earnings_share,
                                                            pe_sector_list)
             pe_relative_market = ratios.pe_relative_market(historic_price_to_earnings_share, pe_market_list)
@@ -109,24 +109,25 @@ class Store:
             cost_of_equity = ratios.cost_of_equity(float(market_rate_of_return), float(risk_free_rate_of_return),
                                                    float(share_beta))
 
-            # relative_debt_equity
-            d_e = df_current_year.iloc[-1]['Debt/Equity']
-            d_e_industry = df_current_year.iloc[-1]['Debt/EquityIndustry']
-            relative_debt_equity = ratios.relative_debt_to_equity(float(d_e), float(
-                d_e_industry))  # debt equity is from data directly
+            # Relative Debt/Equity
+            debt_equity = df_current_year.iloc[-1]['Debt/Equity']
+            debt_equity_industry = df_current_year.iloc[-1]['Debt/EquityIndustry']
+            relative_debt_equity = ratios.relative_debt_to_equity(float(debt_equity), float(
+                debt_equity_industry))
 
             # Threshold
-            # negative_earnings
+            # Negative Earnings
             negative_earnings = threshold.negative_earnings(forward_earnings_current_year)
 
-            # negative_shareholders_equity
+            # Negative S Equity
             shareholders_equity = df_current_year.iloc[-1]['ShareholdersEquity']
             negative_shareholders_equity = threshold.negative_shareholders_equity(float(shareholders_equity))
 
-            # beta
+            # Beta
             beta_classify = threshold.beta_classify(float(share_beta), self.beta)
 
-            # acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,                                                         beta_classify)
+            # acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
+            # beta_classify)
             acceptable_stock = True
 
             if acceptable_stock:
@@ -143,13 +144,12 @@ class Store:
                 pe_relative_market = threshold.current_PE_relative_share_market(self.margin_of_safety,
                                                                                 pe_current_share_market,
                                                                                 pe_relative_market)
-                # current share PE must be passed in, current market PE must be passed in
 
                 pe_relative_sector = threshold.current_PE_relative_share_sector(self.margin_of_safety,
                                                                                 pe_current_share_sector,
                                                                                 pe_relative_sector)
 
-                # forward_pe
+                # Forward PE
                 forward_pe = threshold.forward_PE(self.margin_of_safety, forward_price_to_earnings,
                                                   historic_price_to_earnings_share)
 
@@ -160,7 +160,6 @@ class Store:
                 inflation = df_current_year.iloc[-1]['InflationRate']
                 cagr_inflation = threshold.cagr_inflation(self.margin_of_safety, historic_earnings_cagr,
                                                           float(inflation))
-                # or use forecast consensus if available
 
                 relative_debt_to_equity = threshold.relative_debt_to_equity(self.margin_of_safety, relative_debt_equity)
 
@@ -186,7 +185,7 @@ class Store:
                                "negative_earnings": negative_earnings,
                                "negative_shareholders_equity": negative_shareholders_equity,
                                "beta_classify": beta_classify,
-                               "acceptable_stock": acceptable_stock}  # only these values are calculated
+                               "acceptable_stock": acceptable_stock}
                 self.df_shares = self.df_shares.append(company_row, ignore_index=True)
 
     def get_acceptable_stock(self, company):
@@ -206,7 +205,7 @@ class Store:
     def get_roe_vs_coe(self, company):
         return self.df_shares.loc[self.df_shares['company_name'] == company, "roe_vs_coe"].iloc[0]
 
-    def get_rel_debt_equity(self, company):
+    def get_relative_debt_equity(self, company):
         return self.df_shares.loc[self.df_shares['company_name'] == company, "relative_debt_to_equity"].iloc[0]
 
     def get_cagr_vs_inflation(self, company):

@@ -4,7 +4,8 @@ import numpy as np
 import pyAgrum as gum
 
 
-def quality_network(roe_vs_coe_state, rel_debt_equity_state, cagr_vs_inflation_state, systematic_risk_state, extension):
+def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflation_state, systematic_risk_state,
+                    extension):
     future_share_performance_state = "Positive"
     qe_model = gum.InfluenceDiagram()
 
@@ -85,12 +86,12 @@ def quality_network(roe_vs_coe_state, rel_debt_equity_state, cagr_vs_inflation_s
         qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[1] = 0  # Stagnant
 
     # RelDE
-    if rel_debt_equity_state == "above":
+    if relative_debt_equity_state == "above":
         qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Positive'}] = [1, 0, 0]
         qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Stagnant'}] = [1, 0, 0]
         qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Negative'}] = [1, 0, 0]
 
-    elif rel_debt_equity_state == "EqualTo":
+    elif relative_debt_equity_state == "EqualTo":
         qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Positive'}] = [0, 1, 0]
         qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 1, 0]
         qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Negative'}] = [0, 1, 0]
