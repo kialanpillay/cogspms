@@ -1,13 +1,11 @@
 import os
+
 import numpy as np
 import pyAgrum as gum
 
-def value_network(pe_relative_market,pe_relative_sector,forward_pe_current_vs_history):
-    pe_relative_market_state = pe_relative_market
-    pe_relative_sector_state = pe_relative_sector
-    forward_pe_current_vs_history_state = forward_pe_current_vs_history
-    future_share_performance_state = "Positive"
 
+def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe_current_vs_history_state):
+    future_share_performance_state = "Positive"
 
     ve_model = gum.InfluenceDiagram()
 
@@ -149,7 +147,8 @@ def value_network(pe_relative_market,pe_relative_sector,forward_pe_current_vs_hi
     # forwardPE
     if forward_pe_current_vs_history_state == "cheap":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
-            [[1, 0, 0], [1, 0, 0], [1, 0, 0]] #cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
+            [[1, 0, 0], [1, 0, 0],
+             [1, 0, 0]]  # cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
 
@@ -170,7 +169,6 @@ def value_network(pe_relative_market,pe_relative_sector,forward_pe_current_vs_hi
         os.makedirs(output_file)
     gum.saveBN(ve_model, os.path.join(output_file, 'v_e.bifxml'))
 
-
     ie = gum.ShaferShenoyLIMIDInference(ve_model)
     ie.addNoForgettingAssumption(['Expensive_E', 'ValueRelativeToPrice'])
     ie.makeInference()
@@ -182,7 +180,6 @@ def value_network(pe_relative_market,pe_relative_sector,forward_pe_current_vs_hi
     print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
     print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
 
-    #getting index of label which is the final decison
     var = ie.posteriorUtility('ValueRelativeToPrice').variable('ValueRelativeToPrice')
 
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())

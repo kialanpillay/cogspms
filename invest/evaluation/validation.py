@@ -1,7 +1,9 @@
-import pandas as pd
-import numpy as np
-import invest.metrics.return_ as return_metrics
 import math
+
+import numpy as np
+import pandas as pd
+
+import invest.metrics.return_ as return_metrics
 
 
 def process_metrics(data, benchmark_data, prices_current_dict, prices_initial_dict, share_betas_dict, start_year,
@@ -24,7 +26,7 @@ def process_risk_adjusted_return_metrics(df, df_benchmark, share_betas_dict,
                                          annual_returns, index_code):
     portfolio_return = compound_return
     beta_portfolio = np.mean(share_betas_dict[str(year)])
-    mask = (df['Date'] >= str(year) + '-12-01') & (df['Date'] <= str(year) + '-12-31')
+    mask = (df['Date'] >= str(year) + '-01-01') & (df['Date'] <= str(year) + '-12-31')
     df_year = df[mask]
     risk_free_rate = df_year.iloc[-1]['RiskFreeRateOfReturn']
     treynor_ratio = return_metrics.treynor_ratio(portfolio_return, risk_free_rate, beta_portfolio)

@@ -53,22 +53,22 @@ def main():
                 forward_pe = store.get_forward_pe(company)
 
                 roe_vs_coe = store.get_roe_vs_coe(company)
-                rel_de = store.get_rel_de(company)
+                rel_debt_equity = store.get_rel_debt_equity(company)
                 cagr_vs_inflation = store.get_cagr_vs_inflation(company)
                 systematic_risk = store.get_systematic_risk(company)
 
                 value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
-                quality_decision = quality_network(roe_vs_coe, rel_de, cagr_vs_inflation,
+                quality_decision = quality_network(roe_vs_coe, rel_debt_equity, cagr_vs_inflation,
                                                    systematic_risk, extension)
                 decision = investment_recommendation(value_decision, quality_decision)
                 if decision == "Yes":
                     investment_portfolio.append(company)
-                    mask_year = (df['Date'] >= str(year) + '-' + '01-01') & (
-                            df['Date'] <= str(year) + '12-31') & (df['Name'] == company)
-                    data_year = df[mask_year]
-                    share_beta = data_year["Share beta"].mean()
-                    price_current = data_year.iloc[-1]['Price']
-                    price_initial = data_year.iloc[0]['Price']
+                    mask = (df['Date'] >= str(year) + '-01-01') & (
+                            df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
+                    df_year = df[mask]
+                    share_beta = df_year.iloc[-1]["ShareBeta"]
+                    price_current = df_year.iloc[-1]['Price']
+                    price_initial = df_year.iloc[0]['Price']
 
                     # add values to dictionary
                     if company in consumer_services_companies:

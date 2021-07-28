@@ -72,8 +72,8 @@ class Store:
                                                                    3)  # needs 3 years
 
             # historic_price_to_earnings_share
-            mask_pe = (self.main_data['Date'] >= str(end_year - 1) + '-' + '01-01') & (
-                        self.main_data['Date'] < str(end_year) + '-' + '01-01') & (
+            mask_pe = (self.main_data['Date'] >= str(end_year - 1) + '-01-01') & (
+                    self.main_data['Date'] < str(end_year) + '-01-01') & (
                               self.main_data['Name'] == company)
             company_df_3_years = self.main_data.loc[mask_pe]
             price_list_3_years = (company_df_3_years['Price'].to_numpy())
@@ -107,13 +107,13 @@ class Store:
             # cost of equity
             market_rate_of_return = current_year_data.iloc[-1]['MarketRateOfReturn']
             risk_free_rate_of_return = current_year_data.iloc[-1]['RiskFreeRateOfReturn']
-            share_beta = current_year_data.iloc[-1]['Share Beta']
+            share_beta = current_year_data.iloc[-1]['ShareBeta']
             cost_of_equity = ratios.cost_of_equity(float(market_rate_of_return), float(risk_free_rate_of_return),
                                                    float(share_beta))
 
             # relative debt to equity
             d_e = current_year_data.iloc[-1]['Debt/Equity']
-            d_e_industry = current_year_data.iloc[-1]['Debt Equity/Industry']
+            d_e_industry = current_year_data.iloc[-1]['Debt/EquityIndustry']
             relative_debt_equity = ratios.relative_debt_to_equity(float(d_e), float(
                 d_e_industry))  # debt equity is from data directly
 
@@ -122,7 +122,7 @@ class Store:
             negative_earnings = threshold.negative_earnings(forward_earnings_current_year)
 
             # negative_shareholders_equity
-            shareholders_equity = current_year_data.iloc[-1]['Shareholders Equity']
+            shareholders_equity = current_year_data.iloc[-1]['ShareholdersEquity']
             negative_shareholders_equity = threshold.negative_shareholders_equity(float(shareholders_equity))
 
             # beta
@@ -161,7 +161,7 @@ class Store:
                 roe_coe = threshold.roe_coe(self.margin_of_safety, roe_current, cost_of_equity)
 
                 # CAGR inflation
-                inflation = current_year_data.iloc[-1]['Inflation Rate']
+                inflation = current_year_data.iloc[-1]['InflationRate']
                 cagr_inflation = threshold.cagr_inflation(self.margin_of_safety, historic_earnings_cagr,
                                                           float(inflation))
                 # or use forecast consensus if available
@@ -186,8 +186,6 @@ class Store:
                                "systematic_risk": systematic_risk}
                 self.df_shares = self.df_shares.append(company_row, ignore_index=True)
                 print(self.df_shares)
-
-
             else:
                 company_row = {"company_name": company,
                                "negative_earnings": negative_earnings,
@@ -213,7 +211,7 @@ class Store:
     def get_roe_vs_coe(self, company):
         return self.df_shares.loc[self.df_shares['company_name'] == company, "roe_vs_coe"].iloc[0]
 
-    def get_rel_de(self, company):
+    def get_rel_debt_equity(self, company):
         return self.df_shares.loc[self.df_shares['company_name'] == company, "relative_debt_to_equity"].iloc[0]
 
     def get_cagr_vs_inflation(self, company):
