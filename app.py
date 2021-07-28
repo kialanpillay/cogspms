@@ -86,13 +86,23 @@ def main():
     validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev, 2015,
                                2018, "JCSEV")
 
-    
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 if __name__ == '__main__':
-    # input:  python3 app.py --margin_of_safety 0.10 --beta 0.2
     parser = argparse.ArgumentParser(description='Intelligent system for automated share evaluation',
                                      epilog='Version 0.1')
     parser.add_argument("--margin_of_safety", type=float, default=0.10)
     parser.add_argument("--beta", type=float, default=0.10)
-    parser.add_argument("--extension", type=bool, default=False)
+    parser.add_argument("--extension", type=str2bool, default=False)
     args = parser.parse_args()
     main()
