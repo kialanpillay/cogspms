@@ -6,11 +6,11 @@ def annual_return(pv, pv_, axis=None):
 
 
 def compound_return(pv, pv_, n, axis=None):
-    return np.mean(np.abs(pv_ / pv) ** (1 / n), axis).astype(np.float64) - 1
+    return (np.mean(np.abs(pv_ / pv), axis) ** (1 / n)).astype(np.float64) - 1
 
 
 def average_annual_return(pv, pv_, n, axis=None):
-    return np.mean(np.abs(pv_ / pv) / n, axis).astype(np.float64)
+    return (np.mean(np.abs(pv_ / pv), axis) / n).astype(np.float64)
 
 
 def treynor_ratio(portfolio_return, risk_free_rate, beta):

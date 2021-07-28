@@ -1,5 +1,6 @@
 import random
 
+
 def simulate(df, n=3, scale=1, method='std'):
     idx = df.sample(n).index
     if method == 'std':

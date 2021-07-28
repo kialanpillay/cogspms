@@ -1,13 +1,11 @@
 import os
+
 import numpy as np
 import pyAgrum as gum
 
-def value_network():
-    pe_relative_market_state = "Cheap"
-    pe_relative_sector_state = "Cheap"
-    forward_pe_current_vs_history_state = "Cheap"
-    future_share_performance_state = "Positive"
 
+def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe_current_vs_history_state):
+    future_share_performance_state = "Positive"
 
     ve_model = gum.InfluenceDiagram()
 
@@ -115,12 +113,12 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 0  # Stagnant
 
     # pe_relative_market
-    if pe_relative_market_state == "Cheap":
+    if pe_relative_market_state == "cheap":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Positive'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Stagnant'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [1, 0, 0]
 
-    elif pe_relative_market_state == "FairValue":
+    elif pe_relative_market_state == "fairValue":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Positive'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [0, 1, 0]
@@ -131,12 +129,12 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
 
     # pe_relative_sector
-    if pe_relative_sector_state == "Cheap":
+    if pe_relative_sector_state == "cheap":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Positive'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = [1, 0, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [1, 0, 0]
 
-    elif pe_relative_sector_state == "FairValue":
+    elif pe_relative_sector_state == "fairValue":
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Positive'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = [0, 1, 0]
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [0, 1, 0]
@@ -147,13 +145,14 @@ def value_network():
         ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [0, 0, 1]
 
     # forwardPE
-    if forward_pe_current_vs_history_state == "Cheap":
+    if forward_pe_current_vs_history_state == "cheap":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
-            [[1, 0, 0], [1, 0, 0], [1, 0, 0]] #cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
+            [[1, 0, 0], [1, 0, 0],
+             [1, 0, 0]]  # cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
             [[1, 0, 0], [1, 0, 0], [1, 0, 0]]
 
-    elif forward_pe_current_vs_history_state == "FairValue":
+    elif forward_pe_current_vs_history_state == "fairValue":
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
             [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
         ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
@@ -170,7 +169,6 @@ def value_network():
         os.makedirs(output_file)
     gum.saveBN(ve_model, os.path.join(output_file, 'v_e.bifxml'))
 
-
     ie = gum.ShaferShenoyLIMIDInference(ve_model)
     ie.addNoForgettingAssumption(['Expensive_E', 'ValueRelativeToPrice'])
     ie.makeInference()
@@ -182,7 +180,6 @@ def value_network():
     print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
     print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
 
-    #getting index of label which is the final decison
     var = ie.posteriorUtility('ValueRelativeToPrice').variable('ValueRelativeToPrice')
 
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())

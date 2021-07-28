@@ -94,15 +94,12 @@ def relative_debt_to_equity(margin_of_safety, relative_d_e):
     elif 1 - relative_d_e > margin_of_safety:
         return "below"
 
-#Extension - Systematic risk of share to market
+
+# Extension - Systematic risk of share to market
 def systematic_risk_classification(share_beta):
-    if share_beta <1:
-        return "lower" #less risk, lower return
-    if share_beta ==1:
+    if share_beta < 1:
+        return "lower"  # less risk, lower return
+    if share_beta == 1:
         return "EqualTo"
-    if share_beta >1:
-        return "greater" #high risk, higher returns
-
-
-
-
+    if share_beta > 1:
+        return "greater"  # high risk, higher returns
