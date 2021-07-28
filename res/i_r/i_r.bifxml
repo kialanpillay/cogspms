@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+
+<BIF VERSION="0.3">
+<NETWORK>
+
+<!-- Variables -->
+<VARIABLE TYPE="decision">
+	<NAME>Investable</NAME>
+	<PROPERTY>Investable share</PROPERTY>
+	<OUTCOME>Yes</OUTCOME>
+	<OUTCOME>No</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Performance</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>Positive</OUTCOME>
+	<OUTCOME>Stagnant</OUTCOME>
+	<OUTCOME>Negative</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Value</NAME>
+	<PROPERTY>Value</PROPERTY>
+	<OUTCOME>Cheap</OUTCOME>
+	<OUTCOME>FairValue</OUTCOME>
+	<OUTCOME>Expensive</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="nature">
+	<NAME>Quality</NAME>
+	<PROPERTY>Quality</PROPERTY>
+	<OUTCOME>High</OUTCOME>
+	<OUTCOME>Medium</OUTCOME>
+	<OUTCOME>Low</OUTCOME>
+</VARIABLE>
+
+<VARIABLE TYPE="utility">
+	<NAME>I_Utility</NAME>
+	<PROPERTY></PROPERTY>
+	<OUTCOME>0</OUTCOME>
+</VARIABLE>
+
+<!-- Probability distributions -->
+<DEFINITION>
+	<FOR>Investable</FOR>
+	<GIVEN>Value</GIVEN>
+	<GIVEN>Quality</GIVEN>
+</DEFINITION>
+<DEFINITION>
+	<FOR>Performance</FOR>
+	<TABLE>0.986 0.9 0.53 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>Value</FOR>
+	<GIVEN>Performance</GIVEN>
+	<TABLE>1 0 0 1 0 0 1 0 0 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>Quality</FOR>
+	<GIVEN>Performance</GIVEN>
+	<TABLE>0 1 0 0 1 0 0 1 0 </TABLE>
+</DEFINITION>
+<DEFINITION>
+	<FOR>I_Utility</FOR>
+	<GIVEN>Investable</GIVEN>
+	<GIVEN>Performance</GIVEN>
+	<TABLE>-100 -75 -50 50 25 100 </TABLE>
+</DEFINITION>
+
+</NETWORK>
+</BIF>

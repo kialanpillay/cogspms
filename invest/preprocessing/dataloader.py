@@ -14,7 +14,6 @@ def load_data(filename='data/INVEST_clean.csv'):
 
 def load_dummy_data():
     df = pd.read_csv("data/dummy_data_use.csv", sep=';')
-
     df['PEMarket'] = [x.replace(',', '.') for x in df['PEMarket']]
     df['PESector'] = [x.replace(',', '.') for x in df['PESector']]
     df['MarketRateOfReturn'] = [x.replace(',', '.') for x in df['MarketRateOfReturn']]

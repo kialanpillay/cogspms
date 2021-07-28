@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.utils.data
 
-from gnn.metrics.error import evaluate, evaluate_multiple
+from gnn.metrics.error import evaluate
 from gnn.utils import inverse_transform_
 
 
@@ -17,6 +17,7 @@ def custom_inference(model, data_loader, device='cpu'):
             inputs = torch.Tensor(inputs).to(device).transpose(1, 3)
             target = torch.Tensor(target).to(device).transpose(1, 3)[:, 0, :, :]
             forecast_result = model(inputs).transpose(1, 3)
+            forecast_result = torch.unsqueeze(forecast_result[:, 0, :, :], dim=1)
             forecast_set.append(forecast_result.squeeze())
             target_set.append(target.detach().cpu().numpy())
 
@@ -58,20 +59,19 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     else:
         forecast_norm, target_norm = custom_inference(model, data_loader, device)
     if model_name == 'StemGNN':
-        if normalize_method and statistic:
+        if normalize_method:
             forecast = inverse_transform_(forecast_norm, normalize_method, statistic)
             target = inverse_transform_(target_norm, normalize_method, statistic)
         else:
             forecast, target = forecast_norm, target_norm
         score = evaluate(target, forecast)
-        score_by_node = evaluate(target, forecast, by_node=True)
         score_norm = evaluate(target_norm, forecast_norm)
     else:
         mae = ([], [])
         mape = ([], [])
         rmse = ([], [])
         for i in range(horizon):
-            if normalize_method and statistic:
+            if normalize_method:
                 if horizon == 1:
                     forecast = torch.Tensor(scaler.inverse_transform(forecast_norm))
                     target = torch.Tensor(scaler.inverse_transform(torch.squeeze(target_norm)))
@@ -81,18 +81,20 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
             else:
                 forecast, target = forecast_norm, torch.squeeze(target_norm)
 
-            score = evaluate_multiple(target, forecast)
+            score = evaluate(target.detach().cpu().numpy(), forecast.detach().cpu().numpy())
             if horizon == 1:
-                score_norm = evaluate_multiple(torch.squeeze(target_norm), forecast_norm)
+                score_norm = evaluate(torch.squeeze(target_norm).detach().cpu().numpy(),
+                                      forecast_norm.detach().cpu().numpy())
             else:
-                score_norm = evaluate_multiple(target_norm[:, :, i], forecast_norm[:, :, i])
+                score_norm = evaluate(target_norm[:, :, i].detach().cpu().numpy(),
+                                      forecast_norm[:, :, i].detach().cpu().numpy())
 
-            mae[0].append(score[0])
-            mape[0].append(score[1])
+            mape[0].append(score[0])
+            mae[0].append(score[1])
             rmse[0].append(score[2])
 
-            mae[1].append(score_norm[0])
-            mape[1].append(score_norm[1])
+            mape[1].append(score_norm[0])
+            mae[1].append(score_norm[1])
             rmse[1].append(score_norm[2])
         score = (np.mean(mape[0]), np.mean(mae[0]), np.mean(rmse[0]))
         score_norm = (np.mean(mape[1]), np.mean(mae[1]), np.mean(rmse[1]))
@@ -115,7 +117,7 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     return dict(mae=score[1], mape=score[0], rmse=score[2], )
 
 
-def validate_baseline(model, data_loader, device, norm_method, result_file=None):
+def validate_baseline(model, data_loader, device, norm_method):
     model.eval()
     forecast_set = []
     target_set = []
@@ -132,8 +134,6 @@ def validate_baseline(model, data_loader, device, norm_method, result_file=None)
     forecast_norm = torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...].detach().cpu() \
         .numpy()
     target_norm = np.concatenate(target_set, axis=0)
-
-    print(forecast_norm.shape, target_norm.shape)
 
     if norm_method == 'z_score':
         forecast_scale = np.max(forecast_norm, axis=0) - np.min(forecast_norm, axis=0)

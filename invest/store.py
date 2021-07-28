@@ -126,9 +126,7 @@ class Store:
             # beta
             beta_classify = threshold.beta_classify(float(share_beta), self.beta)
 
-            # acceptable stock
-            # acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
-            #                                                           beta_classify)
+            # acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,                                                         beta_classify)
             acceptable_stock = True
 
             if acceptable_stock:

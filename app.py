@@ -86,7 +86,7 @@ def main():
     validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev, 2015,
                                2018, "JCSEV")
 
-
+    
 if __name__ == '__main__':
     # input:  python3 app.py --margin_of_safety 0.10 --beta 0.2
     parser = argparse.ArgumentParser(description='Intelligent system for automated share evaluation',
