@@ -40,6 +40,8 @@ def main():
     prices_initial_JCSEV = {"2017": [], "2016": [], "2015": []}
     share_betas_JGIND = {"2017": [], "2016": [], "2015": []}
     share_betas_JCSEV = {"2017": [], "2016": [], "2015": []}
+    investable__shares_JGIND = {"2017": [], "2016": [], "2015": []}
+    investable__shares_JCSEV = {"2017": [], "2016": [], "2015": []}
 
     for year in range(2015, 2018):
         investment_portfolio = []
@@ -62,7 +64,7 @@ def main():
                                                    systematic_risk, extension)
                 decision = investment_recommendation(value_decision, quality_decision)
                 if decision == "Yes":
-                    investment_portfolio.append(company)
+
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
                     df_year = df[mask]
@@ -72,10 +74,12 @@ def main():
 
                     # add values to dictionary
                     if company in consumer_services_companies:
+                        investable__shares_JCSEV[str(year)].append(company)
                         prices_current_JCSEV[str(year)].append(price_current)
                         prices_initial_JCSEV[str(year)].append(price_initial)
                         share_betas_JCSEV[str(year)].append(share_beta)
                     else:
+                        investable__shares_JGIND[str(year)].append(company)
                         prices_current_JGIND[str(year)].append(price_current)
                         prices_initial_JGIND[str(year)].append(price_initial)
                         share_betas_JGIND[str(year)].append(share_beta)
