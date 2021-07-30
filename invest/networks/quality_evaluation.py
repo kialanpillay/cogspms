@@ -44,11 +44,9 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
     relative_debt_equity.changeLabel(2, 'Below')
     qe_model.addChanceNode(relative_debt_equity)
 
-    # Add utility
     quality_utility = gum.LabelizedVariable('Q_Utility', '', 1)
     qe_model.addUtilityNode(quality_utility)
 
-    # Add arcs
     qe_model.addArc(qe_model.idFromName('FutureSharePerformance'), qe_model.idFromName('CAGRvsInflation'))
     qe_model.addArc(qe_model.idFromName('FutureSharePerformance'), qe_model.idFromName('ROEvsCOE'))
     qe_model.addArc(qe_model.idFromName('FutureSharePerformance'), qe_model.idFromName('RelDE'))
@@ -63,11 +61,9 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
     qe_model.addArc(qe_model.idFromName('Quality'), qe_model.idFromName('Q_Utility'))
 
     # Utilities
-    # 3 states for FutureSharePerformance node, 3 utilities for quality decision node
-    qe_model.utility(qe_model.idFromName('Q_Utility'))[{'Quality': 'High'}] = [[-100], [-75], [-50]]
-    qe_model.utility(qe_model.idFromName('Q_Utility'))[{'Quality': 'Medium'}] = [[50], [25], [100]]
-    qe_model.utility(qe_model.idFromName('Q_Utility'))[{'Quality': 'Low'}] = [[50], [25], [100]]
-    print(qe_model.utility(qe_model.idFromName('Q_Utility')))
+    qe_model.utility(qe_model.idFromName('Q_Utility'))[{'Quality': 'High'}] = [[100], [0], [-100]]
+    qe_model.utility(qe_model.idFromName('Q_Utility'))[{'Quality': 'Medium'}] = [[50], [100], [-50]]
+    qe_model.utility(qe_model.idFromName('Q_Utility'))[{'Quality': 'Low'}] = [[0], [50], [100]]
 
     # CPTs
     if future_share_performance_state == "Positive":
@@ -171,16 +167,16 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
 
     ie = gum.ShaferShenoyLIMIDInference(qe_model)
     ie.makeInference()
-    print('--- Inference with default evidence ---')
+    # print('--- Inference with default evidence ---')
 
-    print('Final decision for Quality: {0}'.format(ie.posterior('Quality')))
-    print('Final reward for Quality: {0}'.format(ie.posteriorUtility('Quality')))
-    print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
+    # print('Final decision for Quality: {0}'.format(ie.posterior('Quality')))
+    # print('Final reward for Quality: {0}'.format(ie.posteriorUtility('Quality')))
+    # print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
 
     var = ie.posteriorUtility('Quality').variable('Quality')
 
     decision_index = np.argmax(ie.posteriorUtility('Quality').toarray())
     decision = var.label(int(decision_index))
-    print('Final decision for Quality Network: {0}'.format(decision))
+    # print('Final decision for Quality Network: {0}'.format(decision))
 
     return format(decision)

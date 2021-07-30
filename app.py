@@ -61,7 +61,7 @@ def main():
                 quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
                                                    systematic_risk, args.extension)
                 decision = investment_recommendation(value_decision, quality_decision)
-                if decision == "No":
+                if decision == "Yes":
 
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
@@ -81,10 +81,13 @@ def main():
                         prices_initial_jgind[str(year)].append(price_initial)
                         share_betas_jgind[str(year)].append(share_beta)
 
-    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind, 2015,
-                               2018, "JGIND")
+    for year in range(2015, 2018):
+        print(year, "JGIND", investable_shares_jgind[str(year)])
+        print(year, "JCSEV", investable_shares_jcsev[str(year)])
     validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev, 2015,
                                2018, "JCSEV")
+    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind, 2015,
+                               2018, "JGIND")
 
 
 def str2bool(v):

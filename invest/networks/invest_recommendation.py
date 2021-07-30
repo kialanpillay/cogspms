@@ -46,9 +46,8 @@ def investment_recommendation(value_decision, quality_decision):
     ir_model.addArc(ir_model.idFromName('Investable'), ir_model.idFromName('I_Utility'))
 
     # Utilities
-    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'Yes'}] = [[-100], [-75], [-50]]
-    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'No'}] = [[50], [25], [100]]
-    print(ir_model.utility(ir_model.idFromName('I_Utility')))
+    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'Yes'}] = [[300], [-100], [-250]]
+    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'No'}] = [[-200], [100], [200]]
 
     # CPTs
     # FutureSharePerformance
@@ -106,16 +105,16 @@ def investment_recommendation(value_decision, quality_decision):
 
     ie = gum.ShaferShenoyLIMIDInference(ir_model)
     ie.makeInference()
-    print('--- Inference with default evidence ---')
+    # print('--- Inference with default evidence ---')
 
-    print('Final decision for Investment Recommendation: {0}'.format(ie.posterior('Investable')))
-    print('Final reward for Investment Recommendation: {0}'.format(ie.posteriorUtility('Investable')))
-    print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
+    # print('Final decision for Investment Recommendation: {0}'.format(ie.posterior('Investable')))
+    # print('Final reward for Investment Recommendation: {0}'.format(ie.posteriorUtility('Investable')))
+    # print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
 
     var = ie.posteriorUtility('Investable').variable('Investable')
 
     decision_index = np.argmax(ie.posteriorUtility('Investable').toarray())
     decision = var.label(int(decision_index))
-    print('Final decision for Investable Network: {0}'.format(decision))
+    # print('Final decision for Investable Network: {0}'.format(decision))
 
     return format(decision)

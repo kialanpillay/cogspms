@@ -25,13 +25,11 @@ class Store:
         self.process()
 
     def process(self):
-        # Calculate Ratios
         for company in self.companies:
             eps_year_list = []
             pe_sector_list = []
             pe_market_list = []
 
-            # Preprocessing
             start_year = 2011
             end_year = self.years
             df_current_year = None
@@ -116,19 +114,12 @@ class Store:
                 debt_equity_industry))
 
             # Threshold
-            # Negative Earnings
             negative_earnings = threshold.negative_earnings(forward_earnings_current_year)
-
-            # Negative S Equity
             shareholders_equity = df_current_year.iloc[-1]['ShareholdersEquity']
             negative_shareholders_equity = threshold.negative_shareholders_equity(float(shareholders_equity))
-
-            # Beta
             beta_classify = threshold.beta_classify(float(share_beta), self.beta)
-
-            # acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
-            # beta_classify)
-            acceptable_stock = True
+            acceptable_stock = threshold.acceptable_stock(negative_earnings, negative_shareholders_equity,
+                                                          beta_classify)
 
             if acceptable_stock:
                 current_share_pe = df_current_year.iloc[-1]['PE']
@@ -141,16 +132,16 @@ class Store:
 
                 pe_current_share_sector = ratios.current_pe_sector(float(current_share_pe),
                                                                    float(current_sector_pe))  # PE value for this year
-                pe_relative_market = threshold.current_PE_relative_share_market(self.margin_of_safety,
+                pe_relative_market = threshold.current_pe_relative_share_market(self.margin_of_safety,
                                                                                 pe_current_share_market,
                                                                                 pe_relative_market)
 
-                pe_relative_sector = threshold.current_PE_relative_share_sector(self.margin_of_safety,
+                pe_relative_sector = threshold.current_pe_relative_share_sector(self.margin_of_safety,
                                                                                 pe_current_share_sector,
                                                                                 pe_relative_sector)
 
                 # Forward PE
-                forward_pe = threshold.forward_PE(self.margin_of_safety, forward_price_to_earnings,
+                forward_pe = threshold.forward_pe(self.margin_of_safety, forward_price_to_earnings,
                                                   historic_price_to_earnings_share)
 
                 # ROE vs COE

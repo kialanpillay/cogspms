@@ -82,18 +82,17 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
     ve_model.addArc(ve_model.idFromName('ValueRelativeToPrice'), ve_model.idFromName('VRP_Utility'))
 
     # Utilities
-    ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'Yes'}] = [[-100], [-75], [-50]]
-    ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'No'}] = [[50], [25], [100]]
-    print(ve_model.utility(ve_model.idFromName('Expensive_Utility')))
+    ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'Yes'}] = [[-300], [150], [200]]
+    ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'No'}] = [[350], [-150], [-200]]
 
     # 3 states for PERelative_ShareSector node, 3 states for ValueRelativeToPrice node
     ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'Cheap'}] = \
-        [[-10], [25], [50]]
+        [[200], [-75], [-200]]
 
     ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'FairValue'}] = \
-        [[-20], [5], [50]]
+        [[100], [0], [-75]]
     ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'Expensive'}] = \
-        [[-50], [25], [100]]
+        [[-100], [100], [150]]
 
     # CPTs
     # FutureSharePerformance
@@ -172,18 +171,18 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
     ie = gum.ShaferShenoyLIMIDInference(ve_model)
     ie.addNoForgettingAssumption(['Expensive_E', 'ValueRelativeToPrice'])
     ie.makeInference()
-    print('--- Inference with default evidence ---')
+    # print('--- Inference with default evidence ---')
 
-    print('Final decision for Expensive_E: {0}'.format(ie.posterior('Expensive_E')))
-    print('Final reward for Expensive_E: {0}'.format(ie.posteriorUtility('Expensive_E')))
-    print('Final decision for ValueRelativeToPrice: {0}'.format(ie.posterior('ValueRelativeToPrice')))
-    print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
-    print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
+    # print('Final decision for Expensive_E: {0}'.format(ie.posterior('Expensive_E')))
+    # print('Final reward for Expensive_E: {0}'.format(ie.posteriorUtility('Expensive_E')))
+    # print('Final decision for ValueRelativeToPrice: {0}'.format(ie.posterior('ValueRelativeToPrice')))
+    # print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
+    # print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
 
     var = ie.posteriorUtility('ValueRelativeToPrice').variable('ValueRelativeToPrice')
 
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())
     decision = var.label(int(decision_index))
-    print('Final decision for Value Network: {0}'.format(decision))
+    # print('Final decision for Value Network: {0}'.format(decision))
 
     return format(decision)
