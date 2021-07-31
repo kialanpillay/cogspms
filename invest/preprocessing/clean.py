@@ -6,8 +6,6 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from dataloader import load_data
-
 companies_jcsev = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
                    "FAMOUS BRANDS", "ITALTILE",
                    "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
@@ -24,7 +22,10 @@ companies_jgind = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO
 def clean():
     if not os.path.isfile(args.output + '_clean.csv'):
         start_time = time.time()
-        df = load_data()
+        df = pd.read_csv(os.path.join(args.raw) + '.csv', delimiter=';')
+        mask = (df['Date'] >= '2011-01-01') & (df['Name'].isin(companies_jgind + companies_jcsev))
+        df = df.loc[mask]
+        df['Price'] = df['Price'].multiply(100)
 
         df_ = pd.read_csv(os.path.join(args.raw_folder, 'DebtEquity.csv'), delimiter=';')
         df['Debt/EquityIndustry'] = df_['Debt/Equity Industry'].loc[0]
@@ -115,6 +116,7 @@ def clean():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--raw', type=str, default='data/invest_data')
     parser.add_argument('--raw_folder', type=str, default='data/INVEST_IRESS')
     parser.add_argument('--output', type=str, default='data/INVEST')
     parser.add_argument('--noise', type=bool, default=False)
