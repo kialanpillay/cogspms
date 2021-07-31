@@ -68,7 +68,7 @@ class GraphWaveNet(nn.Module):
                                     out_channels=residual_channels,
                                     kernel_size=(1, 1))
         self.supports = supports
-
+        self.final_adj = None
         receptive_field = 1
 
         self.supports_len = 0
@@ -144,9 +144,13 @@ class GraphWaveNet(nn.Module):
 
         # calculate the current adaptive adjacency matrix once per iteration
         new_supports = None
-        if self.gcn_bool and self.adapt_adj and self.supports is not None:
+        if self.gcn_bool and self.adapt_adj:
             adp = F.softmax(F.relu(torch.mm(self.nodevec1, self.nodevec2)), dim=1)
-            new_supports = self.supports + [adp]
+            if self.supports is not None:
+                new_supports = self.supports + [adp]
+            else:
+                new_supports = [adp]
+            self.final_adj = new_supports
 
         # WaveNet layers
         for i in range(self.blocks * self.layers):
@@ -169,7 +173,7 @@ class GraphWaveNet(nn.Module):
             skip = s + skip
 
             if self.gcn_bool and self.supports is not None:
-                if self.addaptadj:
+                if self.adapt_adj:
                     x = self.gconv[i](x, new_supports)
                 else:
                     x = self.gconv[i](x, self.supports)

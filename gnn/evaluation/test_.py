@@ -1,6 +1,9 @@
 import json
 import os
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sn
 import torch
 import torch.utils.data
 
@@ -28,12 +31,14 @@ def test(test_data, args, result_train_file, result_test_file):
 
 
 def baseline_test(test_data, args, result_train_file, result_test_file):
+    with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
+        normalize_statistic = json.load(f)
     model = load_model(result_train_file)
     test_set = gnn.preprocessing.loader.ForecastDataset(test_data, window_size=args.window_size, horizon=args.horizon,
                                                         normalize_method=args.norm_method)
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size, drop_last=False,
                                               shuffle=False, num_workers=0)
-    performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method)
+    performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method, normalize_statistic)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
     print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
 
@@ -42,6 +47,11 @@ def custom_test(test_data, args, result_train_file, result_test_file):
     with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
     model = load_model(result_train_file)
+    adj = model.final_adj[0].detach().cpu().numpy()
+    sn.set(font_scale=0.5)
+    cols = pd.read_csv('data/JSE_clean_truncated.csv').columns
+    sn.heatmap(pd.DataFrame(data=adj, columns=cols), annot=False, center=0, cmap='coolwarm', square=True)
+    plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
     x, y = process_data(test_data, args.window_size, args.horizon)
     scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=y.std())
     test_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(scaler.transform(x), scaler.transform(y),
