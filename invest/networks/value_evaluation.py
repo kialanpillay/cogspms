@@ -155,4 +155,17 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
 
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())
     decision = var.label(int(decision_index))
+
+    # Forced Decisions
+    if decision == 'Cheap':
+        pass
+    if decision == 'Expensive':
+        if pe_relative_market_state == "cheap" and pe_relative_sector_state == "expensive":
+            return 'FairValue'
+        elif pe_relative_market_state == "expensive" and pe_relative_sector_state == "cheap":
+            return 'FairValue'
+        elif pe_relative_market_state == "fairValue" and pe_relative_sector_state == "fairValue" and \
+                forward_pe_current_vs_history_state == "fairValue":
+            return 'FairValue'
+
     return format(decision)

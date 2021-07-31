@@ -78,35 +78,35 @@
 </DEFINITION>
 <DEFINITION>
 	<FOR>FutureSharePerformance</FOR>
-	<TABLE>0.986 0.9 0.53 </TABLE>
+	<TABLE>0.44444 0.14815 0.40741 </TABLE>
 </DEFINITION>
 <DEFINITION>
 	<FOR>PERelative_ShareMarket</FOR>
 	<GIVEN>FutureSharePerformance</GIVEN>
-	<TABLE>1 0 0 1 0 0 1 0 0 </TABLE>
+	<TABLE>0.7 0.2 0.1 0.25 0.5 0.25 0.1 0.2 0.7 </TABLE>
 </DEFINITION>
 <DEFINITION>
 	<FOR>PERelative_ShareSector</FOR>
 	<GIVEN>FutureSharePerformance</GIVEN>
-	<TABLE>1 0 0 1 0 0 1 0 0 </TABLE>
+	<TABLE>0.7 0.2 0.1 0.25 0.5 0.25 0.1 0.2 0.7 </TABLE>
 </DEFINITION>
 <DEFINITION>
 	<FOR>ForwardPE_CurrentVsHistory</FOR>
 	<GIVEN>Expensive_E</GIVEN>
 	<GIVEN>FutureSharePerformance</GIVEN>
-	<TABLE>1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 </TABLE>
+	<TABLE>0.7 0.2 0.1 0.15 0.7 0.15 0.2 0.6 0.2 0.2 0.3 0.5 0.2 0.5 0.3 0.1 0.17 0.75 </TABLE>
 </DEFINITION>
 <DEFINITION>
 	<FOR>Expensive_Utility</FOR>
 	<GIVEN>Expensive_E</GIVEN>
 	<GIVEN>FutureSharePerformance</GIVEN>
-	<TABLE>50 25 100 -100 -75 -50 </TABLE>
+	<TABLE>350 -150 -200 -300 150 200 </TABLE>
 </DEFINITION>
 <DEFINITION>
 	<FOR>VRP_Utility</FOR>
-	<GIVEN>PERelative_ShareSector</GIVEN>
+	<GIVEN>FutureSharePerformance</GIVEN>
 	<GIVEN>ValueRelativeToPrice</GIVEN>
-	<TABLE>-10 25 50 -20 5 50 -50 25 100 </TABLE>
+	<TABLE>200 -75 -200 100 0 -75 -100 100 150 </TABLE>
 </DEFINITION>
 
 </NETWORK>
