@@ -62,14 +62,13 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
     ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('PERelative_ShareSector'))
     ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('ForwardPE_CurrentVsHistory'))
     ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('Expensive_Utility'))
+    ve_model.addArc(ve_model.idFromName('FutureSharePerformance'), ve_model.idFromName('VRP_Utility'))
 
     ve_model.addArc(ve_model.idFromName('PERelative_ShareMarket'), ve_model.idFromName('Expensive_E'))
     ve_model.addArc(ve_model.idFromName('PERelative_ShareMarket'), ve_model.idFromName('ValueRelativeToPrice'))
 
     ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'), ve_model.idFromName('Expensive_E'))
     ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'), ve_model.idFromName('ValueRelativeToPrice'))
-    ve_model.addArc(ve_model.idFromName('PERelative_ShareSector'),
-                    ve_model.idFromName('VRP_Utility'))
 
     ve_model.addArc(ve_model.idFromName('ForwardPE_CurrentVsHistory'), ve_model.idFromName('ValueRelativeToPrice'))
 
@@ -83,7 +82,6 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
     ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'Yes'}] = [[-300], [150], [200]]
     ve_model.utility(ve_model.idFromName('Expensive_Utility'))[{'Expensive_E': 'No'}] = [[350], [-150], [-200]]
 
-    # 3 states for PERelative_ShareSector node, 3 states for ValueRelativeToPrice node
     ve_model.utility(ve_model.idFromName('VRP_Utility'))[{'ValueRelativeToPrice': 'Cheap'}] = \
         [[200], [-75], [-200]]
 
@@ -94,26 +92,31 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
 
     # CPTs
     # FutureSharePerformance
-    ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[0] = 44.444  # Positive
-    ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 14.815  # Stagnant
-    ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[2] = 40.741  # Negative
+    ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[0] = 0.44444  # Positive
+    ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[1] = 0.14815  # Stagnant
+    ve_model.cpt(ve_model.idFromName('FutureSharePerformance'))[2] = 0.40741  # Negative
 
     # pe_relative_market
-    ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Positive'}] = [70, 20, 10]
-    ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Stagnant'}] = [25, 50, 25]
-    ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = [10, 20, 70]
+    ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Positive'}] = \
+        [0.70, 0.20, 0.10]
+    ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Stagnant'}] = \
+        [0.25, 0.50, 0.25]
+    ve_model.cpt(ve_model.idFromName('PERelative_ShareMarket'))[{'FutureSharePerformance': 'Negative'}] = \
+        [0.10, 0.20, 0.70]
 
     # pe_relative_sector
-    ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Positive'}] = [70, 20, 10]
-    ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = [25, 50, 25]
-    ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = [10, 20, 70]
+    ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Positive'}] = \
+        [0.70, 0.20, 0.10]
+    ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Stagnant'}] = \
+        [0.25, 0.50, 0.25]
+    ve_model.cpt(ve_model.idFromName('PERelative_ShareSector'))[{'FutureSharePerformance': 'Negative'}] = \
+        [0.10, 0.20, 0.70]
 
     # forwardPE
     ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'Yes'}] = \
-        [[20, 30, 50], [20, 50, 30],
-         [10, 17, 75]]  # cpt inner array is for forwardPE node, outer "3 arrays" for 3 future share performance states
+        [[0.20, 0.30, 0.50], [0.20, 0.50, 0.30], [0.10, 0.17, 0.75]]
     ve_model.cpt(ve_model.idFromName('ForwardPE_CurrentVsHistory'))[{'Expensive_E': 'No'}] = \
-        [[70, 20, 10], [15, 70, 15], [20, 60, 20]]
+        [[0.70, 0.20, 0.10], [0.15, 0.70, 0.15], [0.20, 0.60, 0.20]]
 
     output_file = os.path.join('res', 'v_e')
     if not os.path.exists(output_file):
@@ -123,42 +126,33 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
     ie = gum.ShaferShenoyLIMIDInference(ve_model)
     ie.addNoForgettingAssumption(['Expensive_E', 'ValueRelativeToPrice'])
 
-    # add evidence pe_relative market
     if pe_relative_market_state == "cheap":
-        ie.setEvidence({'PERelative_ShareMarket': [1, 0, 0]})
-    elif pe_relative_market_state == "FairValue":
-        ie.setEvidence({'PERelative_ShareMarket': [0, 1, 0]})
+        ie.addEvidence('PERelative_ShareMarket', [1, 0, 0])
+    elif pe_relative_market_state == "fairValue":
+        ie.addEvidence('PERelative_ShareMarket', [0, 1, 0])
     else:
-        ie.setEvidence({'PERelative_ShareMarket': [0, 0, 1]})
+        ie.addEvidence('PERelative_ShareMarket', [0, 0, 1])
 
-    # add evidence pe_relative sector
     if pe_relative_sector_state == "cheap":
-        ie.setEvidence({'PERelative_ShareSector': [1, 0, 0]})
-    elif pe_relative_sector_state == "FairValue":
-        ie.setEvidence({'PERelative_ShareSector': [0, 1, 0]})
+        ie.addEvidence('PERelative_ShareSector', [1, 0, 0])
+    elif pe_relative_sector_state == "fairValue":
+        ie.addEvidence('PERelative_ShareSector', [0, 1, 0])
     else:
-        ie.setEvidence({'PERelative_ShareSector': [0, 0, 1]})
+        ie.addEvidence('PERelative_ShareSector', [0, 0, 1])
 
-    # add evidence forward PE
     if forward_pe_current_vs_history_state == "cheap":
-        ie.setEvidence({'ForwardPE_CurrentVsHistory': [1, 0, 0]})
-    elif forward_pe_current_vs_history_state == "FairValue":
-        ie.setEvidence({'ForwardPE_CurrentVsHistory': [0, 1, 0]})
+        ie.addEvidence('ForwardPE_CurrentVsHistory', [1, 0, 0])
+    elif forward_pe_current_vs_history_state == "fairValue":
+        ie.addEvidence('ForwardPE_CurrentVsHistory', [0, 1, 0])
     else:
-        ie.setEvidence({'ForwardPE_CurrentVsHistory': [0, 0, 1]})
-    ie.makeInference()
-    print('--- Inference with default evidence ---')
+        ie.addEvidence('ForwardPE_CurrentVsHistory', [0, 0, 1])
 
-    print('Final decision for Expensive_E: {0}'.format(ie.posterior('Expensive_E')))
-    print('Final reward for Expensive_E: {0}'.format(ie.posteriorUtility('Expensive_E')))
-    print('Final decision for ValueRelativeToPrice: {0}'.format(ie.posterior('ValueRelativeToPrice')))
-    print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
-    print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
+    ie.makeInference()
+    # print('Final reward for Expensive_E: {0}'.format(ie.posteriorUtility('Expensive_E')))
+    # print('Final reward for ValueRelativeToPrice: {0}'.format(ie.posteriorUtility('ValueRelativeToPrice')))
 
     var = ie.posteriorUtility('ValueRelativeToPrice').variable('ValueRelativeToPrice')
 
     decision_index = np.argmax(ie.posteriorUtility('ValueRelativeToPrice').toarray())
     decision = var.label(int(decision_index))
-    print('Final decision for Value Network: {0}'.format(decision))
-
     return format(decision)

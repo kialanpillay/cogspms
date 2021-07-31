@@ -4,8 +4,8 @@ import numpy as np
 import pyAgrum as gum
 
 
-def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflation_state, systematic_risk_state,
-                    extension):
+def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflation_state, systematic_risk_state=None,
+                    extension=False):
     qe_model = gum.InfluenceDiagram()
 
     # Decision node
@@ -66,43 +66,41 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
 
     # CPTs
     # FutureSharePerformance
-    qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[0] = 44.444  # Positive
-    qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[1] = 14.815  # Stagnant
-    qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[2] = 40.741  # Negative
+    qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[0] = 1 / 3  # Positive
+    qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[1] = 1 / 3  # Stagnant
+    qe_model.cpt(qe_model.idFromName('FutureSharePerformance'))[2] = 1 / 3  # Negative
 
     # RelDE
-    qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Positive'}] = [5, 15, 80]
-    qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Stagnant'}] = [15, 70, 15]
-    qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Negative'}] = [80, 15, 5]
+    qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Positive'}] = [0.05, 0.15, 0.80]
+    qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Stagnant'}] = [0.15, 0.70, 0.15]
+    qe_model.cpt(qe_model.idFromName('RelDE'))[{'FutureSharePerformance': 'Negative'}] = [0.80, 0.15, 0.05]
 
     # ROE vs COE
-    qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Positive'}] = [80, 15, 5]
-    qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Stagnant'}] = [20, 60, 20]
-    qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Negative'}] = [5, 15, 80]
+    qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Positive'}] = [0.80, 0.15, 0.05]
+    qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Stagnant'}] = [0.20, 0.60, 0.20]
+    qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.80]
 
     # CAGR vs Inflation
-    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Positive'}] = [80, 15, 5]
-    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Stagnant'}] = [15, 70, 15]
-    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Negative'}] = [5, 15, 8]
+    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Positive'}] = [0.80, 0.15, 0.05]
+    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Stagnant'}] = [0.15, 0.70, 0.15]
+    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.8]
 
     # Extension
     if extension:
-        # Add chance node
         systematic_risk = gum.LabelizedVariable('SystematicRisk', '', 3)
         systematic_risk.changeLabel(0, 'greater')  # Greater than Market
         systematic_risk.changeLabel(1, 'EqualTo')
         systematic_risk.changeLabel(2, 'lower')
         qe_model.addChanceNode(systematic_risk)
 
-        # Add arcs
         qe_model.addArc(qe_model.idFromName('FutureSharePerformance'), qe_model.idFromName('SystematicRisk'))
         qe_model.addArc(qe_model.idFromName('SystematicRisk'), qe_model.idFromName('Quality'))
 
         # Add CPTs
         # Systematic Risk
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [80, 15, 5]
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [20, 60, 20]
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [5, 15, 80]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [0.80, 0.15, 0.05]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [0.20, 0.60, 0.20]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.80]
 
     output_file = os.path.join('res', 'q_e')
     if not os.path.exists(output_file):
@@ -111,50 +109,39 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
 
     ie = gum.ShaferShenoyLIMIDInference(qe_model)
 
-    # add evidence relDE
-    if relative_debt_equity_state == "Above":
-        ie.setEvidence({'RelDE': [1, 0, 0]})
+    if relative_debt_equity_state == "above":
+        ie.addEvidence('RelDE', [1, 0, 0])
     elif relative_debt_equity_state == "EqualTo":
-        ie.setEvidence({'RelDE': [0, 1, 0]})
+        ie.addEvidence('RelDE', [0, 1, 0])
     else:
-        ie.setEvidence({'RelDE': [0, 0, 1]})
+        ie.addEvidence('RelDE', [0, 0, 1])
 
-    # add evidence roe vs coe
-    if roe_vs_coe_state == "Above":
-        ie.setEvidence({'ROEvsCOE': [1, 0, 0]})
+    if roe_vs_coe_state == "above":
+        ie.addEvidence('ROEvsCOE', [1, 0, 0])
     elif roe_vs_coe_state == "EqualTo":
-        ie.setEvidence({'ROEvsCOE': [0, 1, 0]})
+        ie.addEvidence('ROEvsCOE', [0, 1, 0])
     else:
-        ie.setEvidence({'ROEvsCOE': [0, 0, 1]})
+        ie.addEvidence('ROEvsCOE', [0, 0, 1])
 
-    # add evidence roe vs coe
-    if cagr_vs_inflation_state == "InflationPlus":
-        ie.setEvidence({'ROEvsCOE': [1, 0, 0]})
-    elif cagr_vs_inflation_state == "Inflation":
-        ie.setEvidence({'ROEvsCOE': [0, 1, 0]})
+    if cagr_vs_inflation_state == "above":
+        ie.addEvidence('CAGRvsInflation', [1, 0, 0])
+    elif cagr_vs_inflation_state == "EqualTo":
+        ie.addEvidence('CAGRvsInflation', [0, 1, 0])
     else:
-        ie.setEvidence({'ROEvsCOE': [0, 0, 1]})
+        ie.addEvidence('CAGRvsInflation', [0, 0, 1])
 
     if extension:
-        # add evidence roe vs coe
         if systematic_risk_state == "greater":
-            ie.setEvidence({'SystematicRisk': [1, 0, 0]})
+            ie.addEvidence('SystematicRisk', [1, 0, 0])
         elif systematic_risk_state == "EqualTo":
-            ie.setEvidence({'SystematicRisk': [0, 1, 0]})
+            ie.addEvidence('SystematicRisk', [0, 1, 0])
         else:
-            ie.setEvidence({'SystematicRisk': [0, 0, 1]})
+            ie.addEvidence('SystematicRisk', [0, 0, 1])
 
     ie.makeInference()
-    print('--- Inference with default evidence ---')
-
-    print('Final decision for Quality: {0}'.format(ie.posterior('Quality')))
-    print('Final reward for Quality: {0}'.format(ie.posteriorUtility('Quality')))
-    print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
-
+    # print('Final reward for Quality: {0}'.format(ie.posteriorUtility('Quality')))
     var = ie.posteriorUtility('Quality').variable('Quality')
 
     decision_index = np.argmax(ie.posteriorUtility('Quality').toarray())
     decision = var.label(int(decision_index))
-    print('Final decision for Quality Network: {0}'.format(decision))
-
     return format(decision)

@@ -35,7 +35,6 @@ def investment_recommendation(value_decision, quality_decision):
     investment_utility = gum.LabelizedVariable('I_Utility', '', 1)
     ir_model.addUtilityNode(investment_utility)
 
-    # add arca
     ir_model.addArc(ir_model.idFromName('Performance'), ir_model.idFromName('Quality'))
     ir_model.addArc(ir_model.idFromName('Performance'), ir_model.idFromName('Value'))
     ir_model.addArc(ir_model.idFromName('Performance'), ir_model.idFromName('I_Utility'))
@@ -44,25 +43,24 @@ def investment_recommendation(value_decision, quality_decision):
     ir_model.addArc(ir_model.idFromName('Quality'), ir_model.idFromName('Investable'))
     ir_model.addArc(ir_model.idFromName('Investable'), ir_model.idFromName('I_Utility'))
 
-    # Utilities
     ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'Yes'}] = [[300], [-100], [-250]]
     ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'No'}] = [[-200], [100], [200]]
 
     # CPTs
     # FutureSharePerformance
-    ir_model.cpt(ir_model.idFromName('Performance'))[0] = 44.444  # Positive
-    ir_model.cpt(ir_model.idFromName('Performance'))[1] = 14.815  # Stagnant
-    ir_model.cpt(ir_model.idFromName('Performance'))[2] = 40.741  # Negative
+    ir_model.cpt(ir_model.idFromName('Performance'))[0] = 1 / 3  # Positive
+    ir_model.cpt(ir_model.idFromName('Performance'))[1] = 1 / 3  # Stagnant
+    ir_model.cpt(ir_model.idFromName('Performance'))[2] = 1 / 3  # Negative
 
     # Value
-    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Positive'}] = [85, 10, 5]
-    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Stagnant'}] = [20, 60, 20]
-    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Negative'}] = [5, 10, 85]
+    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Positive'}] = [0.85, 0.10, 0.05]
+    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Stagnant'}] = [0.20, 0.60, 0.20]
+    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Negative'}] = [0.05, 0.10, 0.85]
 
     # Quality
-    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Positive'}] = [85, 10, 5]
-    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Stagnant'}] = [20, 60, 20]
-    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Negative'}] = [5, 10, 85]
+    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Positive'}] = [0.85, 0.10, 0.05]
+    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Stagnant'}] = [0.20, 0.60, 0.20]
+    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Negative'}] = [0.05, 0.10, 0.85]
 
     output_file = os.path.join('res', 'i_r')
     if not os.path.exists(output_file):
@@ -71,29 +69,21 @@ def investment_recommendation(value_decision, quality_decision):
 
     ie = gum.ShaferShenoyLIMIDInference(ir_model)
 
-    # add evidence Value
     if value_decision_state == "Cheap":
-        ie.setEvidence({'Value': [1, 0, 0]})
+        ie.addEvidence('Value', [1, 0, 0])
     elif value_decision_state == "FairValue":
-        ie.setEvidence({'Value': [0, 1, 0]})
+        ie.addEvidence('Value', [0, 1, 0])
     else:
-        ie.setEvidence({'Value': [0, 0, 1]})
+        ie.addEvidence('Value', [0, 0, 1])
 
-    # add evidence Quality
     if quality_decision_state == "High":
-        ie.setEvidence({'Quality': [1, 0, 0]})
+        ie.addEvidence('Quality', [1, 0, 0])
     elif quality_decision_state == "Medium":
-        ie.setEvidence({'Quality': [0, 1, 0]})
+        ie.addEvidence('Quality', [0, 1, 0])
     else:
-        ie.setEvidence({'Quality': [0, 0, 1]})
+        ie.addEvidence('Quality', [0, 0, 1])
 
     ie.makeInference()
-    # print('--- Inference with default evidence ---')
-
-    # print('Final decision for Investment Recommendation: {0}'.format(ie.posterior('Investable')))
-    # print('Final reward for Investment Recommendation: {0}'.format(ie.posteriorUtility('Investable')))
-    # print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
-
     var = ie.posteriorUtility('Investable').variable('Investable')
 
     decision_index = np.argmax(ie.posteriorUtility('Investable').toarray())
