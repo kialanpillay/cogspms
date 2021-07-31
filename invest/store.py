@@ -78,7 +78,6 @@ class Store:
             forward_earnings_current_year = ratios.forward_earnings(eps_year_list[-1], historic_earnings_growth_rate)
 
             historic_earnings_growth_rate_past = ratios.historic_earnings_growth_rate(eps_year_list, 3)
-            # intermediate, list from past can be 2013 since year is 3
 
             forward_earnings_past = ratios.forward_earnings(eps_year_list[-1],
                                                             historic_earnings_growth_rate_past)  # intermediate
@@ -93,20 +92,17 @@ class Store:
 
             # ROE
             roe_current = df_current_year.iloc[-1]['ROE']
-
             # COE
             market_rate_of_return = df_current_year.iloc[-1]['MarketRateOfReturn']
             risk_free_rate_of_return = df_current_year.iloc[-1]['RiskFreeRateOfReturn']
             share_beta = df_current_year.iloc[-1]['ShareBeta']
             cost_of_equity = ratios.cost_of_equity(float(market_rate_of_return), float(risk_free_rate_of_return),
                                                    float(share_beta))
-
             # Relative Debt/Equity
             debt_equity = df_current_year.iloc[-1]['Debt/Equity']
             debt_equity_industry = df_current_year.iloc[-1]['Debt/EquityIndustry']
             relative_debt_equity = ratios.relative_debt_to_equity(float(debt_equity), float(
                 debt_equity_industry))
-
             # Threshold
             negative_earnings = threshold.negative_earnings(forward_earnings_current_year)
             shareholders_equity = df_current_year.iloc[-1]['ShareholdersEquity']

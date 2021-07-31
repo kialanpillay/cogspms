@@ -38,7 +38,7 @@ def main():
 
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
-                      0.05, args.beta, year, args.extension)
+                      args.margin_of_safety, args.beta, year, args.extension)
         for company in companies_jgind:
             if store.get_acceptable_stock(company):
                 if investment_decision(store, company) == "Yes":
@@ -51,15 +51,11 @@ def main():
                     prices_initial_jgind[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jgind[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
-    ip_jgind = True
     for year in range(2015, 2018):
-        if len(investable_shares_jgind[str(year)]) == 0:
-            ip_jgind = False
         print(year, "JGIND", investable_shares_jgind[str(year)])
 
-    if ip_jgind:
-        validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
-                                   2015, 2018, "JGIND")
+    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
+                               2015, 2018, "JGIND")
 
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
@@ -76,15 +72,11 @@ def main():
                     prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jcsev[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
-    ip_jcsev = True
     for year in range(2015, 2018):
-        if len(investable_shares_jcsev[str(year)]) == 0:
-            ip_jcsev = False
         print(year, "JCSEV", investable_shares_jcsev[str(year)])
 
-    if ip_jcsev:
-        validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
-                                   2015, 2018, "JCSEV")
+    validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
+                               2015, 2018, "JCSEV")
 
 
 def investment_decision(store, company):
