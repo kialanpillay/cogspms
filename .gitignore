@@ -5,4 +5,5 @@
 *.csv
 __pycache__/
 *.xls
-.DS_Store
+*.DS_Store
+*.png

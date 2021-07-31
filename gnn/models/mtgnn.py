@@ -265,6 +265,7 @@ class MTGNN(nn.Module):
                                    static_feat=static_feat)
 
         self.seq_length = seq_length
+        self.final_adj = None
         kernel_size = 7
         if dilation_exponential > 1:
             self.receptive_field = int(
@@ -350,6 +351,7 @@ class MTGNN(nn.Module):
                     adp = self.gc(self.idx)
                 else:
                     adp = self.gc(idx)
+                self.final_adj = [adp]
             else:
                 adp = self.predefined_A
 

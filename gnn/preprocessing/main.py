@@ -39,8 +39,9 @@ def clean():
             df = pd.read_csv(args.output + "_clean.csv")
         corr = df.corr()
         if args.plot:
-            sn.heatmap(corr, annot=False)
-            plt.show()
+            sn.set(font_scale=0.5)
+            sn.heatmap(corr, annot=False, center=0, cmap='coolwarm', square=True)
+            plt.savefig(os.path.join('img', 'JSE_corr.png'), dpi=300, bbox_inches='tight')
 
     if args.raw_folder and args.source == 'IRESS':
         if not os.path.isfile(args.output):
@@ -80,8 +81,9 @@ def clean():
         sample_df = df[['AAPL', 'AMZN', 'FB', 'GOOGL', "MSFT", "XRAY"]]
         corr = sample_df.corr()
         if args.plot:
-            sn.heatmap(corr, annot=True)
-            plt.show()
+            sn.set(font_scale=0.5)
+            sn.heatmap(corr, annot=False, center=0, cmap='coolwarm', square=True)
+            plt.savefig(os.path.join('img', 'SP500_corr.png'), dpi=300, bbox_inches='tight')
 
 
 if __name__ == '__main__':

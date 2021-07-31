@@ -117,7 +117,7 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     return dict(mae=score[1], mape=score[0], rmse=score[2], )
 
 
-def validate_baseline(model, data_loader, device, norm_method):
+def validate_baseline(model, data_loader, device, norm_method, statistic):
     model.eval()
     forecast_set = []
     target_set = []
@@ -135,14 +135,13 @@ def validate_baseline(model, data_loader, device, norm_method):
         .numpy()
     target_norm = np.concatenate(target_set, axis=0)
 
-    if norm_method == 'z_score':
-        forecast_scale = np.max(forecast_norm, axis=0) - np.min(forecast_norm, axis=0)
-        target_scale = np.max(target_norm, axis=0) - np.min(target_norm, axis=0)
-        forecast = forecast_norm * forecast_scale + np.min(forecast_norm, axis=0)
-        target = target_norm * target_scale + np.min(target_norm)
-    elif norm_method == 'min_max':
-        forecast = forecast_norm * np.std(forecast_norm, axis=0) + np.mean(forecast_norm, axis=0)
-        target = target_norm * np.std(target_norm, axis=0) + np.mean(target_norm, axis=0)
+    if norm_method == 'min_max':
+        scale = statistic['max'] - statistic['min'] + 1e-8
+        forecast = forecast_norm * scale + statistic['min']
+        target = target_norm * scale + statistic['min']
+    elif norm_method == 'z_score':
+        forecast = forecast_norm * statistic['std'] + statistic['mean']
+        target = target_norm * statistic['std'] + statistic['mean']
     else:
         forecast, target = forecast_norm, target_norm
     score = evaluate(target, forecast)
