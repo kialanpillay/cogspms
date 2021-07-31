@@ -7,7 +7,7 @@ def historic_earnings_growth_rate(eps_list, n):
     for year in range(0, n - 1):
         growth_rate = eps_list[year + 1] / eps_list[year]
         growth_rates.append(growth_rate)
-    return sum(growth_rates) / len(growth_rates)
+    return np.mean(growth_rates)
 
 
 # Historic Earnings Compound Annual Growth Rate
@@ -19,9 +19,7 @@ def historic_earnings_cagr(eps_n, eps_prev_x, x):
 
 # Historic Price to Earnings
 def historic_price_to_earnings_share(price_list, eps_list):
-    price = sum(price_list) / len(price_list)
-    eps = sum(eps_list) / len(eps_list)
-    return price / eps
+    return np.mean(price_list) / np.mean(eps_list)
 
 
 # Forward Earnings - 4
@@ -43,14 +41,12 @@ def forward_price_to_earnings(share_price, forward_earnings_):
 
 # Price to Earnings Relative Sector - 7, 8
 def pe_relative_sector(historic_price_to_earnings_share_, pe_sector_list):
-    historic_pe_sector = sum(pe_sector_list) / len(pe_sector_list)
-    return historic_price_to_earnings_share_ / historic_pe_sector
+    return historic_price_to_earnings_share_ / np.mean(pe_sector_list)
 
 
 # Price to Earnings Relative Market - 7, 9
 def pe_relative_market(historic_price_to_earnings_share_, pe_market):
-    historic_pe_market = sum(pe_market) / len(pe_market)
-    return historic_price_to_earnings_share_ / historic_pe_market
+    return historic_price_to_earnings_share_ / np.mean(pe_market)
 
 
 # Return on Equity 8,10

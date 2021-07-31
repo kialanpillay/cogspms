@@ -34,7 +34,6 @@ def process_risk_adjusted_return_metrics(df, df_benchmark, share_betas_dict,
     df_year = df[mask]
     risk_free_rate = df_year.iloc[-1]['RiskFreeRateOfReturn']
     treynor_ratio = return_metrics.treynor_ratio(portfolio_return, risk_free_rate, beta_portfolio)
-    # 2017
 
     mask = df_benchmark['IndexCode'] == index_code
     benchmark_data = df_benchmark.loc[mask]

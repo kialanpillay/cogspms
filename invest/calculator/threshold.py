@@ -30,14 +30,14 @@ def acceptable_stock(negative_earnings_, negative_shareholders_equity_, beta):
     if negative_earnings_ is True or negative_shareholders_equity_ is True or beta is False:
         return False
     else:
-        return True  # stock is investable
+        return True
 
 
 def current_pe_relative_share_market(margin_of_safety, current_pe_relative_share_market_,
                                      historic_pe_relative_share_market):
     if historic_pe_relative_share_market - current_pe_relative_share_market_ > margin_of_safety:
         return "cheap"
-    elif historic_pe_relative_share_market - current_pe_relative_share_market_ < margin_of_safety \
+    elif historic_pe_relative_share_market - current_pe_relative_share_market_ > margin_of_safety \
             or current_pe_relative_share_market_ - historic_pe_relative_share_market < margin_of_safety:
         return "fairValue"
     elif current_pe_relative_share_market_ - historic_pe_relative_share_market > margin_of_safety:
@@ -48,7 +48,7 @@ def current_pe_relative_share_sector(margin_of_safety, current_pe_relative_share
                                      historic_pe_relative_share_sector):
     if historic_pe_relative_share_sector - current_pe_relative_share_sector_ > margin_of_safety:
         return "cheap"
-    elif historic_pe_relative_share_sector - current_pe_relative_share_sector_ < margin_of_safety \
+    elif historic_pe_relative_share_sector - current_pe_relative_share_sector_ > margin_of_safety \
             or current_pe_relative_share_sector_ - historic_pe_relative_share_sector < margin_of_safety:
         return "fairValue"
     elif current_pe_relative_share_sector_ - historic_pe_relative_share_sector > margin_of_safety:
