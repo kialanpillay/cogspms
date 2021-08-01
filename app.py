@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import pandas as pd
 
@@ -58,6 +59,7 @@ def main():
                                2015, 2018, "JGIND")
 
     for year in range(2015, 2018):
+        start = time.time()
         store = Store(df, companies, companies_jcsev, companies_jgind,
                       0.1, args.beta, year, args.extension)
         for company in companies_jcsev:
@@ -71,12 +73,16 @@ def main():
                     prices_current_jcsev[str(year)].append(df_year.iloc[-1]['Price'])
                     prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jcsev[str(year)].append(df_year.iloc[-1]["ShareBeta"])
-
+            end = time.time()
     for year in range(2015, 2018):
         print(year, "JCSEV", investable_shares_jcsev[str(year)])
 
     validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
                                2015, 2018, "JCSEV")
+    hours, rem = divmod(end - start, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
 
 
 def investment_decision(store, company):
@@ -88,7 +94,6 @@ def investment_decision(store, company):
     relative_debt_equity = store.get_relative_debt_equity(company)
     cagr_vs_inflation = store.get_cagr_vs_inflation(company)
     systematic_risk = store.get_systematic_risk(company)
-
     value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
     quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
                                        systematic_risk, args.extension)
