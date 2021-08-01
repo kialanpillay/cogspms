@@ -55,11 +55,11 @@ def process_risk_adjusted_return_metrics(df, df_benchmark, share_betas_dict,
     delta = average_annual_return - average_annual_return_benchmark
     excess_returns = []
     for i, annual_return in enumerate(annual_returns):
-        excess_returns.append(annual_return / 100 - annual_returns_benchmark[i] / 100)
+        excess_returns.append(annual_return - annual_returns_benchmark[i] / 100)
 
     v = 0
     for e in excess_returns:
-        v += (e - delta / 100) ** 2
+        v += (e - delta) ** 2
     standard_deviation_excess_return = math.sqrt(v)
     sharpe_ratio = return_metrics.sharpe_ratio(portfolio_return, risk_free_rate, standard_deviation_excess_return)
     print('Index {} | Treynor Ratio {:5.5f} | Sharpe Ratio: {:5.5f}'.format(index_code, treynor_ratio, sharpe_ratio))
