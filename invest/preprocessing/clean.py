@@ -203,9 +203,9 @@ def merge():
         for c in cols:
             df[c] = df[c].astype(str)
             df[c] = [x.replace(',', '.') for x in df[c].values]
-
+        df['Date'] = [x.replace('/', '-') for x in df['Date'].values]
         print(df.head())
-        output_file = args.output + "_clean_.csv"
+        output_file = args.output + "_clean.csv"
         df.to_csv(output_file, index=False)
         print("Processing Time: {:5.2f}s".format(time.time() - start_time))
 
