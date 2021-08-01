@@ -114,7 +114,7 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
         np.savetxt(f'{result_file}/predict_ape.csv',
                    np.abs((forecasting_2d - forecasting_2d_target) / forecasting_2d_target), delimiter=",")
 
-    return dict(mae=score[1], mape=score[0], rmse=score[2], )
+    return dict(mae=score[1], mape=score[0], rmse=score[2])
 
 
 def validate_baseline(model, data_loader, device, norm_method, statistic):
@@ -150,4 +150,4 @@ def validate_baseline(model, data_loader, device, norm_method, statistic):
     print(f'NORM: MAPE {score_norm[0]:7.9%}; MAE {score_norm[1]:7.9f}; RMSE {score_norm[2]:7.9f}.')
     print(f'RAW : MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f}.')
 
-    return dict(mae=score[1], mape=score[0], rmse=score[2], )
+    return dict(mae=score[1], mape=score[0], rmse=score[2])
