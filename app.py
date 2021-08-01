@@ -25,7 +25,7 @@ def main():
     companies = companies_jcsev + companies_jgind
 
     df = load_data()
-    df_benchmark = pd.read_csv('data/benchmark_data.csv', delimiter=';', index_col=False)
+    df_benchmark = pd.read_csv('data/JCSEV_JGIND_data.csv', delimiter=';', index_col=False)
 
     prices_current_jgind = {"2017": [], "2016": [], "2015": []}
     prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
