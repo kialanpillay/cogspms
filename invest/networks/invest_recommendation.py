@@ -5,7 +5,6 @@ import pyAgrum as gum
 
 
 def investment_recommendation(value_decision, quality_decision):
-    share_performance_state = 'Positive'
     value_decision_state = value_decision
     quality_decision_state = quality_decision
     ir_model = gum.InfluenceDiagram()
@@ -36,7 +35,6 @@ def investment_recommendation(value_decision, quality_decision):
     investment_utility = gum.LabelizedVariable('I_Utility', '', 1)
     ir_model.addUtilityNode(investment_utility)
 
-    # add arca
     ir_model.addArc(ir_model.idFromName('Performance'), ir_model.idFromName('Quality'))
     ir_model.addArc(ir_model.idFromName('Performance'), ir_model.idFromName('Value'))
     ir_model.addArc(ir_model.idFromName('Performance'), ir_model.idFromName('I_Utility'))
@@ -45,59 +43,24 @@ def investment_recommendation(value_decision, quality_decision):
     ir_model.addArc(ir_model.idFromName('Quality'), ir_model.idFromName('Investable'))
     ir_model.addArc(ir_model.idFromName('Investable'), ir_model.idFromName('I_Utility'))
 
-    # Utilities
-    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'Yes'}] = [[-100], [-75], [-50]]
-    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'No'}] = [[50], [25], [100]]
-    print(ir_model.utility(ir_model.idFromName('I_Utility')))
+    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'Yes'}] = [[300], [-100], [-250]]
+    ir_model.utility(ir_model.idFromName('I_Utility'))[{'Investable': 'No'}] = [[-200], [100], [200]]
 
     # CPTs
     # FutureSharePerformance
-    if share_performance_state == "Positive":
-        ir_model.cpt(ir_model.idFromName('Performance'))[0] = 0.986  # Positive
-        ir_model.cpt(ir_model.idFromName('Performance'))[1] = 0.9  # Stagnant
-        ir_model.cpt(ir_model.idFromName('Performance'))[2] = 0.53  # Negative
-
-    elif share_performance_state == "FairValue":
-        ir_model.cpt(ir_model.idFromName('Performance'))[1] = 1  # Stagnant
-        ir_model.cpt(ir_model.idFromName('Performance'))[0] = 0  # Positive
-        ir_model.cpt(ir_model.idFromName('Performance'))[2] = 0  # Negative
-
-    else:
-        ir_model.cpt(ir_model.idFromName('Performance'))[2] = 1  # Negative
-        ir_model.cpt(ir_model.idFromName('Performance'))[0] = 0  # Positive
-        ir_model.cpt(ir_model.idFromName('Performance'))[1] = 0  # Stagnant
+    ir_model.cpt(ir_model.idFromName('Performance'))[0] = 1 / 3  # Positive
+    ir_model.cpt(ir_model.idFromName('Performance'))[1] = 1 / 3  # Stagnant
+    ir_model.cpt(ir_model.idFromName('Performance'))[2] = 1 / 3  # Negative
 
     # Value
-    if value_decision_state == "Cheap":
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Positive'}] = [1, 0, 0]
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Stagnant'}] = [1, 0, 0]
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Negative'}] = [1, 0, 0]
+    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Positive'}] = [0.85, 0.10, 0.05]
+    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Stagnant'}] = [0.20, 0.60, 0.20]
+    ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Negative'}] = [0.05, 0.10, 0.85]
 
-    elif value_decision_state == "FairValue":
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Positive'}] = [0, 1, 0]
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Stagnant'}] = [0, 1, 0]
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Negative'}] = [0, 1, 0]
-
-    else:
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Positive'}] = [0, 0, 1]
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Stagnant'}] = [0, 0, 1]
-        ir_model.cpt(ir_model.idFromName('Value'))[{'Performance': 'Negative'}] = [0, 0, 1]
-
-    # Value
-    if quality_decision_state == "High":
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Positive'}] = [1, 0, 0]
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Stagnant'}] = [1, 0, 0]
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Negative'}] = [1, 0, 0]
-
-    elif quality_decision_state == "Medium":
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Positive'}] = [0, 1, 0]
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Stagnant'}] = [0, 1, 0]
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Negative'}] = [0, 1, 0]
-
-    else:
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Positive'}] = [0, 0, 1]
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Stagnant'}] = [0, 0, 1]
-        ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Negative'}] = [0, 0, 1]
+    # Quality
+    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Positive'}] = [0.85, 0.10, 0.05]
+    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Stagnant'}] = [0.20, 0.60, 0.20]
+    ir_model.cpt(ir_model.idFromName('Quality'))[{'Performance': 'Negative'}] = [0.05, 0.10, 0.85]
 
     output_file = os.path.join('res', 'i_r')
     if not os.path.exists(output_file):
@@ -105,17 +68,26 @@ def investment_recommendation(value_decision, quality_decision):
     gum.saveBN(ir_model, os.path.join(output_file, 'i_r.bifxml'))
 
     ie = gum.ShaferShenoyLIMIDInference(ir_model)
+
+    if value_decision_state == "Cheap":
+        ie.addEvidence('Value', [1, 0, 0])
+    elif value_decision_state == "FairValue":
+        ie.addEvidence('Value', [0, 1, 0])
+    else:
+        ie.addEvidence('Value', [0, 0, 1])
+
+    if quality_decision_state == "High":
+        ie.addEvidence('Quality', [1, 0, 0])
+    elif quality_decision_state == "Medium":
+        ie.addEvidence('Quality', [0, 1, 0])
+    else:
+        ie.addEvidence('Quality', [0, 0, 1])
+
     ie.makeInference()
-    print('--- Inference with default evidence ---')
-
-    print('Final decision for Investment Recommendation: {0}'.format(ie.posterior('Investable')))
-    print('Final reward for Investment Recommendation: {0}'.format(ie.posteriorUtility('Investable')))
-    print('Maximum Expected Utility (MEU) : {0}'.format(ie.MEU()))
-
     var = ie.posteriorUtility('Investable').variable('Investable')
 
     decision_index = np.argmax(ie.posteriorUtility('Investable').toarray())
     decision = var.label(int(decision_index))
-    print('Final decision for Investable Network: {0}'.format(decision))
+    # print('Final decision for Investable Network: {0}'.format(decision))
 
     return format(decision)

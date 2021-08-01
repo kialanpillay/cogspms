@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import pandas as pd
 
@@ -22,16 +23,10 @@ def main():
                        "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
                        "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
                        "WLSN.BAYLY HOLMES-OVCON"]
-    companies = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD", "FAMOUS BRANDS",
-                 "ITALTILE",
-                 "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE", "SPAR GROUP",
-                 "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN", "WOOLWORTHS HDG",
-                 "AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL", "INVICTA",
-                 "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
-                 "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR", "WLSN.BAYLY HOLMES-OVCON"]
+    companies = companies_jcsev + companies_jgind
 
     df = load_data()
-    df_benchmark = pd.read_csv('data/benchmark_data.csv', delimiter=';', index_col=False)
+    df_benchmark = pd.read_csv('data/JCSEV_JGIND_data.csv', delimiter=';', index_col=False)
 
     prices_current_jgind = {"2017": [], "2016": [], "2015": []}
     prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
@@ -42,49 +37,69 @@ def main():
     investable_shares_jgind = {"2017": [], "2016": [], "2015": []}
     investable_shares_jcsev = {"2017": [], "2016": [], "2015": []}
 
+    start = time.time()
+
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
-                      args.margin_of_safety,
-                      args.beta, year, args.extension)
-        for company in companies:
+                      args.margin_of_safety, args.beta, year, args.extension)
+        for company in companies_jgind:
             if store.get_acceptable_stock(company):
-                pe_relative_market = store.get_pe_relative_market(company)
-                pe_relative_sector = store.get_pe_relative_sector(company)
-                forward_pe = store.get_forward_pe(company)
-
-                roe_vs_coe = store.get_roe_vs_coe(company)
-                relative_debt_equity = store.get_relative_debt_equity(company)
-                cagr_vs_inflation = store.get_cagr_vs_inflation(company)
-                systematic_risk = store.get_systematic_risk(company)
-
-                value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
-                quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
-                                                   systematic_risk, args.extension)
-                decision = investment_recommendation(value_decision, quality_decision)
-                if decision == "No":
-
+                if investment_decision(store, company) == "Yes":
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
                     df_year = df[mask]
-                    share_beta = df_year.iloc[-1]["ShareBeta"]
-                    price_current = df_year.iloc[-1]['Price']
-                    price_initial = df_year.iloc[0]['Price']
 
-                    if company in companies_jcsev:
-                        investable_shares_jcsev[str(year)].append(company)
-                        prices_current_jcsev[str(year)].append(price_current)
-                        prices_initial_jcsev[str(year)].append(price_initial)
-                        share_betas_jcsev[str(year)].append(share_beta)
-                    else:
-                        investable_shares_jgind[str(year)].append(company)
-                        prices_current_jgind[str(year)].append(price_current)
-                        prices_initial_jgind[str(year)].append(price_initial)
-                        share_betas_jgind[str(year)].append(share_beta)
+                    investable_shares_jgind[str(year)].append(company)
+                    prices_current_jgind[str(year)].append(df_year.iloc[-1]['Price'])
+                    prices_initial_jgind[str(year)].append(df_year.iloc[0]['Price'])
+                    share_betas_jgind[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
-    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind, 2015,
-                               2018, "JGIND")
-    validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev, 2015,
-                               2018, "JCSEV")
+    for year in range(2015, 2018):
+        print(year, "JGIND", investable_shares_jgind[str(year)])
+
+    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
+                               2015, 2018, "JGIND")
+
+    for year in range(2015, 2018):
+        store = Store(df, companies, companies_jcsev, companies_jgind,
+                      0.1, args.beta, year, args.extension)
+        for company in companies_jcsev:
+            if store.get_acceptable_stock(company):
+                if investment_decision(store, company) == "Yes":
+                    mask = (df['Date'] >= str(year) + '-01-01') & (
+                            df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
+                    df_year = df[mask]
+
+                    investable_shares_jcsev[str(year)].append(company)
+                    prices_current_jcsev[str(year)].append(df_year.iloc[-1]['Price'])
+                    prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
+                    share_betas_jcsev[str(year)].append(df_year.iloc[-1]["ShareBeta"])
+
+    end = time.time()
+
+    for year in range(2015, 2018):
+        print(year, "JCSEV", investable_shares_jcsev[str(year)])
+
+    validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
+                               2015, 2018, "JCSEV")
+    hours, rem = divmod(end - start, 3600)
+    minutes, seconds = divmod(rem, 60)
+    print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
+
+def investment_decision(store, company):
+    pe_relative_market = store.get_pe_relative_market(company)
+    pe_relative_sector = store.get_pe_relative_sector(company)
+    forward_pe = store.get_forward_pe(company)
+
+    roe_vs_coe = store.get_roe_vs_coe(company)
+    relative_debt_equity = store.get_relative_debt_equity(company)
+    cagr_vs_inflation = store.get_cagr_vs_inflation(company)
+    systematic_risk = store.get_systematic_risk(company)
+    value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
+    quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
+                                       systematic_risk, args.extension)
+    return investment_recommendation(value_decision, quality_decision)
 
 
 def str2bool(v):

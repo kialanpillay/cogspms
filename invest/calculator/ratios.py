@@ -1,57 +1,55 @@
-# Historic Earnings Growth Rate - calc rule 1,
-# n = how many years eps was given over
-def historic_earnings_growth_rate(eps_list, n):  # needs list as 2012,2013,2014 therefore ascending order
-    year = 0
+# Historic Earnings Growth Rate - 1
+import numpy as np
+
+
+def historic_earnings_growth_rate(eps_list, n):
     growth_rates = []
-    for i in range(0, n - 1):
+    for year in range(0, n - 1):
         growth_rate = eps_list[year + 1] / eps_list[year]
         growth_rates.append(growth_rate)
-        year += 1
-    historic_earning_growth_rate = sum(growth_rates) / len(growth_rates)
-    return historic_earning_growth_rate
+    return np.mean(growth_rates)
 
 
 # Historic Earnings Compound Annual Growth Rate
-def historic_earnings_cagr(eps_n, eps_prev_x, x):  # use 3 years ago for X
-    cagr = ((eps_n / eps_prev_x) ** 1 / x) - 1
-    return cagr
+def historic_earnings_cagr(eps_n, eps_prev_x, x):
+    if np.isnan(((eps_n / eps_prev_x) ** (1 / x))):
+        return 0
+    return ((eps_n / eps_prev_x) ** (1 / x)) - 1
 
 
 # Historic Price to Earnings
 def historic_price_to_earnings_share(price_list, eps_list):
-    price = sum(price_list) / len(price_list)
-    eps = sum(eps_list) / len(eps_list)
-    return price / eps
+    return np.mean(price_list) / np.mean(eps_list)
 
 
-# Forward Earnings - calc rule 4 - needs function 1 answer as input
-def forward_earnings(eps, historic_earnings_growth_rate):
-    return eps * historic_earnings_growth_rate
+# Forward Earnings - 4
+def forward_earnings(eps, historic_earnings_growth_rate_):
+    return eps * historic_earnings_growth_rate_
 
 
-# Forward Earnings Compound Annual Growth Rate - calc rule 5 - INVEST uses 3 years, therefore X should be 3
+# Forward Earnings Compound Annual Growth Rate - 5
 def forward_earnings_cagr(forward_earnings_n, forward_earnings_prev_x, x):
-    return ((forward_earnings_n / forward_earnings_prev_x) ** 1 / x) - 1
+    if np.isnan(((forward_earnings_n / forward_earnings_prev_x) ** (1 / x))):
+        return 0
+    return ((forward_earnings_n / forward_earnings_prev_x) ** (1 / x)) - 1
 
 
-# Forward Price to Earnings - calc rule 6 - needs rule 4 as input
-def forward_price_to_earnings(share_price, forward_earnings):
-    return share_price / forward_earnings
+# Forward Price to Earnings - Rule 6 - Needs Rule 4
+def forward_price_to_earnings(share_price, forward_earnings_):
+    return share_price / forward_earnings_
 
 
-# Price to Earnings Relative Sector - calc rule 7, calc 8
-def pe_relative_sector(historic_price_to_earnings_share, pe_sector_list):
-    historic_pe_sector = sum(pe_sector_list) / len(pe_sector_list)
-    return historic_price_to_earnings_share / historic_pe_sector
+# Price to Earnings Relative Sector - 7, 8
+def pe_relative_sector(historic_price_to_earnings_share_, pe_sector_list):
+    return historic_price_to_earnings_share_ / np.mean(pe_sector_list)
 
 
-# Price to Earnings Relative Market - calc rule 7, calc 9
-def pe_relative_market(historic_price_to_earnings_share, pe_market):
-    historic_pe_market = sum(pe_market) / len(pe_market)
-    return historic_price_to_earnings_share / historic_pe_market
+# Price to Earnings Relative Market - 7, 9
+def pe_relative_market(historic_price_to_earnings_share_, pe_market):
+    return historic_price_to_earnings_share_ / np.mean(pe_market)
 
 
-# Return on Equity -calc rule 8, calc 10 - dont need
+# Return on Equity 8,10
 def return_on_equity(net_income, total_shareholder_equity):
     return net_income / total_shareholder_equity
 
@@ -59,14 +57,12 @@ def return_on_equity(net_income, total_shareholder_equity):
 # Cost of Equity
 def cost_of_equity(market_return_rate, risk_free_return_rate, share_beta):
     equity_risk_premium = market_return_rate - risk_free_return_rate
-    cost_of_equity = risk_free_return_rate + share_beta * equity_risk_premium
-    return cost_of_equity * 100  # *100 is not part of the formula
+    return risk_free_return_rate + share_beta * equity_risk_premium
 
 
-# Relative Debt to Equity - changed from paper formula
-def relative_debt_to_equity(d_e, d_e_industry, ):
-    relative_d_e = d_e / d_e_industry
-    return relative_d_e
+# Relative Debt to Equity
+def relative_debt_to_equity(debt_equity, debt_equity_industry):
+    return debt_equity / debt_equity_industry
 
 
 def current_pe_market(current_share_pe, current_market_pe):

@@ -5,8 +5,8 @@ import numpy as np
 import torch
 import torch.utils.data
 
-from gnn.preprocessing.loader import CustomStandardScaler, ForecastDataset
 from gnn.evaluation.validation import inference as inference_, custom_inference as custom_inference_
+from gnn.preprocessing.loader import CustomStandardScaler, ForecastDataset
 from gnn.preprocessing.loader import load_dataset
 from gnn.utils import load_model, inverse_transform_
 
