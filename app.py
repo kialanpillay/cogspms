@@ -37,6 +37,8 @@ def main():
     investable_shares_jgind = {"2017": [], "2016": [], "2015": []}
     investable_shares_jcsev = {"2017": [], "2016": [], "2015": []}
 
+    start = time.time()
+
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
                       args.margin_of_safety, args.beta, year, args.extension)
@@ -59,7 +61,6 @@ def main():
                                2015, 2018, "JGIND")
 
     for year in range(2015, 2018):
-        start = time.time()
         store = Store(df, companies, companies_jcsev, companies_jgind,
                       0.1, args.beta, year, args.extension)
         for company in companies_jcsev:
@@ -73,7 +74,9 @@ def main():
                     prices_current_jcsev[str(year)].append(df_year.iloc[-1]['Price'])
                     prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jcsev[str(year)].append(df_year.iloc[-1]["ShareBeta"])
-            end = time.time()
+
+    end = time.time()
+
     for year in range(2015, 2018):
         print(year, "JCSEV", investable_shares_jcsev[str(year)])
 
@@ -82,7 +85,6 @@ def main():
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
-
 
 
 def investment_decision(store, company):
