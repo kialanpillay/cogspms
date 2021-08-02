@@ -53,7 +53,7 @@ def custom_test(test_data, args, result_train_file, result_test_file):
     columns = pd.read_csv('data/JSE_clean_truncated.csv').columns
     df = pd.DataFrame(data=adj, columns=columns)
     df.index = columns.values
-    sn.heatmap(pd.DataFrame(data=adj, columns=columns), annot=False, center=0, cmap='coolwarm', square=True)
+    sn.heatmap(df, annot=False, center=0, cmap='coolwarm', square=True)
     plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
 
     x, y = process_data(test_data, args.window_size, args.horizon)
