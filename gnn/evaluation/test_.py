@@ -27,7 +27,7 @@ def test(test_data, args, result_train_file, result_test_file):
                                    node_cnt, args.window_size, args.horizon,
                                    result_file=result_test_file)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
-    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
 
 
 def baseline_test(test_data, args, result_train_file, result_test_file):
@@ -40,7 +40,7 @@ def baseline_test(test_data, args, result_train_file, result_test_file):
                                               shuffle=False, num_workers=0)
     performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method, normalize_statistic)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
-    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
 
 
 def custom_test(test_data, args, result_train_file, result_test_file):
@@ -64,4 +64,4 @@ def custom_test(test_data, args, result_train_file, result_test_file):
                                    args.node_cnt, args.window_size, args.horizon,
                                    result_file=result_test_file, scaler=scaler)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
-    print('Performance on test set: MAPE: {:5.4f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape, mae, rmse))
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
