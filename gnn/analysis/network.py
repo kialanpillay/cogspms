@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import text
 import networkx as nx
 import numpy as np
 
