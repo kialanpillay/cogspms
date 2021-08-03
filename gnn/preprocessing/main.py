@@ -43,7 +43,7 @@ def clean():
             sn.heatmap(corr, annot=False, center=0, cmap='coolwarm', square=True)
             plt.savefig(os.path.join('img', 'JSE_corr.png'), dpi=300, bbox_inches='tight')
 
-    if args.raw_folder and args.source == 'IRESS':
+    elif args.raw_folder and args.source == 'IRESS':
         if not os.path.isfile(args.output):
             start_time = time.time()
             clean_df = pd.DataFrame()
@@ -62,10 +62,10 @@ def clean():
         df = pd.read_csv(args.output + "_daily_clean.csv")
         print(df.head())
 
-    if "SP500" in args.raw:
+    elif "SP500" in args.raw:
         if not os.path.isfile(args.output):
             start_time = time.time()
-            df = pd.read_csv(args.raw + '.csv')
+            df = pd.read_csv(args.raw + '_raw.csv')
             clean_df = pd.DataFrame()
             names = df['Name'].unique()
 
@@ -85,6 +85,21 @@ def clean():
             sn.heatmap(corr, annot=False, center=0, cmap='coolwarm', square=True)
             plt.savefig(os.path.join('img', 'SP500_corr.png'), dpi=300, bbox_inches='tight')
 
+    elif "INVEST" in args.raw:
+        if not os.path.isfile(args.output):
+            start_time = time.time()
+            df = pd.read_csv(args.raw + '_raw.csv', delimiter=";")
+            clean_df = pd.DataFrame()
+            names = df['Company'].unique()
+
+            for name in names:
+                df_ = pd.DataFrame(df.loc[df['Company'] == name]['Close'].values, columns=[name])
+                clean_df = pd.concat([clean_df, df_], axis=1)
+
+            print(clean_df.shape)
+            clean_df.to_csv(args.output + "_clean.csv", index=False)
+            print("Processing Time: {:5.2f}s".format(time.time() - start_time))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -93,7 +108,7 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=str, default='SB')
     parser.add_argument('--output', type=str, default='data/JSE')
     parser.add_argument('--plot', type=bool, default=False)
-    parser.add_argument('--truncate', type=bool, default=False)
+    parser.add_argument('--truncate', type=bool, default=True)
     parser.add_argument('--noise', type=bool, default=False)
     args = parser.parse_args()
     clean()
