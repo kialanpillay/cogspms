@@ -6,6 +6,7 @@ from invest.networks.invest_recommendation import investment_recommendation
 from invest.networks.quality_evaluation import quality_network
 from invest.networks.value_evaluation import value_network
 from invest.preprocessing.dataloader import load_data
+from invest.preprocessing.simulation import simulate
 from invest.store import Store
 
 
@@ -24,6 +25,8 @@ def main():
     companies = companies_jcsev + companies_jgind
 
     df = load_data()
+    if args.noise:
+        df = simulate(df)
 
     prices_current_jgind = {"2017": [], "2016": [], "2015": []}
     prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
@@ -118,5 +121,6 @@ if __name__ == '__main__':
     parser.add_argument("--margin_of_safety", type=float, default=0.10)
     parser.add_argument("--beta", type=float, default=1.00)
     parser.add_argument("--extension", type=str2bool, default=False)
+    parser.add_argument("--noise", type=str2bool, default=False)
     args = parser.parse_args()
     main()
