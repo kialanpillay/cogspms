@@ -24,14 +24,14 @@ def process_metrics(df, prices_current_dict, prices_initial_dict, share_betas_di
 
     pv = sum(prices_initial_dict[str(start_year)])
     y = start_year
-    while pv == 0 and y != end_year:
+    while pv == 0 and y != (end_year - 1):
         y += 1
         pv = sum(prices_initial_dict[str(y)])
     pv_ = pv + total_return
     n = end_year - start_year
     compound_return = return_metrics.compound_return(pv, pv_, n)
     average_annual_return = return_metrics.average_annual_return(annual_returns)
-    print('IP.{} | CR {:5.3f}% | AAR {:5.3f}%'.format(index_code, compound_return * 100,
+    print('IP.{} | CR {:5.2f}% | AAR {:5.2f}%'.format(index_code, compound_return * 100,
                                                       average_annual_return * 100))
     process_risk_adjusted_return_metrics(df, share_betas_dict, 2015, 2018, compound_return,
                                          average_annual_return, annual_returns, index_code)
@@ -48,7 +48,8 @@ def process_risk_adjusted_return_metrics(df, share_betas_dict,
         mask = (df['Date'] >= str(year) + '-01-01') & (df['Date'] <= str(year) + '-12-31')
         rf.append(df[mask].iloc[-1]['RiskFreeRateOfReturn'] / 100)
     beta_portfolio = np.mean(betas)
-    risk_free_rate = rf[-1]
+    risk_free_rate = np.mean(rf)
+
     treynor_ratio = return_metrics.treynor_ratio(portfolio_return, risk_free_rate, beta_portfolio)
 
     delta = average_annual_return - np.mean(rf)
@@ -61,7 +62,7 @@ def process_risk_adjusted_return_metrics(df, share_betas_dict,
         v += (e - delta) ** 2
     standard_deviation_excess_return = math.sqrt(v)
     sharpe_ratio = return_metrics.sharpe_ratio(portfolio_return, risk_free_rate, standard_deviation_excess_return)
-    print('IP.{} | Treynor Ratio {:5.5f} | Sharpe Ratio: {:5.5f}'.format(index_code, treynor_ratio, sharpe_ratio))
+    print('IP.{} | Treynor Ratio {:5.2f} | Sharpe Ratio: {:5.2f}'.format(index_code, treynor_ratio, sharpe_ratio))
 
 
 def process_benchmark_metrics(start_year, end_year, index_code):
@@ -92,7 +93,7 @@ def process_benchmark_metrics(start_year, end_year, index_code):
     n = end_year - start_year
     compound_return = return_metrics.compound_return(pv, pv_, n)
     average_annual_return = return_metrics.average_annual_return(annual_returns)
-    print('Benchmark.{} | CR {:5.3f}% | AAR {:5.3f}%'.format(index_code, compound_return * 100,
+    print('Benchmark.{} | CR {:5.2f}% | AAR {:5.2f}%'.format(index_code, compound_return * 100,
                                                              average_annual_return * 100))
     process_benchmark_risk_adjusted_return_metrics(df, start_year, end_year, index_code, compound_return,
                                                    average_annual_return, annual_returns)
@@ -110,7 +111,7 @@ def process_benchmark_risk_adjusted_return_metrics(df, start_year, end_year, ind
     mask = (df['Date'] >= str(start_year) + '/01/01') & (df['Date'] <= str(start_year) + '/12/31')
     df.loc[mask, 'Beta Weekly Leveraged'] = [x.replace(',', '.') for x in df.loc[mask, 'Beta Weekly Leveraged']]
     beta_portfolio = np.mean(df.loc[mask, 'Beta Weekly Leveraged'].values.astype(np.float32))
-    risk_free_rate = rf[-1]
+    risk_free_rate = np.mean(rf)
 
     treynor_ratio = return_metrics.treynor_ratio(portfolio_return, risk_free_rate, beta_portfolio)
 
@@ -125,4 +126,4 @@ def process_benchmark_risk_adjusted_return_metrics(df, start_year, end_year, ind
     standard_deviation_excess_return = math.sqrt(v)
     sharpe_ratio = return_metrics.sharpe_ratio(portfolio_return, risk_free_rate, standard_deviation_excess_return)
     print(
-        'Benchmark.{} | Treynor Ratio {:5.5f} | Sharpe Ratio: {:5.5f}'.format(index_code, treynor_ratio, sharpe_ratio))
+        'Benchmark.{} | Treynor Ratio {:5.2f} | Sharpe Ratio: {:5.2f}'.format(index_code, treynor_ratio, sharpe_ratio))

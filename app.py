@@ -100,9 +100,20 @@ def investment_decision(store, company):
     relative_debt_equity = store.get_relative_debt_equity(company)
     cagr_vs_inflation = store.get_cagr_vs_inflation(company)
     systematic_risk = store.get_systematic_risk(company)
+
     value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
     quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
                                        systematic_risk, args.extension)
+    if args.ablation and args.network == 'v':
+        if value_decision in ["Cheap", "FairValue"]:
+            return "Yes"
+        else:
+            return "No"
+    if args.ablation and args.network == 'q':
+        if quality_decision in ["High", "Medium"]:
+            return "Yes"
+        else:
+            return "No"
     return investment_recommendation(value_decision, quality_decision)
 
 
@@ -124,5 +135,7 @@ if __name__ == '__main__':
     parser.add_argument("--beta", type=float, default=1.00)
     parser.add_argument("--extension", type=str2bool, default=False)
     parser.add_argument("--noise", type=str2bool, default=False)
+    parser.add_argument("--ablation", type=str2bool, default=False)
+    parser.add_argument("--network", type=str, default='v')
     args = parser.parse_args()
     main()
