@@ -48,13 +48,14 @@ def custom_test(test_data, args, result_train_file, result_test_file):
         normalize_statistic = json.load(f)
     model = load_model(result_train_file)
 
-    adj = model.final_adj[0].detach().cpu().numpy()
-    sn.set(font_scale=0.5)
-    columns = pd.read_csv('data/JSE_clean_truncated.csv').columns
-    df = pd.DataFrame(data=adj, columns=columns)
-    df.index = columns.values
-    sn.heatmap(df, annot=False, center=0, cmap='coolwarm', square=True)
-    plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
+    if model.final_adj:
+        adj = model.final_adj[0].detach().cpu().numpy()
+        sn.set(font_scale=0.5)
+        columns = pd.read_csv('data/JSE_clean_truncated.csv').columns
+        df = pd.DataFrame(data=adj, columns=columns)
+        df.index = columns.values
+        sn.heatmap(df, annot=False, center=0, cmap='coolwarm', square=True)
+        plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
 
     x, y = process_data(test_data, args.window_size, args.horizon)
     scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=y.std())
