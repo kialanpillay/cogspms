@@ -1,24 +1,63 @@
 import networkx as nx
 import numpy as np
+import pandas as pd
+from networkx.algorithms import community
 
 
-def build_network(df):
+def build_network(df, n=5):
     corr = df.corr()
     v_corr = corr.values
     graph = nx.Graph()
     edges = {}
 
     for i, a in enumerate(v_corr):
-        idx = np.argpartition(np.delete(a, i), -5)[-5:]
+        idx = np.argpartition(np.delete(a, i), -n)[-n:]
         edges[corr.columns[i]] = \
             np.delete(corr.columns[idx].values, np.where(corr.columns[idx].values == corr.columns[i]))
 
     for k, v in edges.items():
-        print(k, v)
-        for n in v:
-            graph.add_edge(k, n)
-
-    density = nx.density(graph)
-    print("Network density:", density)
+        for n_ in v:
+            graph.add_edge(k, n_)
 
     return graph
+
+
+def generate_network_metrics(df, n=10):
+    corr = df.corr()
+    v_corr = corr.values
+
+    df = pd.DataFrame(columns=['Edges', 'Network Density', 'Betweenness Centrality', 'Degree Centrality',
+                               '# Correlations', 'Top Level Communities', 'Next Level Communities'])
+
+    for i in range(1, n + 1):
+        graph = nx.Graph()
+        edges = {}
+        for j, a in enumerate(v_corr):
+            idx = np.argpartition(np.delete(a, j), -i)[-i:]
+            edges[corr.columns[j]] = \
+                np.delete(corr.columns[idx].values, np.where(corr.columns[idx].values == corr.columns[j]))
+
+        for k, v in edges.items():
+            for n in v:
+                graph.add_edge(k, n)
+
+        degree_dict = nx.degree_centrality(graph)
+        betweenness_dict = nx.betweenness_centrality(graph, normalized=True, endpoints=True)
+        communities_generator = community.girvan_newman(graph)
+        top_level_communities = next(communities_generator)
+        next_level_communities = next(communities_generator)
+
+        df = df.append({'Edges': graph.number_of_edges(), 'Network Density': nx.density(graph),
+                        'Betweenness Centrality': np.mean(list(betweenness_dict.values())),
+                        'Degree Centrality': np.mean(list(degree_dict.values())), '# Correlations': i,
+                        'Top Level Communities': len(sorted(map(sorted, top_level_communities))),
+                        'Next Level Communities': len(sorted(map(sorted, next_level_communities)))}, ignore_index=True)
+
+    d = nx.coloring.greedy_color(graph, strategy="largest_first")
+    d_ = {}
+    for k, v in d.items():
+        if v not in d_:
+            d_[v] = [k]
+        else:
+            d_[v].append(k)
+    return df
