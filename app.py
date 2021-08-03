@@ -57,7 +57,7 @@ def main():
     for year in range(2015, 2018):
         print(year, "JGIND", investable_shares_jgind[str(year)])
 
-    validation.process_metrics(df, df_benchmark, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
+    validation.process_metrics(df, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
                                2015, 2018, "JGIND")
 
     for year in range(2015, 2018):
@@ -80,7 +80,7 @@ def main():
     for year in range(2015, 2018):
         print(year, "JCSEV", investable_shares_jcsev[str(year)])
 
-    validation.process_metrics(df, df_benchmark, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
+    validation.process_metrics(df, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
                                2015, 2018, "JCSEV")
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Intelligent system for automated share evaluation',
                                      epilog='Version 0.1')
     parser.add_argument("--margin_of_safety", type=float, default=0.10)
-    parser.add_argument("--beta", type=float, default=0.10)
+    parser.add_argument("--beta", type=float, default=1.00)
     parser.add_argument("--extension", type=str2bool, default=False)
     args = parser.parse_args()
     main()
