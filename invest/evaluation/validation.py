@@ -20,6 +20,7 @@ def process_metrics(df, prices_current_dict, prices_initial_dict, share_betas_di
         else:
             annual_return = 0
         annual_returns.append(annual_return)
+    print("IP." + index_code, [round(v * 100, 2) for v in annual_returns])
 
     pv = sum(prices_initial_dict[str(start_year)])
     y = start_year
@@ -78,6 +79,7 @@ def process_benchmark_metrics(start_year, end_year, index_code):
         else:
             annual_return = 0
         annual_returns.append(annual_return)
+    print("Benchmark." + index_code, [round(v * 100, 2) for v in annual_returns])
 
     mask = (df['Date'] >= str(start_year) + '/01/01') & (df['Date'] <= str(start_year) + '/12/31')
     pv = float(df.loc[mask, 'Close'].iloc[0].replace(',', '.'))
