@@ -1,8 +1,6 @@
 import argparse
 import time
 
-import pandas as pd
-
 import invest.evaluation.validation as validation
 from invest.networks.invest_recommendation import investment_recommendation
 from invest.networks.quality_evaluation import quality_network
@@ -26,7 +24,6 @@ def main():
     companies = companies_jcsev + companies_jgind
 
     df = load_data()
-    df_benchmark = pd.read_csv('data/JCSEV_JGIND_data.csv', delimiter=';', index_col=False)
 
     prices_current_jgind = {"2017": [], "2016": [], "2015": []}
     prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
@@ -55,10 +52,11 @@ def main():
                     share_betas_jgind[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
     for year in range(2015, 2018):
-        print(year, "JGIND", investable_shares_jgind[str(year)])
+        print(year, "IP.JGIND", len(investable_shares_jgind[str(year)]), investable_shares_jgind[str(year)])
 
     validation.process_metrics(df, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
                                2015, 2018, "JGIND")
+    validation.process_benchmark_metrics(2015, 2018, "JGIND")
 
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
@@ -78,10 +76,11 @@ def main():
     end = time.time()
 
     for year in range(2015, 2018):
-        print(year, "JCSEV", investable_shares_jcsev[str(year)])
+        print(year, "IP.JCSEV", len(investable_shares_jcsev[str(year)]), investable_shares_jcsev[str(year)])
 
     validation.process_metrics(df, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
                                2015, 2018, "JCSEV")
+    validation.process_benchmark_metrics(2015, 2018, "JCSEV")
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
