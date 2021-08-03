@@ -47,9 +47,9 @@ def generate_network_metrics(df, n=10):
         top_level_communities = next(communities_generator)
         next_level_communities = next(communities_generator)
 
-        df = df.append({'Edges': graph.number_of_edges(), 'Network Density': nx.density(graph),
-                        'Betweenness Centrality': np.mean(list(betweenness_dict.values())),
-                        'Degree Centrality': np.mean(list(degree_dict.values())), '# Correlations': i,
+        df = df.append({'Edges': graph.number_of_edges(), 'Network Density': round(nx.density(graph), 2),
+                        'Betweenness Centrality': round(np.mean(list(betweenness_dict.values())), 2),
+                        'Degree Centrality': round(np.mean(list(degree_dict.values())), 2), '# Correlations': i,
                         'Top Level Communities': len(sorted(map(sorted, top_level_communities))),
                         'Next Level Communities': len(sorted(map(sorted, next_level_communities)))}, ignore_index=True)
 

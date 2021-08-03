@@ -19,7 +19,7 @@ def run():
         graph = build_network(df, args.n)
         df_metrics = generate_network_metrics(df, args.n)
         print(df_metrics.loc[df_metrics['# Correlations'] == args.n])
-        print(df.head())
+        print(df_metrics.head())
 
     if args.plot:
         sn.set(font_scale=0.5)
