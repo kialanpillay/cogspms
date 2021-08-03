@@ -2,6 +2,7 @@ import argparse
 import os
 from datetime import datetime
 
+import numpy as np
 import torch
 
 import gnn.evaluation.test_
@@ -111,10 +112,10 @@ if args.adj_data:
             if args.random_adj:
                 args.adj_init = None
             else:
-                adj_init = args.supports[0]
+                args.adj_init = args.supports[0]
 
     if args.model == 'MTGNN':
-        adj_matrix = correlation_adjacency_matrix(os.path.join('data', args.dataset + '.csv'))
+        adj_matrix = correlation_adjacency_matrix(os.path.join('data', args.dataset + '.csv')).astype(np.float32)
         adj_matrix = torch.tensor(adj_matrix) - torch.eye(args.node_cnt)
         args.adj_matrix = adj_matrix.to(args.device)
 else:

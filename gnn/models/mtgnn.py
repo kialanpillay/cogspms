@@ -351,9 +351,9 @@ class MTGNN(nn.Module):
                     adp = self.gc(self.idx)
                 else:
                     adp = self.gc(idx)
-                self.final_adj = [adp]
             else:
                 adp = self.predefined_A
+            self.final_adj = [adp]
 
         x = self.start_conv(model_input)
         skip = self.skip0(F.dropout(model_input, self.dropout, training=self.training))

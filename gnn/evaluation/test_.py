@@ -27,7 +27,7 @@ def test(test_data, args, result_train_file, result_test_file):
                                    node_cnt, args.window_size, args.horizon,
                                    result_file=result_test_file)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
-    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
 
 
 def baseline_test(test_data, args, result_train_file, result_test_file):
@@ -40,20 +40,23 @@ def baseline_test(test_data, args, result_train_file, result_test_file):
                                               shuffle=False, num_workers=0)
     performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method, normalize_statistic)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
-    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
 
 
 def custom_test(test_data, args, result_train_file, result_test_file):
     with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
     model = load_model(result_train_file)
-    adj = model.final_adj[0].detach().cpu().numpy()
-    sn.set(font_scale=0.5)
-    columns = pd.read_csv('data/JSE_clean_truncated.csv').columns
-    df = pd.DataFrame(data=adj, columns=columns)
-    df.index = columns
-    sn.heatmap(pd.DataFrame(data=adj, columns=columns), annot=False, center=0, cmap='coolwarm', square=True)
-    plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
+
+    if model.final_adj:
+        adj = model.final_adj[0].detach().cpu().numpy()
+        sn.set(font_scale=0.5)
+        columns = pd.read_csv('data/JSE_clean_truncated.csv').columns
+        df = pd.DataFrame(data=adj, columns=columns)
+        df.index = columns.values
+        sn.heatmap(df, annot=False, center=0, cmap='coolwarm', square=True)
+        plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
+
     x, y = process_data(test_data, args.window_size, args.horizon)
     scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=y.std())
     test_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(scaler.transform(x), scaler.transform(y),
@@ -62,4 +65,4 @@ def custom_test(test_data, args, result_train_file, result_test_file):
                                    args.node_cnt, args.window_size, args.horizon,
                                    result_file=result_test_file, scaler=scaler)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
-    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+    print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
