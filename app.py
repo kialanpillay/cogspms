@@ -1,4 +1,5 @@
 import argparse
+import json
 import time
 
 import invest.evaluation.validation as validation
@@ -11,17 +12,8 @@ from invest.store import Store
 
 
 def main():
-    companies_jcsev = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
-                       "FAMOUS BRANDS", "ITALTILE",
-                       "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
-                       "SPAR GROUP",
-                       "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN",
-                       "WOOLWORTHS HDG"]
-    companies_jgind = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL",
-                       "INVICTA",
-                       "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
-                       "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
-                       "WLSN.BAYLY HOLMES-OVCON"]
+    companies_jcsev = json.load(open('data/jcsev.json'))['names']
+    companies_jgind = json.load(open('data/jgind.json'))['names']
     companies = companies_jcsev + companies_jgind
 
     df_ = load_data()
