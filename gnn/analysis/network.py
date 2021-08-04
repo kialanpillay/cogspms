@@ -28,7 +28,7 @@ def generate_network_metrics(df, n=10):
 
     df = pd.DataFrame(columns=['Edges', 'Network Density', 'Betweenness Centrality', 'Degree Centrality',
                                'Closeness Centrality' '# Correlations', 'Top Level Communities',
-                               'Next Level Communities'])
+                               'Next Level Communities', 'Transitivity'])
 
     for i in range(1, n + 1):
         graph = nx.Graph()
@@ -54,7 +54,8 @@ def generate_network_metrics(df, n=10):
                         'Degree Centrality': round(np.mean(list(degree_dict.values())), 2), 'Closeness Centrality':
                             round(np.mean(list(closeness_dict.values())), 2), '# Correlations': i,
                         'Top Level Communities': len(sorted(map(sorted, top_level_communities))),
-                        'Next Level Communities': len(sorted(map(sorted, next_level_communities)))}, ignore_index=True)
+                        'Next Level Communities': len(sorted(map(sorted, next_level_communities))),
+                        'Transitivity': round(nx.transitivity(graph), 2)}, ignore_index=True)
 
     d = nx.coloring.greedy_color(graph, strategy="largest_first")
     d_ = {}
