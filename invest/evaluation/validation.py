@@ -101,12 +101,12 @@ def process_benchmark_metrics(start_year, end_year, index_code):
 
 def process_benchmark_risk_adjusted_return_metrics(df, start_year, end_year, index_code, compound_return,
                                                    average_annual_return, annual_returns):
-    df_ = pd.read_csv('data/INVEST_IRESS_/RiskFreeRateOfReturn.csv', delimiter=';')
+    df_ = pd.read_csv('data/INVEST_clean.csv', delimiter=';')
     portfolio_return = compound_return * 100
     rf = []
     for year in range(start_year, end_year):
-        mask = df_['Year'] == year
-        rf.append(float(df_.loc[mask, 'RiskFreeRateOfReturn'].iloc[-1].replace(',', '.')) / 100)
+        mask = (df['Date'] >= str(year) + '-01-01') & (df['Date'] <= str(year) + '-12-31')
+        rf.append(df_[mask].iloc[-1]['RiskFreeRateOfReturn'] / 100)
 
     mask = (df['Date'] >= str(start_year) + '/01/01') & (df['Date'] <= str(start_year) + '/12/31')
     df.loc[mask, 'Beta Weekly Leveraged'] = [x.replace(',', '.') for x in df.loc[mask, 'Beta Weekly Leveraged']]
