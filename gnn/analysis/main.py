@@ -6,7 +6,7 @@ import pandas as pd
 import seaborn as sn
 
 from cluster import spectral_bicluster
-from network import build_network, generate_network_metrics
+from network import build_network, generate_network_metrics, build_hierarchical_network
 
 
 def run():
@@ -16,10 +16,14 @@ def run():
     df_cluster = spectral_bicluster(corr, 2)
     graph = None
     if args.network:
-        graph = build_network(df, args.n)
-        df_metrics = generate_network_metrics(df, args.n)
-        print(df_metrics.loc[df_metrics['# Correlations'] == args.n])
-        print(df_metrics.head())
+        if args.hierarchical:
+            graph = build_hierarchical_network(df, args.n)
+            df_metrics = generate_network_metrics(df, args.n, True)
+        else:
+            graph = build_network(df, args.n)
+            df_metrics = generate_network_metrics(df, args.n)
+        if args.save:
+            df_metrics.to_csv('network_metrics.csv', index=False)
 
     if args.plot:
         sn.set(font_scale=0.5)
@@ -56,7 +60,9 @@ if __name__ == '__main__':
     parser.add_argument('--raw', type=str, default='data/JSE_clean_truncated.csv')
     parser.add_argument('--plot', type=str2bool, default=False)
     parser.add_argument('--network', type=str2bool, default=False)
+    parser.add_argument('--hierarchical', type=str2bool, default=False)
     parser.add_argument('--n', type=int, default=5)
     parser.add_argument('--seed', type=int, default=3)
+    parser.add_argument('--save', type=str2bool, default=True)
     args = parser.parse_args()
     run()
