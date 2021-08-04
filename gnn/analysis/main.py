@@ -40,11 +40,22 @@ def run():
         plt.show()
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--raw', type=str, default='data/JSE_clean_truncated.csv')
-    parser.add_argument('--plot', type=bool, default=False)
-    parser.add_argument('--network', type=bool, default=False)
+    parser.add_argument('--plot', type=str2bool, default=False)
+    parser.add_argument('--network', type=str2bool, default=False)
     parser.add_argument('--n', type=int, default=5)
     parser.add_argument('--seed', type=int, default=3)
     args = parser.parse_args()
