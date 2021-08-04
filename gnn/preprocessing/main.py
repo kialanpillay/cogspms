@@ -47,19 +47,20 @@ def clean():
         if not os.path.isfile(args.output):
             start_time = time.time()
             clean_df = pd.DataFrame()
-            dir_ = args.raw_folder + '_' + args.source
-            for path in os.listdir(args.raw_folder + '_' + args.source):
+            for path in os.listdir(args.raw_folder):
                 if path == ".DS_Store":
                     continue
                 name = path[0:path.index(".")]
                 print(name)
-                df = pd.read_csv(os.path.join(dir_, path), delimiter=';')
+                df = pd.read_csv(os.path.join(args.raw_folder, path), delimiter=';')
+                print(df.columns)
                 clean_df[name] = pd.to_numeric(df['Close'])
+                clean_df[name].fillna(0, inplace=True)
 
-            clean_df.reindex(index=clean_df.index[::-1]).to_csv(args.output + "_clean.csv", index=False)
+            clean_df.reindex(index=clean_df.index[::-1]).to_csv(args.output + "_GNN_clean.csv", index=False)
             print("Processing Time: {:5.2f}s".format(time.time() - start_time))
 
-        df = pd.read_csv(args.output + "_daily_clean.csv")
+        df = pd.read_csv(args.output + "_GNN_clean.csv")
         print(df.head())
 
     elif "SP500" in args.raw:
