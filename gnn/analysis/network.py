@@ -27,7 +27,8 @@ def generate_network_metrics(df, n=10):
     v_corr = corr.values
 
     df = pd.DataFrame(columns=['Edges', 'Network Density', 'Betweenness Centrality', 'Degree Centrality',
-                               '# Correlations', 'Top Level Communities', 'Next Level Communities'])
+                               'Closeness Centrality' '# Correlations', 'Top Level Communities',
+                               'Next Level Communities'])
 
     for i in range(1, n + 1):
         graph = nx.Graph()
@@ -43,13 +44,15 @@ def generate_network_metrics(df, n=10):
 
         degree_dict = nx.degree_centrality(graph)
         betweenness_dict = nx.betweenness_centrality(graph, normalized=True, endpoints=True)
+        closeness_dict = nx.closeness_centrality(graph)
         communities_generator = community.girvan_newman(graph)
         top_level_communities = next(communities_generator)
         next_level_communities = next(communities_generator)
 
         df = df.append({'Edges': graph.number_of_edges(), 'Network Density': round(nx.density(graph), 2),
                         'Betweenness Centrality': round(np.mean(list(betweenness_dict.values())), 2),
-                        'Degree Centrality': round(np.mean(list(degree_dict.values())), 2), '# Correlations': i,
+                        'Degree Centrality': round(np.mean(list(degree_dict.values())), 2), 'Closeness Centrality':
+                            round(np.mean(list(closeness_dict.values())), 2), '# Correlations': i,
                         'Top Level Communities': len(sorted(map(sorted, top_level_communities))),
                         'Next Level Communities': len(sorted(map(sorted, next_level_communities)))}, ignore_index=True)
 
