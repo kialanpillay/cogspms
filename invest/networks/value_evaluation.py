@@ -4,7 +4,8 @@ import numpy as np
 import pyAgrum as gum
 
 
-def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe_current_vs_history_state):
+def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe_current_vs_history_state,
+                  future_performance_state=None):
     ve_model = gum.InfluenceDiagram()
 
     # Decision node for Expensive_E
@@ -146,6 +147,14 @@ def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe
         ie.addEvidence('ForwardPE_CurrentVsHistory', [0, 1, 0])
     else:
         ie.addEvidence('ForwardPE_CurrentVsHistory', [0, 0, 1])
+
+    if future_performance_state:
+        if future_performance_state == 1 or "positive":
+            ie.addEvidence('FutureSharePerformance', [0.8, 0.1, 0.1])
+        elif forward_pe_current_vs_history_state == 0 or "stagnant":
+            ie.addEvidence('FutureSharePerformance', [0.1, 0.2, 0.1])
+        else:
+            ie.addEvidence('FutureSharePerformance', [0.1, 0.1, 0.8])
 
     ie.makeInference()
     # print('Final reward for Expensive_E: {0}'.format(ie.posteriorUtility('Expensive_E')))

@@ -7,3 +7,4 @@ __pycache__/
 *.xls
 *.DS_Store
 *.png
+!.json

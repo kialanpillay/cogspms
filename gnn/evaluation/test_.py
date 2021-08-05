@@ -59,7 +59,7 @@ def custom_test(test_data, args, result_train_file, result_test_file):
             plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
 
     x, y = process_data(test_data, args.window_size, args.horizon)
-    scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=y.std())
+    scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=x.std())
     test_loader = gnn.preprocessing.loader.CustomSimpleDataLoader(scaler.transform(x), scaler.transform(y),
                                                                   args.batch_size)
     performance_metrics = validate(model, args.model, test_loader, args.device, args.norm_method, normalize_statistic,

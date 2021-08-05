@@ -1,32 +1,29 @@
 import argparse
+import json
 import time
+
+import pandas as pd
 
 import invest.evaluation.validation as validation
 from invest.networks.invest_recommendation import investment_recommendation
 from invest.networks.quality_evaluation import quality_network
 from invest.networks.value_evaluation import value_network
+from invest.prediction.main import future_share_price_performance
 from invest.preprocessing.dataloader import load_data
 from invest.preprocessing.simulation import simulate
 from invest.store import Store
 
 
 def main():
-    companies_jcsev = ["ADVTECH", "CITY LODGE HOTELS", "CLICKS GROUP", "CURRO HOLDINGS", "CASHBUILD",
-                       "FAMOUS BRANDS", "ITALTILE",
-                       "LEWIS GROUP", "MR PRICE GROUP", "MASSMART", "PICK N PAY STORES", "SHOPRITE",
-                       "SPAR GROUP",
-                       "SUN INTERNATIONAL", "SPUR", "THE FOSCHINI GROUP", "TRUWORTHS INTL", "TSOGO SUN",
-                       "WOOLWORTHS HDG"]
-    companies_jgind = ["AFRIMAT", "BARLOWORLD", "BIDVEST GROUP", "GRINDROD", "HUDACO", "IMPERIAL",
-                       "INVICTA",
-                       "KAP INDUSTRIAL", "MPACT", "MURRAY & ROBERTS",
-                       "NAMPAK", "PPC", "RAUBEX GROUP", "REUNERT", "SUPER GROUP", "TRENCOR",
-                       "WLSN.BAYLY HOLMES-OVCON"]
+    companies_jcsev = json.load(open('data/jcsev.json'))['names']
+    companies_jgind = json.load(open('data/jgind.json'))['names']
     companies = companies_jcsev + companies_jgind
 
-    df = load_data()
+    df_ = load_data()
     if args.noise:
-        df = simulate(df)
+        df = simulate(df_)
+    else:
+        df = df_
 
     prices_current_jgind = {"2017": [], "2016": [], "2015": []}
     prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
@@ -42,9 +39,17 @@ def main():
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
                       args.margin_of_safety, args.beta, year, args.extension)
+        if args.gnn:
+            df_future_performance = future_share_price_performance(year)
+        else:
+            df_future_performance = pd.DataFrame()
         for company in companies_jgind:
             if store.get_acceptable_stock(company):
-                if investment_decision(store, company) == "Yes":
+                if not df_future_performance.empty:
+                    future_performance = df_future_performance[company][0]
+                else:
+                    future_performance = None
+                if investment_decision(store, company, future_performance) == "Yes":
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
                     df_year = df[mask]
@@ -57,16 +62,24 @@ def main():
     for year in range(2015, 2018):
         print(year, "IP.JGIND", len(investable_shares_jgind[str(year)]), investable_shares_jgind[str(year)])
 
-    validation.process_metrics(df, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
+    validation.process_metrics(df_, prices_current_jgind, prices_initial_jgind, share_betas_jgind,
                                2015, 2018, "JGIND")
     validation.process_benchmark_metrics(2015, 2018, "JGIND")
 
     for year in range(2015, 2018):
         store = Store(df, companies, companies_jcsev, companies_jgind,
-                      0.1, args.beta, year, args.extension)
+                      args.margin_of_safety, args.beta, year, args.extension)
+        if args.gnn:
+            df_future_performance = future_share_price_performance(year)
+        else:
+            df_future_performance = pd.DataFrame()
         for company in companies_jcsev:
             if store.get_acceptable_stock(company):
-                if investment_decision(store, company) == "Yes":
+                if not df_future_performance.empty:
+                    future_performance = df_future_performance[company][0]
+                else:
+                    future_performance = None
+                if investment_decision(store, company, future_performance) == "Yes":
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
                     df_year = df[mask]
@@ -81,7 +94,7 @@ def main():
     for year in range(2015, 2018):
         print(year, "IP.JCSEV", len(investable_shares_jcsev[str(year)]), investable_shares_jcsev[str(year)])
 
-    validation.process_metrics(df, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
+    validation.process_metrics(df_, prices_current_jcsev, prices_initial_jcsev, share_betas_jcsev,
                                2015, 2018, "JCSEV")
     validation.process_benchmark_metrics(2015, 2018, "JCSEV")
     hours, rem = divmod(end - start, 3600)
@@ -89,7 +102,7 @@ def main():
     print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
 
 
-def investment_decision(store, company):
+def investment_decision(store, company, future_performance=None):
     pe_relative_market = store.get_pe_relative_market(company)
     pe_relative_sector = store.get_pe_relative_sector(company)
     forward_pe = store.get_forward_pe(company)
@@ -98,9 +111,20 @@ def investment_decision(store, company):
     relative_debt_equity = store.get_relative_debt_equity(company)
     cagr_vs_inflation = store.get_cagr_vs_inflation(company)
     systematic_risk = store.get_systematic_risk(company)
-    value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe)
+
+    value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe, future_performance)
     quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
                                        systematic_risk, args.extension)
+    if args.ablation and args.network == 'v':
+        if value_decision in ["Cheap", "FairValue"]:
+            return "Yes"
+        else:
+            return "No"
+    if args.ablation and args.network == 'q':
+        if quality_decision in ["High", "Medium"]:
+            return "Yes"
+        else:
+            return "No"
     return investment_recommendation(value_decision, quality_decision)
 
 
@@ -122,5 +146,8 @@ if __name__ == '__main__':
     parser.add_argument("--beta", type=float, default=1.00)
     parser.add_argument("--extension", type=str2bool, default=False)
     parser.add_argument("--noise", type=str2bool, default=False)
+    parser.add_argument("--ablation", type=str2bool, default=False)
+    parser.add_argument("--network", type=str, default='v')
+    parser.add_argument("--gnn", type=str2bool, default=False)
     args = parser.parse_args()
     main()
