@@ -4,10 +4,8 @@ import logging
 from flask import jsonify, make_response
 from flask_restx import Resource, Namespace, reqparse, fields
 
+from invest.decision import investment_decision
 from invest.evaluation import validation
-from invest.networks.invest_recommendation import investment_recommendation
-from invest.networks.quality_evaluation import quality_network
-from invest.networks.value_evaluation import value_network
 from invest.preprocessing.dataloader import load_data
 from invest.store import Store
 
@@ -36,22 +34,6 @@ companies = companies_jcsev + companies_jgind
 companies_dict = {"JCSEV": companies_jcsev, "JGIND": companies_jgind}
 
 df = load_data()
-
-
-def investment_decision(store, company, future_performance=None):
-    pe_relative_market = store.get_pe_relative_market(company)
-    pe_relative_sector = store.get_pe_relative_sector(company)
-    forward_pe = store.get_forward_pe(company)
-
-    roe_vs_coe = store.get_roe_vs_coe(company)
-    relative_debt_equity = store.get_relative_debt_equity(company)
-    cagr_vs_inflation = store.get_cagr_vs_inflation(company)
-    systematic_risk = store.get_systematic_risk(company)
-
-    value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe, future_performance)
-    quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
-                                       systematic_risk)
-    return investment_recommendation(value_decision, quality_decision)
 
 
 def investment_portfolio(data, index_code):
