@@ -83,29 +83,27 @@ def investment_portfolio(data, index_code):
                     prices_[str(year)].append(df_year.iloc[-1]['Price'])
                     betas[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
-    ip_ar, ip_cr, ip_aar, ip_tr, ip_sr = validation.process_metrics(df,
-                                                                    prices_,
-                                                                    prices,
-                                                                    betas,
-                                                                    start_year, end_year,
-                                                                    index_code)
-    benchmark_ar, benchmark_cr, benchmark_aar, benchmark_tr, benchmark_sr = validation.process_benchmark_metrics(
-        start_year,
-        end_year,
-        index_code)
+    ip_ar, ip_cr, ip_aar, ip_treynor, ip_sharpe = validation.process_metrics(df,
+                                                                             prices_,
+                                                                             prices,
+                                                                             betas,
+                                                                             start_year, end_year,
+                                                                             index_code)
+    benchmark_ar, benchmark_cr, benchmark_aar, benchmark_treynor, benchmark_sharpe = \
+        validation.process_benchmark_metrics(start_year, end_year, index_code)
 
     portfolio = {
-        "investable_shares": investable_shares,
-        "ip_returns": ip_ar,
-        "ip_cr": ip_cr,
-        "ip_aar": ip_aar,
-        "ip_tr": ip_tr,
-        "ip_sr": ip_sr,
-        "benchmark_returns": benchmark_ar,
-        "benchmark_cr": benchmark_cr,
-        "benchmark_aar": benchmark_aar,
-        "benchmark_tr": benchmark_tr,
-        "benchmark_sr": benchmark_sr,
+        "shares": investable_shares,
+        "annualReturns": ip_ar,
+        "compoundReturn": ip_cr,
+        "averageAnnualReturn": ip_aar,
+        "treynor": ip_treynor,
+        "sharpe": ip_sharpe,
+        "benchmarkAnnualReturns": benchmark_ar,
+        "benchmarkCompoundReturn": benchmark_cr,
+        "benchmarkAverageAnnualReturn": benchmark_aar,
+        "benchmarkTreynor": benchmark_treynor,
+        "benchmarkSharpe": benchmark_sharpe,
     }
     return portfolio
 
