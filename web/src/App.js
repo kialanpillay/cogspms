@@ -85,7 +85,7 @@ export default class App extends Component {
                     </Row>
                     <Row style={{textAlign: "left"}}>
                         <Col md={6} sm={12} style={{marginBottom: "1rem"}}>
-                            <Card>
+                            <Card className={"card"}>
                                 <Card.Body>
                                     <Card.Title>Control Panel</Card.Title>
                                     <Form>
@@ -145,7 +145,7 @@ export default class App extends Component {
                         </Col>
                         <Col md={3} sm={12} style={{marginBottom: "1rem"}}>
 
-                            <Card style={{height: "8.5rem"}}>
+                            <Card style={{height: "8.5rem"}} className={"card"}>
                                 <Card.Body>
                                     <Row>
                                         <Col md={12}>
@@ -158,7 +158,7 @@ export default class App extends Component {
                             </Card>
                         </Col>
                         <Col md={3} sm={12} style={{marginBottom: "1rem"}}>
-                            <Card style={{height: "8.5rem"}}>
+                            <Card style={{height: "8.5rem"}} className={"card"}>
                                 <Card.Body>
                                     <Row>
                                         <Col md={12}>
@@ -175,7 +175,7 @@ export default class App extends Component {
                         <div>
                             <Row style={{marginTop: "1rem", textAlign: "left"}}>
                                 <Col md={3} sm={12} style={{margin: "0 0 1rem 0"}}>
-                                    <Card>
+                                    <Card className={"card"}>
                                         <Card.Body>
                                             <Card.Title>JGIND</Card.Title>
                                             <Card.Subtitle className="mb-2 text-muted">Investment
@@ -217,7 +217,7 @@ export default class App extends Component {
 
                                 </Col>
                                 <Col md={3} sm={12} style={{marginBottom: "1rem"}}>
-                                    <Card>
+                                    <Card className={"card"}>
                                         <Card.Body>
                                             <Card.Title>JGIND</Card.Title>
                                             <Card.Subtitle className="mb-2 text-muted">Benchmark</Card.Subtitle>
@@ -256,7 +256,7 @@ export default class App extends Component {
                                     </Card>
                                 </Col>
                                 <Col md={3} sm={12} style={{marginBottom: "1rem"}}>
-                                    <Card>
+                                    <Card className={"card"}>
                                         <Card.Body>
                                             <Card.Title>JCSEV</Card.Title>
                                             <Card.Subtitle className="mb-2 text-muted">Investment
@@ -296,7 +296,7 @@ export default class App extends Component {
                                     </Card>
                                 </Col>
                                 <Col md={3} sm={12} style={{marginBottom: "1rem"}}>
-                                    <Card>
+                                    <Card className={"card"}>
                                         <Card.Body>
                                             <Card.Title>JCSEV</Card.Title>
                                             <Card.Subtitle className="mb-2 text-muted">Benchmark</Card.Subtitle>
@@ -342,7 +342,7 @@ export default class App extends Component {
                     {this.state.portfolio ? <div>
                         <Row style={{marginTop: "1rem", textAlign: "left"}}>
                             <Col md={6} sm={12} style={{marginTop: "1rem"}}>
-                                <Card>
+                                <Card className={"card"}>
                                     <Card.Body>
                                         <Card.Title>JGIND</Card.Title>
                                         <Card.Subtitle className="mb-2 text-muted">Annual Returns</Card.Subtitle>
@@ -352,15 +352,13 @@ export default class App extends Component {
 
                             </Col>
                             <Col md={6} sm={12} style={{marginTop: "1rem"}}>
-
-                                <Card>
+                                <Card className={"card"}>
                                     <Card.Body>
                                         <Card.Title>JCSEV</Card.Title>
                                         <Card.Subtitle className="mb-2 text-muted">Annual Returns</Card.Subtitle>
                                         <ReturnChart data={this.processData("jcsev")}/>
                                     </Card.Body>
                                 </Card>
-
                             </Col>
                         </Row>
                     </div> : null}
