@@ -29,7 +29,10 @@ def process_metrics(df, prices_current_dict, prices_initial_dict, share_betas_di
         pv = sum(prices_initial_dict[str(y)])
     pv_ = pv + total_return
     n = end_year - start_year
-    compound_return = return_metrics.compound_return(pv, pv_, n)
+    if pv_ - pv > 0:
+        compound_return = return_metrics.compound_return(pv, pv_, n)
+    else:
+        compound_return = 0
     average_annual_return = return_metrics.average_annual_return(annual_returns)
     print('IP.{} | CR {:5.2f}% | AAR {:5.2f}%'.format(index_code, compound_return * 100,
                                                       average_annual_return * 100))
@@ -54,7 +57,10 @@ def process_risk_adjusted_return_metrics(df, share_betas_dict,
     beta_portfolio = np.mean(betas)
     risk_free_rate = np.mean(rf)
 
-    treynor_ratio = return_metrics.treynor_ratio(portfolio_return, risk_free_rate, beta_portfolio)
+    if beta_portfolio > 0:
+        treynor_ratio = return_metrics.treynor_ratio(portfolio_return, risk_free_rate, beta_portfolio)
+    else:
+        treynor_ratio = 0
 
     delta = average_annual_return - np.mean(rf)
     excess_returns = []
