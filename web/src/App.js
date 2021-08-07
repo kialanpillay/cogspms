@@ -80,7 +80,7 @@ export default class App extends Component {
                 <Container>
                     <Row>
                         <Col xl={12} lg={12} md={12}>
-                            <h1 style={{fontSize: "6rem"}}>INVEST</h1>
+                            <h1 style={{fontSize: "6rem"}}>INVE$T</h1>
                         </Col>
                     </Row>
                     <Row style={{textAlign: "left"}}>
