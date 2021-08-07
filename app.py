@@ -5,9 +5,7 @@ import time
 import pandas as pd
 
 import invest.evaluation.validation as validation
-from invest.networks.invest_recommendation import investment_recommendation
-from invest.networks.quality_evaluation import quality_network
-from invest.networks.value_evaluation import value_network
+from invest.decision import investment_decision
 from invest.prediction.main import future_share_price_performance
 from invest.preprocessing.dataloader import load_data
 from invest.preprocessing.simulation import simulate
@@ -49,7 +47,8 @@ def main():
                     future_performance = df_future_performance[company][0]
                 else:
                     future_performance = None
-                if investment_decision(store, company, future_performance) == "Yes":
+                if investment_decision(store, company, future_performance, args.extension, args.ablation, args.network) \
+                        == "Yes":
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
                     df_year = df[mask]
@@ -79,7 +78,8 @@ def main():
                     future_performance = df_future_performance[company][0]
                 else:
                     future_performance = None
-                if investment_decision(store, company, future_performance) == "Yes":
+                if investment_decision(store, company, future_performance, args.extension, args.ablation, args.network) \
+                        == "Yes":
                     mask = (df['Date'] >= str(year) + '-01-01') & (
                             df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
                     df_year = df[mask]
@@ -100,32 +100,6 @@ def main():
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
-
-
-def investment_decision(store, company, future_performance=None):
-    pe_relative_market = store.get_pe_relative_market(company)
-    pe_relative_sector = store.get_pe_relative_sector(company)
-    forward_pe = store.get_forward_pe(company)
-
-    roe_vs_coe = store.get_roe_vs_coe(company)
-    relative_debt_equity = store.get_relative_debt_equity(company)
-    cagr_vs_inflation = store.get_cagr_vs_inflation(company)
-    systematic_risk = store.get_systematic_risk(company)
-
-    value_decision = value_network(pe_relative_market, pe_relative_sector, forward_pe, future_performance)
-    quality_decision = quality_network(roe_vs_coe, relative_debt_equity, cagr_vs_inflation,
-                                       systematic_risk, args.extension)
-    if args.ablation and args.network == 'v':
-        if value_decision in ["Cheap", "FairValue"]:
-            return "Yes"
-        else:
-            return "No"
-    if args.ablation and args.network == 'q':
-        if quality_decision in ["High", "Medium"]:
-            return "Yes"
-        else:
-            return "No"
-    return investment_recommendation(value_decision, quality_decision)
 
 
 def str2bool(v):

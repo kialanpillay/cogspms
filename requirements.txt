@@ -1,9 +1,13 @@
 cairosvg
+gunicorn
+flask
+flask-restx
 networkx
 numpy
 matplotlib
 pandas
 pyAgrum
+requests
 seaborn
 scipy
 scikit-learn
