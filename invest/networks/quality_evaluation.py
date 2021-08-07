@@ -81,9 +81,9 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
     qe_model.cpt(qe_model.idFromName('ROEvsCOE'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.80]
 
     # CAGR vs Inflation
-    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Positive'}] = [1 / 3, 1 / 3, 1 / 3]
-    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Stagnant'}] = [1 / 3, 1 / 3, 1 / 3]
-    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Negative'}] = [1 / 3, 1 / 3, 1 / 3]
+    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Positive'}] = [0.80, 0.15, 0.05]
+    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Stagnant'}] = [0.15, 0.70, 0.15]
+    qe_model.cpt(qe_model.idFromName('CAGRvsInflation'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.8]
 
     # Extension
     if extension:
@@ -98,9 +98,9 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
 
         # Add CPTs
         # Systematic Risk
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [0.80, 0.15, 0.05]
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [0.20, 0.60, 0.20]
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.80]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [1 / 3, 1 / 3, 1 / 3]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [1 / 3, 1 / 3, 1 / 3]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [1 / 3, 1 / 3, 1 / 3]
 
     output_file = os.path.join('res', 'q_e')
     if not os.path.exists(output_file):
