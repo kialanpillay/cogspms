@@ -99,7 +99,7 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
         # Add CPTs
         # Systematic Risk
         qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Positive'}] = [0.80, 0.15, 0.05]
-        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] =[0.15, 0.70, 0.15]
+        qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Stagnant'}] = [0.15, 0.70, 0.15]
         qe_model.cpt(qe_model.idFromName('SystematicRisk'))[{'FutureSharePerformance': 'Negative'}] = [0.05, 0.15, 0.8]
 
     output_file = os.path.join('res', 'q_e')
