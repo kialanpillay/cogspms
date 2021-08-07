@@ -16,8 +16,6 @@ export default class App extends Component {
             beta: 0.2,
             margin: 0.1,
             portfolio: null,
-            jgindChartData: null,
-            jcsevChartData: null,
         };
         this.handleChange = this.handleChange.bind(this);
     }
@@ -35,13 +33,14 @@ export default class App extends Component {
             margin: this.state.margin,
         };
         const url = endpoint + this.encodeParameters(query);
+        this.setState({loading: true})
         fetch(url, {
             method: "GET",
         })
             .then((response) => response.json())
             .then((response) => {
                 this.setState({
-                    portfolio: response.ip,
+                    portfolio: response.portfolio,
                 });
             })
             .catch((err) => {
@@ -54,8 +53,8 @@ export default class App extends Component {
             return []
         }
         let data = []
-        let annualReturns = this.state.portfolio[index]["annualReturns"]
-        let benchmarkAnnualReturns = this.state.portfolio[index]["benchmarkAnnualReturns"]
+        let annualReturns = this.state.portfolio[index]["ip"]["annualReturns"]
+        let benchmarkAnnualReturns = this.state.portfolio[index]["benchmark"]["annualReturns"]
         for (let i = this.state.start - this.state.start; i < this.state.end - this.state.start; i++) {
             data.push({
                 Year: i + this.state.start,
@@ -135,8 +134,11 @@ export default class App extends Component {
                                                 </Form.Group>
                                             </Col>
                                             <Col style={{margin: "20px 0 0 0"}}>
-                                                <Button size="lg" variant="outline-secondary"
-                                                        onClick={this.getInvestmentPortfolio}>Predict</Button>{' '}
+                                                <Button size="lg" variant="outline-secondary" style={{width: "100%"}}
+                                                        onClick={this.getInvestmentPortfolio}>{this.state.loading ?
+                                                    <Spinner animation="border" role="status">
+                                                        <span className="sr-only"/>
+                                                    </Spinner> : "Predict"}</Button>{' '}
                                             </Col>
                                         </Row>
                                     </Form>
@@ -188,25 +190,25 @@ export default class App extends Component {
                                                 <tr>
                                                     <td style={{width: "95%"}}>Compound Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["compoundReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jgind"]["ip"]["compoundReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Average Annual Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["averageAnnualReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jgind"]["ip"]["averageAnnualReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Treynor Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["treynor"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jgind"]["ip"]["treynor"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Sharpe Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["sharpe"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jgind"]["ip"]["sharpe"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -228,25 +230,25 @@ export default class App extends Component {
                                                 <tr>
                                                     <td style={{width: "95%"}}>Compound Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["benchmarkCompoundReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jgind"]["benchmark"]["compoundReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Average Annual Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["benchmarkAverageAnnualReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jgind"]["benchmark"]["averageAnnualReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Treynor Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["benchmarkTreynor"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jgind"]["benchmark"]["treynor"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Sharpe Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jgind"]["benchmarkSharpe"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jgind"]["benchmark"]["sharpe"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -268,25 +270,25 @@ export default class App extends Component {
                                                 <tr>
                                                     <td style={{width: "95%"}}>Compound Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["compoundReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["ip"]["compoundReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Average Annual Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["averageAnnualReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["ip"]["averageAnnualReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Treynor Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["treynor"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["ip"]["treynor"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Sharpe Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["sharpe"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["ip"]["sharpe"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -307,25 +309,25 @@ export default class App extends Component {
                                                 <tr>
                                                     <td style={{width: "95%"}}>Compound Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["benchmarkCompoundReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["benchmark"]["compoundReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Average Annual Return</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["benchmarkAverageAnnualReturn"] * 100).toFixed(2)}%</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["benchmark"]["averageAnnualReturn"] * 100).toFixed(2)}%</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Treynor Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["benchmarkTreynor"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["benchmark"]["treynor"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style={{width: "95%"}}>Sharpe Ratio</td>
                                                     <td style={{textAlign: "right"}}>
-                                                        <b>{(this.state.portfolio["jcsev"]["benchmarkSharpe"]).toFixed(2)}</b>
+                                                        <b>{(this.state.portfolio["jcsev"]["benchmark"]["sharpe"]).toFixed(2)}</b>
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -333,15 +335,10 @@ export default class App extends Component {
                                         </Card.Body>
                                     </Card>
                                 </Col>
-                            </Row></div> : <Row style={{marginTop: "1rem", textAlign: "left"}}>
-                            {this.state.loading ? <Spinner animation="border" role="status">
-                                <span className="sr-only"></span>
-                            </Spinner> : null}
-                        </Row>
-                    }
+                            </Row></div> : null}
                     {this.state.portfolio ? <div>
-                        <Row style={{marginTop: "1rem", textAlign: "left"}}>
-                            <Col md={6} sm={12} style={{marginTop: "1rem"}}>
+                        <Row style={{marginBottom: "1rem", textAlign: "left"}}>
+                            <Col md={6} sm={12}>
                                 <Card className={"card"}>
                                     <Card.Body>
                                         <Card.Title>JGIND</Card.Title>
@@ -351,7 +348,7 @@ export default class App extends Component {
                                 </Card>
 
                             </Col>
-                            <Col md={6} sm={12} style={{marginTop: "1rem"}}>
+                            <Col md={6} sm={12} style={{marginBottom: "1rem"}}>
                                 <Card className={"card"}>
                                     <Card.Body>
                                         <Card.Title>JCSEV</Card.Title>

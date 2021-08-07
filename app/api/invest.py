@@ -15,11 +15,47 @@ logging.basicConfig(format="%(asctime)s - [%(levelname)s] %(message)s",
                     datefmt="%d-%b-%y %H:%M:%S",
                     level=logging.INFO)
 
-invest_resource = namespace.model("invest", {
+invest_resource_model = namespace.model("INVEST Resource", {
     "start": fields.Integer(required=True),
     "end": fields.Integer(required=True),
     "margin": fields.Float(required=False),
     "beta": fields.Float(required=False)
+})
+
+metrics_model = namespace.model("IP Metrics", {
+    "shares": fields.List(fields.String(required=True)),
+    "annualReturns": fields.List(fields.Float(required=True)),
+    "compoundReturn": fields.Float(required=True),
+    "averageAnnualReturn": fields.Float(required=True),
+    "treynor": fields.Float(required=True),
+    "sharpe": fields.Float(required=True),
+})
+
+benchmark_metrics_model = namespace.model("Benchmark Metrics", {
+    "annualReturns": fields.List(fields.Float(required=True)),
+    "compoundReturn": fields.Float(required=True),
+    "averageAnnualReturn": fields.Float(required=True),
+    "treynor": fields.Float(required=True),
+    "sharpe": fields.Float(required=True),
+})
+
+jgind_model = namespace.model("JGIND", {
+    "ip": fields.Nested(metrics_model),
+    "benchmark": fields.Nested(benchmark_metrics_model)
+})
+
+jcsev_model = namespace.model("JCSEV", {
+    "ip": fields.Nested(metrics_model),
+    "benchmark": fields.Nested(benchmark_metrics_model)
+})
+
+portfolio_model = namespace.model("Portfolio", {
+    "jgind": fields.Nested(jgind_model),
+    "jcsev": fields.Nested(jcsev_model),
+})
+
+invest_response_model = namespace.model("INVEST Response", {
+    "portfolio": fields.Nested(portfolio_model)
 })
 
 parser = reqparse.RequestParser()
@@ -75,17 +111,21 @@ def investment_portfolio(data, index_code):
         validation.process_benchmark_metrics(start_year, end_year, index_code)
 
     portfolio = {
-        "shares": investable_shares,
-        "annualReturns": ip_ar,
-        "compoundReturn": ip_cr,
-        "averageAnnualReturn": ip_aar,
-        "treynor": ip_treynor,
-        "sharpe": ip_sharpe,
-        "benchmarkAnnualReturns": benchmark_ar,
-        "benchmarkCompoundReturn": benchmark_cr,
-        "benchmarkAverageAnnualReturn": benchmark_aar,
-        "benchmarkTreynor": benchmark_treynor,
-        "benchmarkSharpe": benchmark_sharpe,
+        "ip": {
+            "shares": investable_shares,
+            "annualReturns": ip_ar,
+            "compoundReturn": ip_cr,
+            "averageAnnualReturn": ip_aar,
+            "treynor": ip_treynor,
+            "sharpe": ip_sharpe,
+        },
+        "benchmark": {
+            "annualReturns": benchmark_ar,
+            "compoundReturn": benchmark_cr,
+            "averageAnnualReturn": benchmark_aar,
+            "treynor": benchmark_treynor,
+            "sharpe": benchmark_sharpe,
+        }
     }
     return portfolio
 
@@ -104,8 +144,8 @@ class Invest(Resource):
         response.headers.add("Access-Control-Allow-Methods", "*")
         return response
 
-    @namespace.expect(invest_resource)
-    @namespace.response(200, "Success")
+    @namespace.expect(invest_resource_model)
+    @namespace.response(200, "Success", invest_response_model)
     @namespace.response(400, "Bad Request")
     def get(self):
         args = parser.parse_args()
@@ -123,7 +163,7 @@ class Invest(Resource):
                 {
                     'code': 200,
                     'status': "OK",
-                    'ip': {
+                    'portfolio': {
                         'jgind': jgind,
                         'jcsev': jcsev
                     },
