@@ -91,8 +91,6 @@ def main():
                     df_year = df_[mask]
 
                     investable_shares_jcsev[str(year)].append(company)
-                    if company == "CITY LODGE HOTELS":
-                        print(df_year.iloc[0]['Price'], df_year.iloc[-1]['Price'])
                     prices_current_jcsev[str(year)].append(df_year.iloc[-1]['Price'])
                     prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jcsev[str(year)].append(df_year.iloc[-1]["ShareBeta"])
