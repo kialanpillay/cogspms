@@ -33,14 +33,15 @@ export default class App extends Component {
             margin: this.state.margin,
         };
         const url = endpoint + this.encodeParameters(query);
-        this.setState({loading: true})
+        this.setState({loading: true, portfolio: null})
         fetch(url, {
             method: "GET",
         })
             .then((response) => response.json())
             .then((response) => {
                 this.setState({
-                    portfolio: response.portfolio,
+                    loading: false,
+                    portfolio: response.portfolio
                 });
             })
             .catch((err) => {
@@ -134,7 +135,7 @@ export default class App extends Component {
                                                 </Form.Group>
                                             </Col>
                                             <Col style={{margin: "20px 0 0 0"}}>
-                                                <Button size="lg" variant="outline-secondary" style={{width: "100%"}}
+                                                <Button size="lg" variant="outline-secondary" style={{width: "100%", height: "100%"}}
                                                         onClick={this.getInvestmentPortfolio}>{this.state.loading ?
                                                     <Spinner animation="border" role="status">
                                                         <span className="sr-only"/>
@@ -337,8 +338,8 @@ export default class App extends Component {
                                 </Col>
                             </Row></div> : null}
                     {this.state.portfolio ? <div>
-                        <Row style={{marginBottom: "1rem", textAlign: "left"}}>
-                            <Col md={6} sm={12}>
+                        <Row style={{marginTop: "1rem", textAlign: "left"}}>
+                            <Col md={6} sm={12} style={{marginBottom: "1rem"}}>
                                 <Card className={"card"}>
                                     <Card.Body>
                                         <Card.Title>JGIND</Card.Title>
