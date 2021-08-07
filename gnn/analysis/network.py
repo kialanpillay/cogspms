@@ -5,6 +5,21 @@ from networkx.algorithms import community
 
 
 def build_network(df, n=5):
+    """
+    Builds a correlation network using correlation matrix data. The maximal n correlations for each share
+    specify the edges between nodes in the network.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Correlation matrix data to cluster.
+    n : int, optional
+        Number of maximal correlations
+
+    Returns
+    -------
+    graph : networkx.Graph
+    """
     corr = df.corr()
     v_corr = corr.values
     graph = nx.Graph()
@@ -23,6 +38,22 @@ def build_network(df, n=5):
 
 
 def build_hierarchical_network(df, n=5):
+    """
+    Builds a hierarchical correlation network using correlation matrix data. The maximal n correlations for each share
+    specify the edges between nodes in the network. For each share, for each maximally correlated share,
+    an edge is inserted for each indirectly correlated share.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Correlation matrix data to cluster.
+    n : int, optional
+        Number of maximal correlations
+
+    Returns
+    -------
+    graph : networkx.Graph
+    """
     corr = df.corr()
     v_corr = corr.values
     graph = nx.Graph()
@@ -47,6 +78,22 @@ def build_hierarchical_network(df, n=5):
 
 
 def generate_network_metrics(df, n=10, hierarchical=False):
+    """
+    Builds successively denser correlation networks and computes and returns core network metrics
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Correlation matrix data to cluster.
+    n : int, optional
+        Number of maximal correlations
+    hierarchical: bool, optional
+        Build a hierarchical correlation network
+
+    Returns
+    -------
+    graph : networkx.Graph
+    """
     corr = df.corr()
     v_corr = corr.values
 
