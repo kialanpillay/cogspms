@@ -29,7 +29,7 @@ def process_metrics(df, prices_current_dict, prices_initial_dict, share_betas_di
         pv = sum(prices_initial_dict[str(y)])
     pv_ = pv + total_return
     n = end_year - start_year
-    if pv_ - pv > 0:
+    if np.abs(pv_ - pv) > 0:
         compound_return = return_metrics.compound_return(pv, pv_, n)
     else:
         compound_return = 0

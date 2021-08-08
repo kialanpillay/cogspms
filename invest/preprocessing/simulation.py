@@ -1,7 +1,8 @@
 import random
 
 
-def simulate(df, frac=0.3, scale=1, method='std'):
+def simulate(df_, frac=0.3, scale=1, method='std'):
+    df = df_.copy(deep=True)
     idx = df.sample(frac=frac).index
     if method == 'std':
         for col in df.columns:
