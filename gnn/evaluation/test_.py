@@ -64,6 +64,8 @@ def custom_test(test_data, args, result_train_file, result_test_file):
         df.to_csv(args.model + '_corr.csv')
         sn.heatmap(df, annot=False, center=0, cmap='coolwarm', square=True)
         if 'JSE' in args.dataset:
+            if not os.path.exists('img'):
+                os.makedirs('img')
             plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
 
     x, y = process_data(test_data, args.window_size, args.horizon)
