@@ -92,7 +92,7 @@ def generate_network_metrics(df, n=10, hierarchical=False):
 
     Returns
     -------
-    graph : networkx.Graph
+    df : pandas.DataFrame
     """
     corr = df.corr()
     v_corr = corr.values
@@ -141,3 +141,31 @@ def generate_network_metrics(df, n=10, hierarchical=False):
         else:
             d_[v].append(k)
     return df
+
+
+def generate_adjacency_network(df):
+    """
+    Generates a network representation of a graph adjacency matrix
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Adjacency matrix data.
+
+    Returns
+    -------
+    graph : networkx.Graph
+    """
+    v_corr = df.values
+    graph = nx.Graph()
+    edges = {}
+
+    for i, a in enumerate(v_corr):
+        idx = np.nonzero(a > 0.01)
+        edges[df.columns[i]] = df.columns[idx].values
+
+    for k, v in edges.items():
+        for n_ in v:
+            graph.add_edge(k, n_)
+
+    return graph

@@ -7,15 +7,18 @@ import pandas as pd
 import seaborn as sn
 
 from cluster import spectral_bicluster
-from network import build_network, generate_network_metrics, build_hierarchical_network
+from network import build_network, generate_network_metrics, build_hierarchical_network, generate_adjacency_network
 
 
 def run():
     df = pd.read_csv(args.raw, delimiter=',')
     corr = df.corr()
-
-    df_cluster = spectral_bicluster(corr, 2)
+    df_cluster = pd.DataFrame()
     graph = None
+
+    if args.cluster:
+        df_cluster = spectral_bicluster(corr, 2)
+
     if args.network:
         if args.hierarchical:
             graph = build_hierarchical_network(df, args.n)
@@ -26,10 +29,15 @@ def run():
         if args.save:
             df_metrics.to_csv('network_metrics.csv', index=False)
 
+    if args.adj_data:
+        df_ = pd.read_csv(args.adj_data, index_col=0)
+        graph = generate_adjacency_network(df_)
+
     if args.plot:
-        sn.set(font_scale=0.5)
-        sn.heatmap(df_cluster, annot=False, center=0, cmap='coolwarm', square=True)
-        plt.savefig(os.path.join('img', 'bicluster_n_2.png'), dpi=300, bbox_inches='tight')
+        if not df_cluster.empty:
+            sn.set(font_scale=0.5)
+            sn.heatmap(df_cluster, annot=False, center=0, cmap='coolwarm', square=True)
+            plt.savefig(os.path.join('img', 'bicluster_n_2.png'), dpi=300, bbox_inches='tight')
         if graph:
             pos = nx.spring_layout(graph, seed=args.seed)
             betweenness_dict = nx.betweenness_centrality(graph, normalized=True, endpoints=True)
@@ -58,7 +66,9 @@ def str2bool(v):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--raw', type=str, default='data/JSE_clean_truncated.csv')
+    parser.add_argument('--adj_data', type=str, default=None)
     parser.add_argument('--plot', type=str2bool, default=False)
+    parser.add_argument('--cluster', type=str2bool, default=False)
     parser.add_argument('--network', type=str2bool, default=False)
     parser.add_argument('--hierarchical', type=str2bool, default=False)
     parser.add_argument('--n', type=int, default=5)

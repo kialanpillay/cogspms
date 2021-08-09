@@ -54,6 +54,7 @@ def custom_test(test_data, args, result_train_file, result_test_file):
         columns = pd.read_csv('data/' + args.dataset + '.csv').columns
         df = pd.DataFrame(data=adj, columns=columns)
         df.index = columns.values
+        df.to_csv(args.model + '_corr.csv')
         sn.heatmap(df, annot=False, center=0, cmap='coolwarm', square=True)
         if 'JSE' in args.dataset:
             plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
