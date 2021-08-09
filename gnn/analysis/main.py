@@ -37,7 +37,8 @@ def run():
         if not df_cluster.empty:
             sn.set(font_scale=0.5)
             sn.heatmap(df_cluster, annot=False, center=0, cmap='coolwarm', square=True)
-            plt.savefig(os.path.join('img', 'bicluster_n_2.png'), dpi=300, bbox_inches='tight')
+            if args.save:
+                plt.savefig(os.path.join('img', 'bicluster_n_2.png'), dpi=300, bbox_inches='tight')
         if graph:
             pos = nx.spring_layout(graph, seed=args.seed)
             betweenness_dict = nx.betweenness_centrality(graph, normalized=True, endpoints=True)
@@ -49,7 +50,9 @@ def run():
             # for node, (x, y) in pos.items():
             #     text(x, y, node, fontsize=dict(graph.degree)[node], ha='center', va='center')
             plt.axis('off')
-            plt.savefig(os.path.join('img', 'network.png'), dpi=300, bbox_inches='tight')
+            plt.show()
+            if args.save:
+                plt.savefig(os.path.join('img', 'network.png'), dpi=300, bbox_inches='tight')
 
 
 def str2bool(v):
