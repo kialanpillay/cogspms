@@ -22,7 +22,6 @@ def train(train_data, valid_data, args, result_file):
         raise Exception('Cannot organize enough validation data')
 
     if args.norm_method == 'z_score':
-        print(train_data.shape)
         train_mean = np.mean(train_data[:, 0], axis=0)
         train_std = np.std(train_data[:, 0], axis=0)
         norm_statistic = {"mean": [train_mean], "std": [train_std]}
@@ -70,6 +69,9 @@ def train(train_data, valid_data, args, result_file):
         param = parameter.numel()
         total_params += param
     print(f"Total Trainable Params: {total_params}")
+    print("LSTM")
+    print()
+
     best_validate_mae = np.inf
     validate_score_non_decrease_count = 0
     performance_metrics = {}
@@ -88,7 +90,7 @@ def train(train_data, valid_data, args, result_file):
             cnt += 1
             optimizer.step()
             loss_total += float(loss)
-        print('| end of epoch {:3d} | time: {:5.2f}s | train_total_loss {:5.4f}'.format(epoch, (
+        print('| Epoch {:2d} | Time: {:5.2f}s | Total Loss {:5.4f}'.format(epoch + 1, (
                 time.time() - epoch_start_time), loss_total / cnt))
         save_model(model, result_file, epoch)
         if (epoch + 1) % args.exponential_decay_step == 0:
