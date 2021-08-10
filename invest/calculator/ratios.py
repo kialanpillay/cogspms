@@ -1,5 +1,6 @@
 # Historic Earnings Growth Rate - 1
 import numpy as np
+np.seterr(all="ignore")
 
 
 def historic_earnings_growth_rate(eps_list, n):
