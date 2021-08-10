@@ -141,7 +141,7 @@ if __name__ == '__main__':
             print("Train Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
         except KeyboardInterrupt:
             print('-' * 99)
-            print('Exiting from training early')
+            print('Exiting Early')
     if args.evaluate:
         if args.baseline:
             gnn.evaluation.test_.baseline_test(test_data, args, baseline_train_file, baseline_test_file)

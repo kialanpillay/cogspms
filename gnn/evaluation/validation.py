@@ -98,8 +98,9 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
             rmse[1].append(score_norm[2])
         score = (np.mean(mape[0]), np.mean(mae[0]), np.mean(rmse[0]))
         score_norm = (np.mean(mape[1]), np.mean(mae[1]), np.mean(rmse[1]))
-    print(f'NORM -  MAPE {score_norm[0]:7.4%} | MAE {score_norm[1]:7.4f} | RMSE {score_norm[2]:7.4f}')
-    print(f'RAW  -  MAPE {score[0]:7.4%} | MAE {score[1]:7.4f} | RMSE {score[2]:7.4f}')
+    print("NORM -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score_norm[0] * 100, score_norm[1],
+                                                                           score_norm[2]))
+    print("RAW  -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score[0] * 100, score[1], score[2]))
     if result_file and model_name == 'StemGNN':
         if not os.path.exists(result_file):
             os.makedirs(result_file)
@@ -154,7 +155,8 @@ def validate_baseline(model, data_loader, device, norm_method, statistic, naive=
 
     if naive:
         print("LAST VALUE MODEL")
-    print(f'NORM -  MAPE {score_norm[0]:7.4%} | MAE {score_norm[1]:7.4f} | RMSE {score_norm[2]:7.4f}')
-    print(f'RAW  -  MAPE {score[0]:7.4%} | MAE {score[1]:7.4f} | RMSE {score[2]:7.4f}')
+    print("NORM -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score_norm[0] * 100, score_norm[1],
+                                                                           score_norm[2]))
+    print("RAW  -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score[0] * 100, score[1], score[2]))
 
     return dict(mae=score[1], mape=score[0], rmse=score[2])

@@ -195,7 +195,7 @@ def train(train_data, valid_data, args, result_file):
                 loss.backward()
                 optimizer.step()
                 loss_total += float(loss)
-        print('| Epoch {:2d} | Time: {:5.2f}s | Total Loss: {:5.4f}'.format(epoch + 1, (
+        print('Epoch {:2d} | Time: {:4.2f}s | Total Loss: {:5.4f}'.format(epoch + 1, (
                 time.time() - epoch_start_time), loss_total))
         save_model(model, result_file, epoch)
         if (epoch + 1) % args.exponential_decay_step == 0:
