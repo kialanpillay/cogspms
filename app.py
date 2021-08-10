@@ -24,20 +24,25 @@ def main():
     else:
         df = df_
 
-    prices_current_jgind = {"2017": [], "2016": [], "2015": []}
-    prices_current_jcsev = {"2017": [], "2016": [], "2015": []}
-    prices_initial_jgind = {"2017": [], "2016": [], "2015": []}
-    prices_initial_jcsev = {"2017": [], "2016": [], "2015": []}
-    share_betas_jgind = {"2017": [], "2016": [], "2015": []}
-    share_betas_jcsev = {"2017": [], "2016": [], "2015": []}
-    investable_shares_jgind = {"2017": [], "2016": [], "2015": []}
-    investable_shares_jcsev = {"2017": [], "2016": [], "2015": []}
+    prices_current_jgind = {}
+    prices_current_jcsev = {}
+    prices_initial_jgind = {}
+    prices_initial_jcsev = {}
+    share_betas_jgind = {}
+    share_betas_jcsev = {}
+    investable_shares_jgind = {}
+    investable_shares_jcsev = {}
 
     start = time.time()
 
-    for year in range(2015, 2018):
+    for year in range(args.start, args.end):
         store = Store(df, companies, companies_jcsev, companies_jgind,
                       args.margin_of_safety, args.beta, year, args.extension)
+        investable_shares_jgind[str(year)] = []
+        prices_current_jgind[str(year)] = []
+        prices_initial_jgind[str(year)] = []
+        share_betas_jgind[str(year)] = []
+
         if args.gnn:
             df_future_performance = future_share_price_performance(year)
         else:
@@ -59,21 +64,26 @@ def main():
                     prices_initial_jgind[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jgind[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
-    for year in range(2015, 2018):
+    for year in range(args.start, args.end):
         print(year, "IP.JGIND", len(investable_shares_jgind[str(year)]), investable_shares_jgind[str(year)])
 
     _, ip_cr_jgind, ip_aar_jgind, ip_tr_jgind, ip_sr_jgind = validation.process_metrics(df_,
                                                                                         prices_current_jgind,
                                                                                         prices_initial_jgind,
                                                                                         share_betas_jgind,
-                                                                                        2015, 2018, "JGIND")
+                                                                                        args.start, args.end, "JGIND")
     jgind_metrics_ = [ip_cr_jgind, ip_aar_jgind, ip_tr_jgind, ip_sr_jgind]
     if not args.noise:
-        validation.process_benchmark_metrics(2015, 2018, "JGIND")
+        validation.process_benchmark_metrics(args.start, args.end, "JGIND")
 
-    for year in range(2015, 2018):
+    for year in range(args.start, args.end):
         store = Store(df, companies, companies_jcsev, companies_jgind,
                       args.margin_of_safety, args.beta, year, args.extension)
+        investable_shares_jcsev[str(year)] = []
+        prices_current_jcsev[str(year)] = []
+        prices_initial_jcsev[str(year)] = []
+        share_betas_jcsev[str(year)] = []
+
         if args.gnn:
             df_future_performance = future_share_price_performance(year)
         else:
@@ -97,16 +107,16 @@ def main():
 
     end = time.time()
 
-    for year in range(2015, 2018):
+    for year in range(args.start, args.end):
         print(year, "IP.JCSEV", len(investable_shares_jcsev[str(year)]), investable_shares_jcsev[str(year)])
     _, ip_cr_jcsev, ip_aar_jcsev, ip_tr_jcsev, ip_sr_jcsev = validation.process_metrics(df_,
                                                                                         prices_current_jcsev,
                                                                                         prices_initial_jcsev,
                                                                                         share_betas_jcsev,
-                                                                                        2015, 2018, "JCSEV")
+                                                                                        args.start, args.end, "JCSEV")
     jcsev_metrics_ = [ip_cr_jcsev, ip_aar_jcsev, ip_tr_jcsev, ip_sr_jcsev]
     if not args.noise:
-        validation.process_benchmark_metrics(2015, 2018, "JCSEV")
+        validation.process_benchmark_metrics(args.start, args.end, "JCSEV")
 
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
@@ -128,6 +138,8 @@ def str2bool(v):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Intelligent system for automated share evaluation',
                                      epilog='Version 0.1')
+    parser.add_argument("--start", type=int, default=2015)
+    parser.add_argument("--end", type=int, default=2018)
     parser.add_argument("--margin_of_safety", type=float, default=0.10)
     parser.add_argument("--beta", type=float, default=1.00)
     parser.add_argument("--extension", type=str2bool, default=False)
