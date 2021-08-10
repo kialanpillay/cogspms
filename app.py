@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 
+import art
 import numpy as np
 import pandas as pd
 
@@ -11,6 +12,8 @@ from invest.prediction.main import future_share_price_performance
 from invest.preprocessing.dataloader import load_data
 from invest.preprocessing.simulation import simulate
 from invest.store import Store
+
+VERSION = 1.0
 
 
 def main():
@@ -64,6 +67,9 @@ def main():
                     prices_initial_jgind[str(year)].append(df_year.iloc[0]['Price'])
                     share_betas_jgind[str(year)].append(df_year.iloc[-1]["ShareBeta"])
 
+    print("\nJGIND {} - {}".format(args.start, args.end))
+    print("-" * 50)
+    print("\nInvestable Shares")
     for year in range(args.start, args.end):
         print(year, "IP.JGIND", len(investable_shares_jgind[str(year)]), investable_shares_jgind[str(year)])
 
@@ -107,6 +113,10 @@ def main():
 
     end = time.time()
 
+    print("-" * 50)
+    print("\nJCSEV {} - {}".format(args.start, args.end))
+    print("-" * 50)
+    print("\nInvestable Shares")
     for year in range(args.start, args.end):
         print(year, "IP.JCSEV", len(investable_shares_jcsev[str(year)]), investable_shares_jcsev[str(year)])
     _, ip_cr_jcsev, ip_aar_jcsev, ip_tr_jcsev, ip_sr_jcsev = validation.process_metrics(df_,
@@ -120,7 +130,7 @@ def main():
 
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
-    print("Experiment time taken: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+    print("\nExperiment Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
     return jgind_metrics_, jcsev_metrics_
 
 
@@ -137,7 +147,7 @@ def str2bool(v):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Intelligent system for automated share evaluation',
-                                     epilog='Version 0.1')
+                                     epilog='Version 1.0')
     parser.add_argument("--start", type=int, default=2015)
     parser.add_argument("--end", type=int, default=2018)
     parser.add_argument("--margin_of_safety", type=float, default=0.10)
@@ -148,6 +158,13 @@ if __name__ == '__main__':
     parser.add_argument("--network", type=str, default='v')
     parser.add_argument("--gnn", type=str2bool, default=False)
     args = parser.parse_args()
+
+    print(art.text2art("INVEST"))
+    print("Insaaf Dhansay & Kialan Pillay")
+    print("© University of Cape Town 2021")
+    print("Version {}".format(VERSION))
+    print("=" * 50)
+
     if args.noise:
         jgind_metrics = []
         jcsev_metrics = []

@@ -1,5 +1,6 @@
 # Historic Earnings Growth Rate - 1
 import numpy as np
+
 np.seterr(all="ignore")
 
 
