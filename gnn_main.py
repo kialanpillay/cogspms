@@ -1,5 +1,6 @@
 import argparse
 import os
+import warnings
 from datetime import datetime
 
 import numpy as np
@@ -23,6 +24,8 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
+
+warnings.filterwarnings("ignore", category=UserWarning)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
