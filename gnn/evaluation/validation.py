@@ -117,19 +117,24 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     return dict(mae=score[1], mape=score[0], rmse=score[2])
 
 
-def validate_baseline(model, data_loader, device, norm_method, statistic):
-    model.eval()
+def validate_baseline(model, data_loader, device, norm_method, statistic, naive=False):
     forecast_set = []
     target_set = []
-    with torch.no_grad():
+    if naive:
         for i, (inputs, target) in enumerate(data_loader):
-            inputs = torch.Tensor(inputs[:, :, 0]).to(device)
-            target_norm = torch.Tensor(target[:, :, 0]).to(device)
-            model.hidden = (torch.zeros(1, 1, model.hidden_layers),
-                            torch.zeros(1, 1, model.hidden_layers))
-            forecast_result = model(inputs)
-            forecast_set.append(forecast_result.squeeze())
-            target_set.append(target_norm.detach().cpu().numpy())
+            forecast_set.append(inputs[:, -1, 0])
+            target_set.append(target[:, :, 0])
+    else:
+        model.eval()
+        with torch.no_grad():
+            for i, (inputs, target) in enumerate(data_loader):
+                inputs = torch.Tensor(inputs[:, :, 0]).to(device)
+                target_norm = torch.Tensor(target[:, :, 0]).to(device)
+                model.hidden = (torch.zeros(1, 1, model.hidden_layers),
+                                torch.zeros(1, 1, model.hidden_layers))
+                forecast_result = model(inputs)
+                forecast_set.append(forecast_result.squeeze())
+                target_set.append(target_norm.detach().cpu().numpy())
 
     forecast_norm = torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...].detach().cpu() \
         .numpy()
@@ -147,6 +152,8 @@ def validate_baseline(model, data_loader, device, norm_method, statistic):
     score = evaluate(target, forecast)
     score_norm = evaluate(target_norm, forecast_norm)
 
+    if naive:
+        print("LAST VALUE MODEL")
     print(f'NORM: MAPE {score_norm[0]:7.9%}; MAE {score_norm[1]:7.9f}; RMSE {score_norm[2]:7.9f}.')
     print(f'RAW : MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f}.')
 

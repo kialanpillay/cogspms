@@ -98,6 +98,8 @@ def train(train_data, valid_data, args, result_file):
             print('------ VALIDATE ------')
             performance_metrics = \
                 validate_baseline(model, valid_loader, args.device, args.norm_method, norm_statistic)
+            if args.horizon == 1:
+                validate_baseline(model, valid_loader, args.device, args.norm_method, norm_statistic, True)
             if np.abs(best_validate_mae) > np.abs(performance_metrics['mae']):
                 best_validate_mae = performance_metrics['mae']
                 is_best = True
