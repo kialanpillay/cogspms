@@ -12,14 +12,14 @@ from gnn.preprocessing.utils import process_data
 from gnn.utils import load_model, inverse_transform_
 
 
-def future_share_price_performance(year, model_name="GWN", dataset="INVEST_GNN_clean"):
+def future_share_price_performance(year, model_name="GWN", dataset="INVEST_GNN_clean", horizon=10):
     result_file = os.path.join('output', model_name, dataset, 'train')
     ub = ((year - 2009) * 365)
     df = pd.read_csv(os.path.join('data', dataset + '.csv'))
     data = df.values
     y = data[ub - 1, :]
 
-    forecast = inference(data[0:ub, :], model_name, result_file).detach().cpu().numpy()
+    forecast = inference(data[0:ub, :], model_name, result_file, horizon=horizon).detach().cpu().numpy()
     y_hat = forecast.mean(axis=1)
     classification = classify(y, y_hat)
 

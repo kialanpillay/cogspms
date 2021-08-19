@@ -79,14 +79,14 @@ def process_risk_adjusted_return_metrics(df, share_betas_dict,
     return treynor_ratio, sharpe_ratio
 
 
-def process_benchmark_metrics(start_year, end_year, index_code):
+def process_benchmark_metrics(start_year, end_year, index_code, holding_period=-1):
     df = load_benchmark_data(index_code)
     annual_returns = []
     total_return = 0
     for year in range(start_year, end_year):
         mask = (df['Date'] >= str(year) + '/01/01') & (df['Date'] <= str(year) + '/12/31')
         pv = float(df.loc[mask, 'Close'].iloc[0].replace(',', '.'))
-        pv_ = float(df.loc[mask, 'Close'].iloc[-1].replace(',', '.'))
+        pv_ = float(df.loc[mask, 'Close'].iloc[holding_period].replace(',', '.'))
         return_ = pv_ - pv
         total_return += return_
         if np.abs(return_) > 0:

@@ -103,5 +103,13 @@ python3 app.py --beta 1 --extension True
 INVEST + GNN
 
 ```
+python3 gnn_main.py --model GWN --window_size 40 --horizon 20
 python3 app.py --beta 0.2 --gnn True
+```
+
+INVEST + GNN w/ Holding Periods
+
+```
+python3 gnn_main.py --model GWN --window_size 40 --horizon 20
+python3 app.py --beta 0.2 --gnn True --holding_period 1 --horizon 20
 ```

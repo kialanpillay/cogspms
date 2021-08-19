@@ -47,7 +47,7 @@ def main():
         share_betas_jgind[str(year)] = []
 
         if args.gnn:
-            df_future_performance = future_share_price_performance(year)
+            df_future_performance = future_share_price_performance(year, horizon=args.horizon)
         else:
             df_future_performance = pd.DataFrame()
         for company in companies_jgind:
@@ -63,9 +63,9 @@ def main():
                     df_year = df_[mask]
 
                     investable_shares_jgind[str(year)].append(company)
-                    prices_current_jgind[str(year)].append(df_year.iloc[-1]['Price'])
+                    prices_current_jgind[str(year)].append(df_year.iloc[args.holding_period]['Price'])
                     prices_initial_jgind[str(year)].append(df_year.iloc[0]['Price'])
-                    share_betas_jgind[str(year)].append(df_year.iloc[-1]["ShareBeta"])
+                    share_betas_jgind[str(year)].append(df_year.iloc[args.holding_period]["ShareBeta"])
 
     print("\nJGIND {} - {}".format(args.start, args.end))
     print("-" * 50)
@@ -80,7 +80,7 @@ def main():
                                                                                         args.start, args.end, "JGIND")
     jgind_metrics_ = [ip_cr_jgind, ip_aar_jgind, ip_tr_jgind, ip_sr_jgind]
     if not args.noise:
-        validation.process_benchmark_metrics(args.start, args.end, "JGIND")
+        validation.process_benchmark_metrics(args.start, args.end, "JGIND", args.holding_period)
 
     for year in range(args.start, args.end):
         store = Store(df, companies, companies_jcsev, companies_jgind,
@@ -91,7 +91,7 @@ def main():
         share_betas_jcsev[str(year)] = []
 
         if args.gnn:
-            df_future_performance = future_share_price_performance(year)
+            df_future_performance = future_share_price_performance(year, horizon=args.horizon)
         else:
             df_future_performance = pd.DataFrame()
         for company in companies_jcsev:
@@ -107,9 +107,9 @@ def main():
                     df_year = df_[mask]
 
                     investable_shares_jcsev[str(year)].append(company)
-                    prices_current_jcsev[str(year)].append(df_year.iloc[-1]['Price'])
+                    prices_current_jcsev[str(year)].append(df_year.iloc[args.holding_period]['Price'])
                     prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
-                    share_betas_jcsev[str(year)].append(df_year.iloc[-1]["ShareBeta"])
+                    share_betas_jcsev[str(year)].append(df_year.iloc[args.holding_period]["ShareBeta"])
 
     end = time.time()
 
@@ -126,7 +126,7 @@ def main():
                                                                                         args.start, args.end, "JCSEV")
     jcsev_metrics_ = [ip_cr_jcsev, ip_aar_jcsev, ip_tr_jcsev, ip_sr_jcsev]
     if not args.noise:
-        validation.process_benchmark_metrics(args.start, args.end, "JCSEV")
+        validation.process_benchmark_metrics(args.start, args.end, "JCSEV", args.holding_period)
 
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
@@ -157,6 +157,8 @@ if __name__ == '__main__':
     parser.add_argument("--ablation", type=str2bool, default=False)
     parser.add_argument("--network", type=str, default='v')
     parser.add_argument("--gnn", type=str2bool, default=False)
+    parser.add_argument("--holding_period", type=int, default=-1)
+    parser.add_argument("--horizon", type=int, default=10)
     args = parser.parse_args()
 
     print(art.text2art("INVEST"))
