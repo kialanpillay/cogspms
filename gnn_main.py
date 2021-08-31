@@ -84,23 +84,16 @@ parser.add_argument('--seed', type=int, default=101)
 parser.add_argument('--prop_alpha', type=float, default=0.05)
 parser.add_argument('--tanh_alpha', type=float, default=3)
 parser.add_argument('--splits', type=int, default=1)
-parser.add_argument('--multi_step', type=str2bool, default=True)
 
 args = parser.parse_args()
 print(f'Training Configuration: {args}')
 print()
 result_train_file = os.path.join('output', args.model, args.dataset, 'train')
-result_test_file = os.path.join('output', args.model, args.dataset, 'test')
 baseline_train_file = os.path.join('output', 'lstm', args.dataset, 'train')
-baseline_test_file = os.path.join('output', 'lstm', args.dataset, 'test')
 if not os.path.exists(result_train_file):
     os.makedirs(result_train_file)
-if not os.path.exists(result_test_file):
-    os.makedirs(result_test_file)
 if not os.path.exists(baseline_train_file):
     os.makedirs(baseline_train_file)
-if not os.path.exists(baseline_test_file):
-    os.makedirs(baseline_test_file)
 
 train_data, valid_data, test_data = load_dataset(args.dataset, args.train_length, args.valid_length, args.test_length)
 args.node_cnt = train_data.shape[1]
@@ -144,12 +137,12 @@ if __name__ == '__main__':
             print('Exiting Early')
     if args.evaluate:
         if args.baseline:
-            gnn.evaluation.test_.baseline_test(test_data, args, baseline_train_file, baseline_test_file)
+            gnn.evaluation.test_.baseline_test(test_data, args, baseline_train_file)
         before_evaluation = datetime.now().timestamp()
         if args.model == 'StemGNN':
-            gnn.evaluation.test_.test(test_data, args, result_train_file, result_test_file)
+            gnn.evaluation.test_.test(test_data, args, result_train_file)
         else:
-            gnn.evaluation.test_.custom_test(test_data, args, result_train_file, result_test_file)
+            gnn.evaluation.test_.custom_test(test_data, args, result_train_file)
         after_evaluation = datetime.now().timestamp()
         hours, rem = divmod(after_evaluation - before_evaluation, 3600)
         minutes, seconds = divmod(rem, 60)

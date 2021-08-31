@@ -2,10 +2,10 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
-from matplotlib import cm
 import networkx as nx
 import pandas as pd
 import seaborn as sn
+from matplotlib import cm
 
 from cluster import spectral_bicluster
 from network import build_network, generate_network_metrics, build_hierarchical_network, generate_adjacency_network

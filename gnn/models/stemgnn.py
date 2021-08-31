@@ -139,7 +139,6 @@ class Model(nn.Module):
         attention = self.self_graph_attention(inputs)
         attention = torch.mean(attention, dim=0)
         degree = torch.sum(attention, dim=1)
-        # laplacian is sym or not
         attention = 0.5 * (attention + attention.T)
         degree_l = torch.diag(degree)
         diagonal_degree_hat = torch.diag(1 / (torch.sqrt(degree) + 1e-7))
