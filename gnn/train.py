@@ -151,26 +151,12 @@ def train(train_data, valid_data, args, result_file):
                     else:
                         idx = perm[j * sub:]
 
-                    if args.multi_step:
-                        idx = torch.tensor(idx).to(args.device)
-                        x = inputs[:, :, idx, :]
-                        y = target[:, :, idx, :]
-                        loss = engine.train(x, y[:, 0, :, :], idx)
-                        cnt += 1
-                        loss_total += float(loss)
-                    else:
-                        idx = torch.tensor(idx).to(args.device)
-                        x = inputs[:, :, idx, :]
-                        y = target[:, idx]
-                        forecast = torch.squeeze(model(x, idx))
-                        scale = inputs.scale.expand(forecast.size(0), inputs.shape[1])
-                        scale = scale[:, idx]
-                        loss = criterion(forecast * scale, y * scale)
-                        cnt += 1
-                        loss.backward()
-                        loss_total += loss.item()
-                        samples += (forecast.size() * inputs.shape[1])
-                        loss_total += float(loss.item())
+                    idx = torch.tensor(idx).to(args.device)
+                    x = inputs[:, :, idx, :]
+                    y = target[:, :, idx, :]
+                    loss = engine.train(x, y[:, 0, :, :], idx)
+                    cnt += 1
+                    loss_total += float(loss)
 
             elif model_name == 'GWN':
                 inputs = torch.Tensor(inputs).to(args.device).transpose(1, 3)
@@ -205,8 +191,7 @@ def train(train_data, valid_data, args, result_file):
             print('------ VALIDATE ------')
             performance_metrics = \
                 validate(model, model_name, valid_loader, args.device, args.norm_method, norm_statistic,
-                         args.node_cnt, args.window_size, args.horizon,
-                         result_file=result_file, scaler=scaler)
+                         args.node_cnt, args.window_size, args.horizon, scaler=scaler)
             if np.abs(best_validate_mae) > np.abs(performance_metrics['mae']):
                 best_validate_mae = performance_metrics['mae']
                 is_best = True

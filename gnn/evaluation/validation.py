@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 import torch
 import torch.utils.data
@@ -9,6 +7,9 @@ from gnn.utils import inverse_transform_
 
 
 def custom_inference(model, data_loader, device='cpu'):
+    """
+    Performs inference and returns a set of GWN or MTGNN model predictions
+    """
     model.eval()
     forecast_set = []
     target_set = []
@@ -26,6 +27,9 @@ def custom_inference(model, data_loader, device='cpu'):
 
 
 def inference(model, data_loader, device, node_cnt, window_size, horizon):
+    """
+    Performs inference and returns a set of StemGNN model predictions
+    """
     forecast_set = []
     target_set = []
     model.eval()
@@ -52,7 +56,11 @@ def inference(model, data_loader, device, node_cnt, window_size, horizon):
 
 
 def validate(model, model_name, data_loader, device, normalize_method, statistic,
-             node_cnt, window_size, horizon, result_file=None, scaler=None):
+             node_cnt, window_size, horizon, scaler=None):
+    """
+    Validates a graph neural network model and returns raw and normalized error metrics
+    computed on validation set predictions
+    """
     if model_name == 'StemGNN':
         forecast_norm, target_norm = inference(model, data_loader, device,
                                                node_cnt, window_size, horizon)
@@ -101,24 +109,14 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     print("NORM -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score_norm[0] * 100, score_norm[1],
                                                                            score_norm[2]))
     print("RAW  -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score[0] * 100, score[1], score[2]))
-    if result_file and model_name == 'StemGNN':
-        if not os.path.exists(result_file):
-            os.makedirs(result_file)
-        step_to_print = 0
-        forecasting_2d = forecast[:, step_to_print, :]
-        forecasting_2d_target = target[:, step_to_print, :]
-
-        np.savetxt(f'{result_file}/target.csv', forecasting_2d_target, delimiter=",")
-        np.savetxt(f'{result_file}/predict.csv', forecasting_2d, delimiter=",")
-        np.savetxt(f'{result_file}/predict_abs_error.csv',
-                   np.abs(forecasting_2d - forecasting_2d_target), delimiter=",")
-        np.savetxt(f'{result_file}/predict_ape.csv',
-                   np.abs((forecasting_2d - forecasting_2d_target) / forecasting_2d_target), delimiter=",")
-
     return dict(mae=score[1], mape=score[0], rmse=score[2])
 
 
 def validate_baseline(model, data_loader, device, norm_method, statistic, naive=False):
+    """
+    Validates a LSTM or naive model and returns raw and normalized error metrics
+    computed on validation set predictions
+    """
     forecast_set = []
     target_set = []
     if naive:

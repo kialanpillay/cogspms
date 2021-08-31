@@ -162,10 +162,10 @@ def generate_adjacency_network(df):
 
     for i, a in enumerate(v_corr):
         idx = np.nonzero(a > 0.01)
-        edges[df.columns[i]] = df.columns[idx].values
+        edges[df.columns[i]] = (df.columns[idx].values, a[idx])
 
     for k, v in edges.items():
-        for n_ in v:
-            graph.add_edge(k, n_)
+        for i in range(len(v[0])):
+            graph.add_edge(k, v[0][i], weight=v[1][i])
 
     return graph

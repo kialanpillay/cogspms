@@ -96,7 +96,6 @@ class GraphWaveNet(nn.Module):
             additional_scope = kernel_size - 1
             new_dilation = 1
             for i in range(layers):
-                # dilated convolutions
                 self.filter_convs.append(nn.Conv2d(in_channels=residual_channels,
                                                    out_channels=dilation_channels,
                                                    kernel_size=(1, kernel_size), dilation=new_dilation))
@@ -105,12 +104,10 @@ class GraphWaveNet(nn.Module):
                                                  out_channels=dilation_channels,
                                                  kernel_size=(1, kernel_size), dilation=new_dilation))
 
-                # 1x1 convolution for residual connection
                 self.residual_convs.append(nn.Conv1d(in_channels=dilation_channels,
                                                      out_channels=residual_channels,
                                                      kernel_size=(1, 1)))
 
-                # 1x1 convolution for skip connection
                 self.skip_convs.append(nn.Conv1d(in_channels=dilation_channels,
                                                  out_channels=skip_channels,
                                                  kernel_size=(1, 1)))
@@ -142,7 +139,6 @@ class GraphWaveNet(nn.Module):
         x = self.start_conv(x)
         skip = 0
 
-        # calculate the current adaptive adjacency matrix once per iteration
         new_supports = None
         if self.gcn_bool and self.adapt_adj:
             adp = F.softmax(F.relu(torch.mm(self.nodevec1, self.nodevec2)), dim=1)
@@ -155,20 +151,16 @@ class GraphWaveNet(nn.Module):
         # WaveNet layers
         for i in range(self.blocks * self.layers):
             residual = x
-            # dilated convolution
-            filter = self.filter_convs[i](residual)
-            filter = torch.tanh(filter)
+            filter_ = self.filter_convs[i](residual)
+            filter_ = torch.tanh(filter_)
             gate = self.gate_convs[i](residual)
             gate = torch.sigmoid(gate)
-            x = filter * gate
-
-            # parametrized skip connection
-
+            x = filter_ * gate
             s = x
             s = self.skip_convs[i](s)
             try:
                 skip = skip[:, :, :, -s.size(3):]
-            except:
+            except BaseException:
                 skip = 0
             skip = s + skip
 
