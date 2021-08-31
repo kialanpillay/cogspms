@@ -7,7 +7,7 @@ import invest.metrics.return_ as return_metrics
 from invest.preprocessing.dataloader import load_benchmark_data
 
 
-def process_metrics(df, prices_current_dict, prices_initial_dict, share_betas_dict, start_year,
+def process_metrics(df, prices_initial_dict, prices_current_dict, share_betas_dict, start_year,
                     end_year, index_code):
     annual_returns = []
     total_return = 0

@@ -1,6 +1,99 @@
+import json
+
+import pandas as pd
+
+import invest.evaluation.validation as validation
 from invest.networks.invest_recommendation import investment_recommendation
 from invest.networks.quality_evaluation import quality_network
 from invest.networks.value_evaluation import value_network
+from invest.prediction.main import future_share_price_performance
+from invest.preprocessing.simulation import simulate
+from invest.store import Store
+
+companies_jcsev = json.load(open('data/jcsev.json'))['names']
+companies_jgind = json.load(open('data/jgind.json'))['names']
+companies = companies_jcsev + companies_jgind
+companies_dict = {"JCSEV": companies_jcsev, "JGIND": companies_jgind}
+
+
+def investment_portfolio(df_, params, index_code, verbose=False):
+    if params.noise:
+        df = simulate(df_)
+    else:
+        df = df_
+
+    prices_initial = {}
+    prices_current = {}
+    betas = {}
+    investable_shares = {}
+
+    for year in range(params.start, params.end):
+        store = Store(df, companies, companies_jcsev, companies_jgind,
+                      params.margin_of_safety, params.beta, year, False)
+        investable_shares[str(year)] = []
+        prices_initial[str(year)] = []
+        prices_current[str(year)] = []
+        betas[str(year)] = []
+        if params.gnn:
+            df_future_performance = future_share_price_performance(year, horizon=params.horizon)
+        else:
+            df_future_performance = pd.DataFrame()
+        for company in companies_dict[index_code]:
+            if store.get_acceptable_stock(company):
+                if not df_future_performance.empty:
+                    future_performance = df_future_performance[company][0]
+                else:
+                    future_performance = None
+                if investment_decision(store, company, future_performance, params.extension, params.ablation,
+                                       params.network) \
+                        == "Yes":
+                    mask = (df_['Date'] >= str(year) + '-01-01') & (
+                            df_['Date'] <= str(year) + '-12-31') & (df_['Name'] == company)
+                    df_year = df_[mask]
+
+                    investable_shares[str(year)].append(company)
+                    prices_initial[str(year)].append(df_year.iloc[0]['Price'])
+                    prices_current[str(year)].append(df_year.iloc[params.holding_period]['Price'])
+                    betas[str(year)].append(df_year.iloc[params.holding_period]["ShareBeta"])
+
+    if verbose:
+        print("\nJGIND {} - {}".format(params.start, params.end))
+        print("-" * 50)
+        print("\nInvestable Shares")
+        for year in range(params.start, params.end):
+            print(year, "IP.JGIND", len(investable_shares[str(year)]), investable_shares[str(year)])
+
+    if not params.noise:
+        validation.process_benchmark_metrics(params.start, params.end, "JGIND", params.holding_period)
+
+    ip_ar, ip_cr, ip_aar, ip_treynor, ip_sharpe = validation.process_metrics(df_,
+                                                                             prices_initial,
+                                                                             prices_current,
+                                                                             betas,
+                                                                             params.start,
+                                                                             params.end,
+                                                                             index_code)
+    benchmark_ar, benchmark_cr, benchmark_aar, benchmark_treynor, benchmark_sharpe = \
+        validation.process_benchmark_metrics(params.start, params.end, index_code)
+
+    portfolio = {
+        "ip": {
+            "shares": investable_shares,
+            "annualReturns": ip_ar,
+            "compoundReturn": ip_cr,
+            "averageAnnualReturn": ip_aar,
+            "treynor": ip_treynor,
+            "sharpe": ip_sharpe,
+        },
+        "benchmark": {
+            "annualReturns": benchmark_ar,
+            "compoundReturn": benchmark_cr,
+            "averageAnnualReturn": benchmark_aar,
+            "treynor": benchmark_treynor,
+            "sharpe": benchmark_sharpe,
+        }
+    }
+    return portfolio
 
 
 def investment_decision(store, company, future_performance=None, extension=False, ablation=False, network='v'):

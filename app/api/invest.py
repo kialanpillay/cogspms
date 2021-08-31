@@ -4,10 +4,10 @@ import logging
 from flask import jsonify, make_response
 from flask_restx import Resource, Namespace, reqparse, fields
 
-from invest.decision import investment_decision
-from invest.evaluation import validation
+from invest.decision import investment_portfolio
 from invest.preprocessing.dataloader import load_data
-from invest.store import Store
+
+df = load_data()
 
 namespace = Namespace('invest')
 
@@ -58,76 +58,33 @@ invest_response_model = namespace.model("INVEST Response", {
     "portfolio": fields.Nested(portfolio_model)
 })
 
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    else:
+        return False
+
+
 parser = reqparse.RequestParser()
 parser.add_argument('start', type=int)
 parser.add_argument('end', type=int)
 parser.add_argument('margin', type=float, default=0.1)
 parser.add_argument('beta', type=float, default=0.2)
+parser.add_argument("extension", type=str2bool, default=False)
+parser.add_argument("noise", type=str2bool, default=False)
+parser.add_argument("ablation", type=str2bool, default=False)
+parser.add_argument("network", type=str, default='v')
+parser.add_argument("gnn", type=str2bool, default=False)
+parser.add_argument("period", type=int, default=-1)
+parser.add_argument("horizon", type=int, default=10)
 
 companies_jcsev = json.load(open('data/jcsev.json'))['names']
 companies_jgind = json.load(open('data/jgind.json'))['names']
 companies = companies_jcsev + companies_jgind
 companies_dict = {"JCSEV": companies_jcsev, "JGIND": companies_jgind}
-
-df = load_data()
-
-
-def investment_portfolio(data, index_code):
-    start_year = data['start']
-    end_year = data['end']
-    margin_of_safety = data['margin']
-    beta = data['beta']
-    prices = {}
-    prices_ = {}
-    betas = {}
-    investable_shares = {}
-
-    for year in range(start_year, end_year):
-        store = Store(df, companies, companies_jcsev, companies_jgind,
-                      margin_of_safety, beta, year, False)
-        investable_shares[str(year)] = []
-        prices[str(year)] = []
-        prices_[str(year)] = []
-        betas[str(year)] = []
-        for company in companies_dict[index_code]:
-            if store.get_acceptable_stock(company):
-                if investment_decision(store, company) == "Yes":
-                    mask = (df['Date'] >= str(year) + '-01-01') & (
-                            df['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
-                    df_year = df[mask]
-
-                    investable_shares[str(year)].append(company)
-                    prices[str(year)].append(df_year.iloc[0]['Price'])
-                    prices_[str(year)].append(df_year.iloc[-1]['Price'])
-                    betas[str(year)].append(df_year.iloc[-1]["ShareBeta"])
-
-    ip_ar, ip_cr, ip_aar, ip_treynor, ip_sharpe = validation.process_metrics(df,
-                                                                             prices_,
-                                                                             prices,
-                                                                             betas,
-                                                                             start_year, end_year,
-                                                                             index_code)
-    benchmark_ar, benchmark_cr, benchmark_aar, benchmark_treynor, benchmark_sharpe = \
-        validation.process_benchmark_metrics(start_year, end_year, index_code)
-
-    portfolio = {
-        "ip": {
-            "shares": investable_shares,
-            "annualReturns": ip_ar,
-            "compoundReturn": ip_cr,
-            "averageAnnualReturn": ip_aar,
-            "treynor": ip_treynor,
-            "sharpe": ip_sharpe,
-        },
-        "benchmark": {
-            "annualReturns": benchmark_ar,
-            "compoundReturn": benchmark_cr,
-            "averageAnnualReturn": benchmark_aar,
-            "treynor": benchmark_treynor,
-            "sharpe": benchmark_sharpe,
-        }
-    }
-    return portfolio
 
 
 @namespace.route("/")
@@ -149,6 +106,8 @@ class Invest(Resource):
     @namespace.response(400, "Bad Request")
     def get(self):
         args = parser.parse_args()
+        args['margin_of_safety'] = args['margin']
+        args['holding_period'] = args['period']
         if args['start'] >= args['end']:
             response = jsonify(
                 {
@@ -157,8 +116,8 @@ class Invest(Resource):
                 }
             )
         else:
-            jgind = investment_portfolio(args, "JGIND")
-            jcsev = investment_portfolio(args, "JCSEV")
+            jgind = investment_portfolio(df, args, "JGIND")
+            jcsev = investment_portfolio(df, args, "JCSEV")
             response = jsonify(
                 {
                     'code': 200,
