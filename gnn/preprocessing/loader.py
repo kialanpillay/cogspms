@@ -9,18 +9,56 @@ from gnn.utils import transform_
 
 
 class CustomStandardScaler:
+    """
+    A Z-score normalisation scaler for higher-dimensional inputs
+    """
     def __init__(self, mean, std):
+        """
+        Parameters
+        ----------
+        mean : float
+            Raw data mean
+        std : float
+            Raw data standard deviation
+        """
         self.mean = mean
         self.std = std
 
     def transform(self, data):
+        """
+        Scales the raw data using the Z-score method
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to scale
+
+        Returns
+        -------
+        pandas.DataFrame
+        """
         return (data - self.mean) / self.std
 
     def inverse_transform(self, data):
+        """
+        Performs the inverse operation to return the denormalize the scaled data
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to transform
+
+        Returns
+        -------
+        pandas.DataFrame
+        """
         return (data * self.std) + self.mean
 
 
 class CustomSimpleDataLoader(object):
+    """
+    A custom data loader suitable for four-dimensional input features. Used by GWN and MTGNN.
+    """
     def __init__(self, xs, ys, batch_size, pad_with_last_sample=True):
         self.batch_size = batch_size
         self.current_ind = 0
@@ -57,6 +95,9 @@ class CustomSimpleDataLoader(object):
 
 
 class ForecastDataset(torch_data.Dataset):
+    """
+    Represents a StemGNN and LSTM dataset for training, validation and testing.
+    """
     def __init__(self, df, window_size, horizon, normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
         self.interval = interval
@@ -90,6 +131,24 @@ class ForecastDataset(torch_data.Dataset):
 
 
 def load_dataset(dataset, train_length, valid_length, test_length):
+    """
+    Performs the inverse operation to return the denormalize the scaled data
+
+    Parameters
+    ----------
+    dataset : pandas.DataFrame
+        Raw dataset to partition
+    train_length : int
+        Train set relative size
+    valid_length : int
+        Validation set relative size
+    test_length : int
+        Test set relative size
+
+    Returns
+    -------
+    (pandas.DataFrame, pandas.DataFrame, pandas.DataFrame)
+    """
     data_file = os.path.join('data', dataset + '.csv')
     data = pd.read_csv(data_file).values
 
