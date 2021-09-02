@@ -60,7 +60,7 @@ def average_annual_return(returns, axis=None):
 
 def treynor_ratio(portfolio_return, risk_free_rate, beta):
     """
-    Returns average annual return for a portfolio
+    Returns the Treynor ratio for a portfolio
 
     Parameters
     ----------
@@ -79,7 +79,7 @@ def treynor_ratio(portfolio_return, risk_free_rate, beta):
 
 def sharpe_ratio(portfolio_return, risk_free_rate, sigma):
     """
-    Returns average annual return for a portfolio
+    Returns the Sharpe Ratio for a portfolio
 
     Parameters
     ----------
