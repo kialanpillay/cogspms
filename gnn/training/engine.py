@@ -2,6 +2,9 @@ import torch
 
 
 class Engine:
+    """
+    A training engine for an MTGNN model, using a curriculum learning strategy
+    """
     def __init__(self, model, criterion, optim, clip, step_size, horizon, scaler, device, cl=True):
         self.scaler = scaler
         self.model = model.to(device)
