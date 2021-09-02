@@ -9,8 +9,9 @@ def historic_earnings_growth_rate(eps_list, n):
     Returns the Historic Earnings Growth Rate
 
     Parameters
+    Parameters
     ----------
-    eps_list : np.ndarray
+    eps_list : numpy.ndarray
         Earnings per share for consecutive years
     n : int
         Number of years
@@ -33,7 +34,7 @@ def historic_earnings_cagr(eps_n, eps_prev_x, x):
 
     Parameters
     ----------
-    eps_n : array
+    eps_n : numpy.ndarray
         Earnings per share for year N (current year)
     x : int
         Number of years into the past
@@ -55,9 +56,9 @@ def historic_price_to_earnings_share(price_list, eps_list):
 
     Parameters
     ----------
-    price_list : np.ndarray
+    price_list : numpy.ndarray
         Share prices over past years
-    eps_list : np.ndarray
+    eps_list : numpy.ndarray
         Earnings per share over past years
 
     Returns
@@ -137,7 +138,7 @@ def pe_relative_sector(historic_price_to_earnings_share_, pe_sector_list):
     ----------
     historic_price_to_earnings_share_ : float
         Historic Price to Earnings of the share
-    pe_sector_list : np.ndarray
+    pe_sector_list : numpy.ndarray
          Price to Earnings for the sector for past years
 
     Returns
@@ -156,7 +157,7 @@ def pe_relative_market(historic_price_to_earnings_share_, pe_market):
     ----------
     historic_price_to_earnings_share_ : float
         Historic Price to Earnings of the share
-    pe_market : np.ndarray
+    pe_market : numpy.ndarray
         Price to Earnings for the market for past years
 
     Returns
