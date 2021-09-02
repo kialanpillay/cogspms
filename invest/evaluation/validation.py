@@ -10,7 +10,7 @@ from invest.preprocessing.dataloader import load_benchmark_data
 def process_metrics(df, prices_initial_dict, prices_current_dict, share_betas_dict, start_year,
                     end_year, index_code):
     """
-        Processes risk return metrics (Annual Return, Compound Return, Annual Average Return) for selected portfolio
+    Processes risk return metrics (Annual Return, Compound Return, Annual Average Return) for selected portfolio
     """
     annual_returns = []
     total_return = 0
@@ -53,7 +53,7 @@ def process_risk_adjusted_return_metrics(df, share_betas_dict,
                                          start_year, end_year, compound_return, average_annual_return,
                                          annual_returns, index_code):
     """
-           Processes risk adjusted return metrics (Treynor Ratio, Sharpe Ratio) for selected portfolio
+    Processes risk adjusted return metrics (Treynor Ratio, Sharpe Ratio) for selected portfolio
     """
     portfolio_return = compound_return * 100
     betas = []
@@ -87,7 +87,7 @@ def process_risk_adjusted_return_metrics(df, share_betas_dict,
 
 def process_benchmark_metrics(start_year, end_year, index_code, holding_period=-1):
     """
-          Processes risk return metrics (Annual Return, Compound Return, Annual Average Return) for selected benchmark
+    Processes risk return metrics (Annual Return, Compound Return, Annual Average Return) for selected benchmark
     """
     df = load_benchmark_data(index_code)
     annual_returns = []
@@ -131,7 +131,7 @@ def process_benchmark_metrics(start_year, end_year, index_code, holding_period=-
 def process_benchmark_risk_adjusted_return_metrics(df, start_year, end_year, index_code, compound_return,
                                                    average_annual_return, annual_returns):
     """
-         Processes risk adjusted return metrics (Treynor Ratio, Sharpe Ratio) for selected benchmark
+    Processes risk adjusted return metrics (Treynor Ratio, Sharpe Ratio) for selected benchmark
     """
     df_ = pd.read_csv('data/INVEST_clean.csv')
     portfolio_return = compound_return * 100

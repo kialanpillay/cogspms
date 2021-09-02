@@ -1,6 +1,4 @@
 # Negative Earnings - Rule 1
-
-
 def negative_earnings(forward_earnings):
     """
     Returns a discrete state for negative earnings
@@ -149,7 +147,7 @@ def current_pe_relative_share_sector(margin_of_safety, current_pe_relative_share
 # ForwardPE Current vs. History - rule 7
 def forward_pe(margin_of_safety, forward_pe_, historical_pe):
     """
-    Returns a discrete state for the forward PE curent vs History value
+    Returns a discrete state for the forward PE current vs History value
 
     Parameters
     ----------

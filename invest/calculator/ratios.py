@@ -1,9 +1,9 @@
-# Historic Earnings Growth Rate - 1
 import numpy as np
 
 np.seterr(all="ignore")
 
 
+# Historic Earnings Growth Rate - 1
 def historic_earnings_growth_rate(eps_list, n):
     """
     Returns the Historic Earnings Growth Rate
@@ -33,11 +33,12 @@ def historic_earnings_cagr(eps_n, eps_prev_x, x):
 
     Parameters
     ----------
-    eps_n : list
+    eps_n : numpy.ndarray
         Earnings per share for year N (current year)
     x : int
         Number of years into the past
-    eps_prev_x: Earnings per share for year N-x
+    eps_prev_x: numpy.ndarray
+        Earnings per share for year N-x
 
     Returns
     -------
@@ -103,6 +104,7 @@ def forward_earnings_cagr(forward_earnings_n, forward_earnings_prev_x, x):
 
     Returns
     -------
+    float
     """
     if np.isnan(((forward_earnings_n / forward_earnings_prev_x) ** (1 / x))):
         return 0

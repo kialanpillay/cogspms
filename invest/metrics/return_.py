@@ -7,9 +7,9 @@ def annual_return(pv, pv_, axis=None):
 
     Parameters
     ----------
-    pv : int
+    pv : Union[int, numpy.ndarray]
        Portfolio value for previous year
-    pv_ : int
+    pv_ : Union[int, numpy.ndarray]
        Portfolio value for current year
     axis: int / None
         Array dimension
@@ -26,9 +26,9 @@ def compound_return(pv, pv_, n, axis=None):
 
     Parameters
     ----------
-    pv : int
+    pv : Union[int, numpy.ndarray]
           Portfolio value for previous year
-    pv_ : int
+    pv_ : Union[int, numpy.ndarray]
           Portfolio value for current year
     n: int
         Number of years return is compounded over
@@ -47,7 +47,7 @@ def average_annual_return(returns, axis=None):
 
     Parameters
     ----------
-    returns : list
+    returns : Union[list, numpy.ndarray]
        List of annual returns
     axis: int / None
         Array dimension
@@ -64,11 +64,11 @@ def treynor_ratio(portfolio_return, risk_free_rate, beta):
 
     Parameters
     ----------
-    portfolio_return : int
+    portfolio_return : float
        Portfolio Return in percentage
-    risk_free_rate: int
+    risk_free_rate: Union[float, numpy.ndarray]
         Risk free rate of return in percentage
-    beta: float
+    beta: Union[float, numpy.ndarray]
         Beta of portfolio
     Returns
     -------
@@ -83,9 +83,9 @@ def sharpe_ratio(portfolio_return, risk_free_rate, sigma):
 
     Parameters
     ----------
-    portfolio_return : int
+    portfolio_return : float
        Portfolio Return in percentage
-    risk_free_rate: int
+    risk_free_rate: Union[float, numpy.ndarray]
         Risk free rate of return in percentage
     sigma: float
         standard deviation of portfolio's excess return

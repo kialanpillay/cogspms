@@ -7,8 +7,9 @@ import invest.calculator.threshold as threshold
 
 class Store:
     """
-        Performs ratio and threshold calculations needed by the Bayesian Networks as input
+    Performs ratio and threshold calculations needed by the Bayesian Networks as input
     """
+
     def __init__(self, main_data, companies, companies_jcsev, companies_jgind, margin_of_safety,
                  beta, years, extension):
         """
@@ -51,7 +52,7 @@ class Store:
 
     def process(self):
         """
-            Performs the relevant calculations and thresholding for each company in the dataset
+        Performs the relevant calculations and thresholding for each company in the dataset
         """
         for company in self.companies:
             eps_year_list = []
@@ -196,20 +197,20 @@ class Store:
 
     def get_acceptable_stock(self, company):
         """
-            Returns the discrete state of whether the stock is acceptable or not for the given company
+        Returns the discrete state of whether the stock is acceptable or not for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company, "acceptable_stock"].iloc[0]
 
     def get_pe_relative_market(self, company):
         """
-            Returns the PE relative to market discrete state for the given company
+        Returns the PE relative to market discrete state for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company,
                                   "current_PE_relative_share_market_to_historical"].iloc[0]
 
     def get_pe_relative_sector(self, company):
         """
-            Returns the PE relative to sector discrete state for the given company
+        Returns the PE relative to sector discrete state for the given company
         """
 
         return self.df_shares.loc[self.df_shares['company_name'] == company,
@@ -217,30 +218,30 @@ class Store:
 
     def get_forward_pe(self, company):
         """
-           Returns the Forward PE discrete state for the given company
+        Returns the Forward PE discrete state for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company, "forward_PE_current_to_historical"].iloc[0]
 
     def get_roe_vs_coe(self, company):
         """
-           Returns the ROE vs COE discrete state for the given company
+        Returns the ROE vs COE discrete state for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company, "roe_vs_coe"].iloc[0]
 
     def get_relative_debt_equity(self, company):
         """
-           Returns the Relative Debt to Equity discrete state for the given company
+        Returns the Relative Debt to Equity discrete state for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company, "relative_debt_to_equity"].iloc[0]
 
     def get_cagr_vs_inflation(self, company):
         """
-           Returns the Compound Annual Growth Rate vs Inflation discrete state for the given company
+        Returns the Compound Annual Growth Rate vs Inflation discrete state for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company, "growth_cagr_vs_inflation"].iloc[0]
 
     def get_systematic_risk(self, company):
         """
-           Returns the Systematic Risk discrete state for the given company
+        Returns the Systematic Risk discrete state for the given company
         """
         return self.df_shares.loc[self.df_shares['company_name'] == company, "systematic_risk"].iloc[0]
