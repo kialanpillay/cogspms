@@ -5,6 +5,26 @@ from gnn.utils import calculate_scaled_laplacian, symmetric_adjacency, asymmetri
 
 
 def process_data(data, window_size, horizon):
+    """
+    Transforms a two-dimensional input (N x T) into a four-dimensional dataset,
+    where N is the number of nodes and T is the steps.
+
+    Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu. 2018.
+    Diffusion Convolutional Recurrent Neural Network: Data-Driven Traffic Forecasting.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        Input dataset
+    window_size : int
+        Input sequence length
+    horizon : int
+        Output sequence length
+
+    Returns
+    -------
+    numpy.ndarray
+    """
     x_offsets = np.sort(np.concatenate((np.arange(-(window_size - 1), 1, 1),)))
     y_offsets = np.sort(np.arange(1, (horizon + 1), 1))
     samples, nodes = data.shape[0], data.shape[1]
@@ -22,6 +42,20 @@ def process_data(data, window_size, horizon):
 
 
 def process_adjacency_matrix(adj_data, adj_type):
+    """
+    Preprocesses a Graph WaveNet adjacency matrix
+
+    Parameters
+    ----------
+    adj_data : numpy.ndarray
+        Graph adjacency matrix
+    adj_type : str
+        Adjacency matrix transformation type
+
+    Returns
+    -------
+    [numpy.ndarray]
+    """
     adj = correlation_adjacency_matrix(adj_data)
     if adj_type == "scaled_laplacian":
         adj = [calculate_scaled_laplacian(adj)]
