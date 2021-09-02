@@ -147,7 +147,7 @@ def load_dataset(dataset, train_length, valid_length, test_length):
 
     Returns
     -------
-    (pandas.DataFrame, pandas.DataFrame, pandas.DataFrame)
+    (numpy.ndarray, numpy.ndarray, numpy.ndarray)
     """
     data_file = os.path.join('data', dataset + '.csv')
     data = pd.read_csv(data_file).values

@@ -19,6 +19,20 @@ from gnn.utils import save_model
 
 
 def init_model(model_name, args):
+    """
+    Initialises a graph neural network model with the specified hyperparameters
+
+    Parameters
+    ----------
+    model_name : str
+        Train set
+    args : argparse.Namespace
+        Command line arguments
+
+    Returns
+    -------
+    Union[Model, GraphWaveNet, MTGNN]
+    """
     if model_name == 'StemGNN':
         return Model(args.node_cnt, 2, args.window_size, args.multi_layer, horizon=args.horizon)
     elif model_name == 'GWN':
@@ -48,6 +62,24 @@ def get_iterable_loader(model_name, loader):
 
 
 def train(train_data, valid_data, args, result_file):
+    """
+    Trains a graph neural network model and returns a set of validation performance metrics
+
+    Parameters
+    ----------
+    train_data : numpy.ndarray
+        Train set
+    valid_data : numpy.ndarray
+        Validation set
+    args : argparse.Namespace
+        Command line arguments
+    result_file : str
+        Directory to store trained model parameter files
+
+    Returns
+    -------
+    dict
+    """
     model_name = args.model
     model = init_model(model_name, args)
     model.to(args.device)
@@ -133,7 +165,6 @@ def train(train_data, valid_data, args, result_file):
         epoch_start_time = time.time()
         model.train()
         loss_total = 0
-        samples = 0
         cnt = 0
         if model_name != 'StemGNN':
             train_loader.shuffle()
