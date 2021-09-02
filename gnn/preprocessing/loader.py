@@ -12,6 +12,7 @@ class CustomStandardScaler:
     """
     A Z-score normalisation scaler for higher-dimensional inputs
     """
+
     def __init__(self, mean, std):
         """
         Parameters
@@ -59,6 +60,7 @@ class CustomSimpleDataLoader(object):
     """
     A custom data loader suitable for four-dimensional input features. Used by GWN and MTGNN.
     """
+
     def __init__(self, xs, ys, batch_size, pad_with_last_sample=True):
         self.batch_size = batch_size
         self.current_ind = 0
@@ -98,6 +100,7 @@ class ForecastDataset(torch_data.Dataset):
     """
     Represents a StemGNN and LSTM dataset for training, validation and testing.
     """
+
     def __init__(self, df, window_size, horizon, normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
         self.interval = interval

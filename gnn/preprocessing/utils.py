@@ -47,8 +47,8 @@ def process_adjacency_matrix(adj_data, adj_type):
 
     Parameters
     ----------
-    adj_data : numpy.ndarray
-        Graph adjacency matrix
+    adj_data : str
+        File containing adjacency matrix data
     adj_type : str
         Adjacency matrix transformation type
 
