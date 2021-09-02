@@ -7,7 +7,7 @@ def simulate(df_, frac=0.3, scale=1, method='std'):
 
     Parameters
     ----------
-    df : pandas.DataFrame
+    df_ : pandas.DataFrame
         Data frame containing company data
     frac : int
         Fraction of data to be replaced with noise
