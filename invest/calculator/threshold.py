@@ -97,7 +97,7 @@ def current_pe_relative_share_market(margin_of_safety, current_pe_relative_share
     """
     Returns a discrete state for the current PE relative share market
 
-     Parameters
+    Parameters
      ----------
      margin_of_safety : float
           Margin of safety value
@@ -256,13 +256,13 @@ def systematic_risk_classification(share_beta):
 
     Parameters
     ----------
-   share_beta : float
+    share_beta : float
        Beta of the share
 
-   Returns
-   -------
-   string
-   """
+    Returns
+    -------
+    string
+    """
     if share_beta < 1:
         return "lower"
     if share_beta == 1:

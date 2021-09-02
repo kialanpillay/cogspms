@@ -6,6 +6,25 @@ import pyAgrum as gum
 
 def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflation_state, systematic_risk_state=None,
                     extension=False):
+    """
+    Returns the final Quality Evaluation decision
+
+    Parameters
+    ----------
+    roe_vs_coe_state : string
+       Discrete state for Return on Equity vs Cost of Equity
+    relative_debt_equity_state : string
+       Discrete state for Relative Debt to Equity
+    cagr_vs_inflation_state: string
+        Discrete state for Compound Annual Growth Rate vs Inflation
+    systematic_risk_state: None
+        Discrete state for Share Beta, default is None
+    extension: bool
+        Boolean to indicate whether the extended network must be run
+    Returns
+    -------
+    string
+    """
     qe_model = gum.InfluenceDiagram()
 
     # Decision node
