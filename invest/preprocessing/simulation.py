@@ -2,6 +2,23 @@ import random
 
 
 def simulate(df_, frac=0.3, scale=1, method='std'):
+    """
+    Returns a dataframe containing noisy data
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Data frame containing company data
+    frac : int
+        Fraction of data to be replaced with noise
+    scale: int
+            Magnitude of noise
+    method: string
+            Method to create noisy data
+    Returns
+    -------
+    df_ : pandas.DataFrame
+    """
     df = df_.copy(deep=True)
     idx = df.sample(frac=frac).index
     if method == 'std':
@@ -17,7 +34,7 @@ def simulate(df_, frac=0.3, scale=1, method='std'):
         for col in df.columns:
             if col == "Name" or col == "Date":
                 continue
-            df.loc[idx, col] = 0
+            df.loc[idx, col] = 0.001
     if method == 'mean':
         for col in df.columns:
             if col == "Name" or col == "Date":
