@@ -15,6 +15,18 @@ from gnn.utils import correlation_adjacency_matrix
 
 
 def str2bool(v):
+    """
+    Converts a string argument to the boolean equivalent
+
+    Parameters
+    ----------
+    v : Union[bool, str]
+        Command line argument value
+
+    Returns
+    -------
+    bool
+    """
     if isinstance(v, bool):
         return v
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
