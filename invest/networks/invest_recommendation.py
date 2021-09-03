@@ -5,6 +5,19 @@ import pyAgrum as gum
 
 
 def investment_recommendation(value_decision, quality_decision):
+    """
+    Returns the final Investment Recommendation for the BNs
+
+    Parameters
+    ----------
+    value_decision : str
+       Final decision output of the Value Network
+    quality_decision : str
+       Final decision output of the Quality Network
+    Returns
+    -------
+    str
+    """
     value_decision_state = value_decision
     quality_decision_state = quality_decision
     ir_model = gum.InfluenceDiagram()

@@ -13,13 +13,32 @@ from gnn.utils import load_model, inverse_transform_
 
 
 def future_share_price_performance(year, model_name="GWN", dataset="INVEST_GNN_clean", horizon=10):
+    """
+    Estimates the future share price performance using a graph neural network model to
+    conduct short-term price inference
+
+    Parameters
+    ----------
+    year : int
+        Calendar year to predict performance
+    model_name : str, optional
+        Graph neural network model
+    dataset : str, optional
+        Dataset name
+    horizon : int, optional
+        Prediction horizon length
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
     result_file = os.path.join('output', model_name, dataset, 'train')
     ub = ((year - 2009) * 365)
     df = pd.read_csv(os.path.join('data', dataset + '.csv'))
     data = df.values
     y = data[ub - 1, :]
 
-    forecast = inference(data[0:ub, :], model_name, result_file, horizon=horizon).detach().cpu().numpy()
+    forecast = inference(data[0:ub, :], model_name, result_file, horizon=horizon)
     y_hat = forecast.mean(axis=1)
     classification = classify(y, y_hat)
 
@@ -30,6 +49,26 @@ def future_share_price_performance(year, model_name="GWN", dataset="INVEST_GNN_c
 
 
 def inference(data, model_name, result_file, window_size=40, horizon=10):
+    """
+    Performs inference and returns a set of model predictions
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        Price data
+    model_name : str
+        Graph neural network model
+    result_file : str
+        Directory to load trained model parameter files
+    window_size : int, optional
+        Model window size
+    horizon : int, optional
+        Prediction horizon length
+
+    Returns
+    -------
+    numpy.ndarray
+    """
     with open(os.path.join(result_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
     model = load_model(result_file)
@@ -54,6 +93,21 @@ def inference(data, model_name, result_file, window_size=40, horizon=10):
 
 
 def classify(y, y_hat):
+    """
+    Classifies a set of predicted share prices into positive, stagnant or negative performance
+    encoded by the appropriate integers
+
+    Parameters
+    ----------
+    y : list
+        True value
+    y_hat : list
+        Predicted value
+
+    Returns
+    -------
+    list
+    """
     classification = []
     for i in range(len(y)):
         if (y_hat[i] / y[i]) >= 1.02:

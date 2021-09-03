@@ -14,6 +14,24 @@ from gnn.utils import save_model
 
 
 def train(train_data, valid_data, args, result_file):
+    """
+    Trains a LSTM model and returns a set of validation performance metrics
+
+    Parameters
+    ----------
+    train_data : numpy.ndarray
+        Train set
+    valid_data : numpy.ndarray
+        Validation set
+    args : argparse.Namespace
+        Command line arguments
+    result_file : str
+        Directory to store trained model parameter files
+
+    Returns
+    -------
+    dict
+    """
     model = LSTM(input_size=args.window_size, output_size=args.horizon)
     model.to(args.device)
     if len(train_data) == 0:

@@ -6,6 +6,23 @@ import pyAgrum as gum
 
 def value_network(pe_relative_market_state, pe_relative_sector_state, forward_pe_current_vs_history_state,
                   future_performance_state=None):
+    """
+    Returns the final Value Network decision
+
+    Parameters
+    ----------
+    pe_relative_market_state : str
+       Discrete state for PE relative to market
+    pe_relative_sector_state : str
+       Discrete state for PE relative to sector
+    forward_pe_current_vs_history_state: str
+        Discrete state for Forward PE Current vs History
+    future_performance_state: Union[None, str]
+        Default value is None
+    Returns
+    -------
+    str
+    """
     ve_model = gum.InfluenceDiagram()
 
     # Decision node for Expensive_E

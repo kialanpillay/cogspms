@@ -17,6 +17,15 @@ def test(test_data, args, result_train_file):
     """
     Evaluates a StemGNN model and returns raw and normalized error metrics
     computed on out-of-sample set predictions
+
+    Parameters
+    ----------
+    test_data : numpy.ndarray
+        Test set
+    args : argparse.Namespace
+        Command line arguments
+    result_train_file : str
+        Directory to load trained model parameter files
     """
     with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
@@ -37,6 +46,15 @@ def baseline_test(test_data, args, result_train_file):
     """
     Evaluates a LSTM model and returns raw and normalized error metrics
     computed on out-of-sample set predictions
+
+    Parameters
+    ----------
+    test_data : numpy.ndarray
+        Test set
+    args : argparse.Namespace
+        Command line arguments
+    result_train_file : str
+        Directory to load trained model parameter files
     """
     with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)
@@ -62,6 +80,15 @@ def custom_test(test_data, args, result_train_file):
     """
     Evaluates a GWN or MTGNN model and returns raw and normalized error metrics
     computed on out-of-sample set predictions
+
+    Parameters
+    ----------
+    test_data : numpy.ndarray
+        Test set
+    args : argparse.Namespace
+        Command line arguments
+    result_train_file : str
+        Directory to load trained model parameter files
     """
     with open(os.path.join(result_train_file, 'norm_stat.json'), 'r') as f:
         normalize_statistic = json.load(f)

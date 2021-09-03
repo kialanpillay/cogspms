@@ -9,6 +9,19 @@ from gnn.utils import inverse_transform_
 def custom_inference(model, data_loader, device='cpu'):
     """
     Performs inference and returns a set of GWN or MTGNN model predictions
+
+    Parameters
+    ----------
+    model : Union[GraphWaveNet, MTGNN]
+        Graph neural network model for inference
+    data_loader : Generator
+        An iterable data loader
+    device : str, optional
+        Torch device
+
+    Returns
+    -------
+    (torch.Tensor, torch.Tensor)
     """
     model.eval()
     forecast_set = []
@@ -29,6 +42,25 @@ def custom_inference(model, data_loader, device='cpu'):
 def inference(model, data_loader, device, node_cnt, window_size, horizon):
     """
     Performs inference and returns a set of StemGNN model predictions
+
+    Parameters
+    ----------
+    model : Union[GraphWaveNet, MTGNN]
+        Graph neural network model for inference
+    data_loader : torch.Dataset
+        An iterable dataset
+    device : str
+        Torch device
+    node_cnt: int
+        count of graph nodes
+    window_size: int
+        Input sequence length or window size
+    horizon: int
+        Output sequence length or prediction horizon
+
+    Returns
+    -------
+    (numpy.ndarray, numpy.ndarray)
     """
     forecast_set = []
     target_set = []
@@ -60,6 +92,33 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     """
     Validates a graph neural network model and returns raw and normalized error metrics
     computed on validation set predictions
+
+    Parameters
+    ----------
+    model : Union[GraphWaveNet, MTGNN, Model]
+        Graph neural network model for validation
+    model_name: str,
+        Graph neural network model name
+    data_loader : torch.Dataset
+        An iterable dataset
+    device : str
+        Torch device
+    normalize_method: str
+        Raw data normalization method
+    statistic: dict
+        Raw data statistics
+    node_cnt: int
+        count of graph nodes
+    window_size: int
+        Input sequence length or window size
+    horizon: int
+        Output sequence length or prediction horizon
+    scaler: CustomStandardScaler, optional
+        Scaler
+
+    Returns
+    -------
+    dict
     """
     if model_name == 'StemGNN':
         forecast_norm, target_norm = inference(model, data_loader, device,
@@ -116,6 +175,25 @@ def validate_baseline(model, data_loader, device, norm_method, statistic, naive=
     """
     Validates a LSTM or naive model and returns raw and normalized error metrics
     computed on validation set predictions
+
+    Parameters
+    ----------
+    model : Union[GraphWaveNet, MTGNN, Model]
+        Graph neural network model for validation
+    data_loader : torch.Dataset
+        An iterable dataset
+    device : str
+        Torch device
+    norm_method: str
+        Raw data normalization method
+    statistic: dict
+        Raw data statistics
+    naive: bool
+        Compute last-value (naive) model performance measures
+
+    Returns
+    -------
+    dict
     """
     forecast_set = []
     target_set = []

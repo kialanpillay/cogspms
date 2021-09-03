@@ -1,132 +1,24 @@
 import argparse
-import json
 import time
 
 import art
 import numpy as np
-import pandas as pd
 
-import invest.evaluation.validation as validation
-from invest.decision import investment_decision
-from invest.prediction.main import future_share_price_performance
+from invest.decision import investment_portfolio
 from invest.preprocessing.dataloader import load_data
-from invest.preprocessing.simulation import simulate
-from invest.store import Store
 
 VERSION = 1.0
 
 
 def main():
-    companies_jcsev = json.load(open('data/jcsev.json'))['names']
-    companies_jgind = json.load(open('data/jgind.json'))['names']
-    companies = companies_jcsev + companies_jgind
-
-    df_ = load_data()
-    if args.noise:
-        df = simulate(df_)
-    else:
-        df = df_
-
-    prices_current_jgind = {}
-    prices_current_jcsev = {}
-    prices_initial_jgind = {}
-    prices_initial_jcsev = {}
-    share_betas_jgind = {}
-    share_betas_jcsev = {}
-    investable_shares_jgind = {}
-    investable_shares_jcsev = {}
-
     start = time.time()
-
-    for year in range(args.start, args.end):
-        store = Store(df, companies, companies_jcsev, companies_jgind,
-                      args.margin_of_safety, args.beta, year, args.extension)
-        investable_shares_jgind[str(year)] = []
-        prices_current_jgind[str(year)] = []
-        prices_initial_jgind[str(year)] = []
-        share_betas_jgind[str(year)] = []
-
-        if args.gnn:
-            df_future_performance = future_share_price_performance(year, horizon=args.horizon)
-        else:
-            df_future_performance = pd.DataFrame()
-        for company in companies_jgind:
-            if store.get_acceptable_stock(company):
-                if not df_future_performance.empty:
-                    future_performance = df_future_performance[company][0]
-                else:
-                    future_performance = None
-                if investment_decision(store, company, future_performance, args.extension, args.ablation, args.network) \
-                        == "Yes":
-                    mask = (df_['Date'] >= str(year) + '-01-01') & (
-                            df_['Date'] <= str(year) + '-12-31') & (df_['Name'] == company)
-                    df_year = df_[mask]
-
-                    investable_shares_jgind[str(year)].append(company)
-                    prices_current_jgind[str(year)].append(df_year.iloc[args.holding_period]['Price'])
-                    prices_initial_jgind[str(year)].append(df_year.iloc[0]['Price'])
-                    share_betas_jgind[str(year)].append(df_year.iloc[args.holding_period]["ShareBeta"])
-
-    print("\nJGIND {} - {}".format(args.start, args.end))
-    print("-" * 50)
-    print("\nInvestable Shares")
-    for year in range(args.start, args.end):
-        print(year, "IP.JGIND", len(investable_shares_jgind[str(year)]), investable_shares_jgind[str(year)])
-
-    _, ip_cr_jgind, ip_aar_jgind, ip_tr_jgind, ip_sr_jgind = validation.process_metrics(df_,
-                                                                                        prices_current_jgind,
-                                                                                        prices_initial_jgind,
-                                                                                        share_betas_jgind,
-                                                                                        args.start, args.end, "JGIND")
-    jgind_metrics_ = [ip_cr_jgind, ip_aar_jgind, ip_tr_jgind, ip_sr_jgind]
-    if not args.noise:
-        validation.process_benchmark_metrics(args.start, args.end, "JGIND", args.holding_period)
-
-    for year in range(args.start, args.end):
-        store = Store(df, companies, companies_jcsev, companies_jgind,
-                      args.margin_of_safety, args.beta, year, args.extension)
-        investable_shares_jcsev[str(year)] = []
-        prices_current_jcsev[str(year)] = []
-        prices_initial_jcsev[str(year)] = []
-        share_betas_jcsev[str(year)] = []
-
-        if args.gnn:
-            df_future_performance = future_share_price_performance(year, horizon=args.horizon)
-        else:
-            df_future_performance = pd.DataFrame()
-        for company in companies_jcsev:
-            if store.get_acceptable_stock(company):
-                if not df_future_performance.empty:
-                    future_performance = df_future_performance[company][0]
-                else:
-                    future_performance = None
-                if investment_decision(store, company, future_performance, args.extension, args.ablation, args.network) \
-                        == "Yes":
-                    mask = (df_['Date'] >= str(year) + '-01-01') & (
-                            df_['Date'] <= str(year) + '-12-31') & (df['Name'] == company)
-                    df_year = df_[mask]
-
-                    investable_shares_jcsev[str(year)].append(company)
-                    prices_current_jcsev[str(year)].append(df_year.iloc[args.holding_period]['Price'])
-                    prices_initial_jcsev[str(year)].append(df_year.iloc[0]['Price'])
-                    share_betas_jcsev[str(year)].append(df_year.iloc[args.holding_period]["ShareBeta"])
-
+    df_ = load_data()
+    jgind_portfolio = investment_portfolio(df_, args, "JGIND", True)
+    jcsev_portfolio = investment_portfolio(df_, args, "JCSEV", True)
     end = time.time()
 
-    print("-" * 50)
-    print("\nJCSEV {} - {}".format(args.start, args.end))
-    print("-" * 50)
-    print("\nInvestable Shares")
-    for year in range(args.start, args.end):
-        print(year, "IP.JCSEV", len(investable_shares_jcsev[str(year)]), investable_shares_jcsev[str(year)])
-    _, ip_cr_jcsev, ip_aar_jcsev, ip_tr_jcsev, ip_sr_jcsev = validation.process_metrics(df_,
-                                                                                        prices_current_jcsev,
-                                                                                        prices_initial_jcsev,
-                                                                                        share_betas_jcsev,
-                                                                                        args.start, args.end, "JCSEV")
-    jcsev_metrics_ = [ip_cr_jcsev, ip_aar_jcsev, ip_tr_jcsev, ip_sr_jcsev]
-    if not args.noise:
-        validation.process_benchmark_metrics(args.start, args.end, "JCSEV", args.holding_period)
+    jgind_metrics_ = list(jgind_portfolio["ip"].values())[2::]
+    jcsev_metrics_ = list(jcsev_portfolio["ip"].values())[2::]
 
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
