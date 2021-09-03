@@ -11,19 +11,19 @@ def quality_network(roe_vs_coe_state, relative_debt_equity_state, cagr_vs_inflat
 
     Parameters
     ----------
-    roe_vs_coe_state : string
+    roe_vs_coe_state : str
        Discrete state for Return on Equity vs Cost of Equity
-    relative_debt_equity_state : string
+    relative_debt_equity_state : str
        Discrete state for Relative Debt to Equity
-    cagr_vs_inflation_state: string
+    cagr_vs_inflation_state: str
         Discrete state for Compound Annual Growth Rate vs Inflation
-    systematic_risk_state: None
+    systematic_risk_state: Union[None, str]
         Discrete state for Share Beta, default is None
     extension: bool
         Boolean to indicate whether the extended network must be run
     Returns
     -------
-    string
+    str
     """
     qe_model = gum.InfluenceDiagram()
 

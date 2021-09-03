@@ -17,6 +17,25 @@ companies_dict = {"JCSEV": companies_jcsev, "JGIND": companies_jgind}
 
 
 def investment_portfolio(df_, params, index_code, verbose=False):
+    """
+    Decides the shares for inclusion in an investment portfolio using INVEST
+    Bayesian networks. Computes performance metrics for the IP and benchmark index.
+
+    Parameters
+    ----------
+    df_ : pandas.DataFrame
+        Fundamental and price data
+    params : argparse.Namespace
+        Command line arguments
+    index_code: str,
+        Johannesburg Stock Exchange sector index code
+    verbose: bool, optional
+        Print output to console
+
+    Returns
+    -------
+    portfolio: dict
+    """
     if params.noise:
         df = simulate(df_)
     else:
@@ -97,6 +116,28 @@ def investment_portfolio(df_, params, index_code, verbose=False):
 
 
 def investment_decision(store, company, future_performance=None, extension=False, ablation=False, network='v'):
+    """
+    Returns an investment decision for shares of the specified company
+
+    Parameters
+    ----------
+    store : Store
+        Ratio and threshold data store
+    company : str
+        Company to evaluate
+    future_performance: str, optional
+        FutureSharePerformance node state
+    extension: bool, optional
+        Use Quality Network systematic risk extension
+    ablation: bool, optional
+        Conduct ablation test
+    network: str, optional
+        Complement of network to ablate
+
+    Returns
+    -------
+    str
+    """
     pe_relative_market = store.get_pe_relative_market(company)
     pe_relative_sector = store.get_pe_relative_sector(company)
     forward_pe = store.get_forward_pe(company)

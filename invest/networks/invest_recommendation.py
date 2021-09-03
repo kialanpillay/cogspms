@@ -10,13 +10,13 @@ def investment_recommendation(value_decision, quality_decision):
 
     Parameters
     ----------
-    value_decision : string
+    value_decision : str
        Final decision output of the Value Network
-    quality_decision : string
+    quality_decision : str
        Final decision output of the Quality Network
     Returns
     -------
-    string
+    str
     """
     value_decision_state = value_decision
     quality_decision_state = quality_decision

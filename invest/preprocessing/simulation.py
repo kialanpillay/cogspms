@@ -12,9 +12,9 @@ def simulate(df_, frac=0.3, scale=1, method='std'):
     frac : int
         Fraction of data to be replaced with noise
     scale: int
-            Magnitude of noise
-    method: string
-            Method to create noisy data
+        Magnitude of noise
+    method: str
+        Method to create noisy data
     Returns
     -------
     df_ : pandas.DataFrame

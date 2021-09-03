@@ -106,7 +106,7 @@ def current_pe_relative_share_market(margin_of_safety, current_pe_relative_share
 
     Returns
     -------
-    string
+    str
     """
     if current_pe_relative_share_market_ / historic_pe_relative_share_market - 1 <= -margin_of_safety:
         return "cheap"
@@ -133,7 +133,7 @@ def current_pe_relative_share_sector(margin_of_safety, current_pe_relative_share
 
     Returns
     -------
-    string
+    str
     """
     if current_pe_relative_share_sector_ / historic_pe_relative_share_sector - 1 <= -margin_of_safety:
         return "cheap"
@@ -160,7 +160,7 @@ def forward_pe(margin_of_safety, forward_pe_, historical_pe):
 
     Returns
     -------
-    string
+    str
     """
     if forward_pe_ / historical_pe - 1 <= -margin_of_safety:
         return "cheap"
@@ -186,7 +186,7 @@ def roe_coe(margin_of_safety, roe, coe):
 
     Returns
     -------
-    string
+    str
     """
     if roe / coe - 1 >= margin_of_safety:
         return "above"
@@ -212,7 +212,7 @@ def cagr_inflation(margin_of_safety, cagr, inflation):
 
     Returns
     -------
-    string
+    str
     """
     cagr = cagr * 100
     if cagr / inflation - 1 >= margin_of_safety:
@@ -237,7 +237,7 @@ def relative_debt_to_equity(margin_of_safety, relative_d_e):
 
     Returns
     -------
-    string
+    str
     """
     if relative_d_e - 1 >= margin_of_safety:
         return "above"
@@ -259,7 +259,7 @@ def systematic_risk_classification(share_beta):
 
     Returns
     -------
-    string
+    str
     """
     if share_beta < 1:
         return "lower"
