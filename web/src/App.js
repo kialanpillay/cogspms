@@ -4,7 +4,61 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import {Badge, Button, Card, Col, Container, Form, Row, Spinner} from "react-bootstrap";
 import {ReturnChart} from "./ReturnChart";
 import _ from 'lodash'
-
+import Switch from "@material-ui/core/Switch";
+import { withStyles } from "@material-ui/core/styles";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+const IOSSwitch = withStyles((theme) => ({
+  root: {
+    width: 42,
+    height: 26,
+    padding: 0,
+    margin: theme.spacing(1),
+  },
+  switchBase: {
+    padding: 1,
+    "&$checked": {
+      transform: "translateX(16px)",
+      color: theme.palette.common.white,
+      "& + $track": {
+        backgroundColor: "#52d869",
+        opacity: 1,
+        border: "none",
+      },
+    },
+    "&$focusVisible $thumb": {
+      color: "#52d869",
+      border: "6px solid #fff",
+    },
+  },
+  thumb: {
+    width: 24,
+    height: 24,
+  },
+  track: {
+    borderRadius: 26 / 2,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[50],
+    opacity: 1,
+    transition: theme.transitions.create(["background-color", "border"]),
+  },
+  checked: {},
+  focusVisible: {},
+}))(({ classes, ...props }) => {
+  return (
+    <Switch
+      focusVisibleClassName={classes.focusVisible}
+      disableRipple
+      classes={{
+        root: classes.root,
+        switchBase: classes.switchBase,
+        thumb: classes.thumb,
+        track: classes.track,
+        checked: classes.checked,
+      }}
+      {...props}
+    />
+  );
+});
 
 export default class App extends Component {
     constructor(props) {
@@ -16,6 +70,10 @@ export default class App extends Component {
             beta: 0.2,
             margin: 0.1,
             portfolio: null,
+            extension: false,
+            gnn:false,
+            value:false,
+            quality:false,
         };
         this.handleChange = this.handleChange.bind(this);
     }
@@ -23,6 +81,10 @@ export default class App extends Component {
     handleChange = (event) => {
         this.setState({[event.target.name]: Number(event.target.value), portfolio: null});
     };
+
+     handleSwitch = (event) => {
+    this.setState({ [event.target.name]: !this.state.name,portfolio: null });
+  };
 
     getInvestmentPortfolio = () => {
         const endpoint = `http://127.0.0.1:5000/invest/`;
@@ -133,6 +195,17 @@ export default class App extends Component {
                                                         })}
                                                     </Form.Control>
                                                 </Form.Group>
+                                            </Col>
+                                            <Col style={{margin: "20px 0 0 0"}}>
+                                                    <FormControlLabel
+                                                     control={
+                                                        <IOSSwitch
+                                                            checked={this.state.extension}
+                                                            onChange={this.handleSwitch}
+                                                            name="extension"
+                                                        />
+                                                        }
+                                                    />
                                             </Col>
                                             <Col style={{margin: "20px 0 0 0"}}>
                                                 <Button size="lg" variant="outline-secondary"
