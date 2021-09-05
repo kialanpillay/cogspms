@@ -5,59 +5,60 @@ import {Badge, Button, Card, Col, Container, Form, Row, Spinner} from "react-boo
 import {ReturnChart} from "./ReturnChart";
 import _ from 'lodash'
 import Switch from "@material-ui/core/Switch";
-import { withStyles } from "@material-ui/core/styles";
+import {withStyles} from "@material-ui/core/styles";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+
 const IOSSwitch = withStyles((theme) => ({
-  root: {
-    width: 42,
-    height: 26,
-    padding: 0,
-    margin: theme.spacing(1),
-  },
-  switchBase: {
-    padding: 1,
-    "&$checked": {
-      transform: "translateX(16px)",
-      color: theme.palette.common.white,
-      "& + $track": {
-        backgroundColor: "#52d869",
+    root: {
+        width: 42,
+        height: 26,
+        padding: 0,
+        margin: theme.spacing(1),
+    },
+    switchBase: {
+        padding: 1,
+        "&$checked": {
+            transform: "translateX(16px)",
+            color: theme.palette.common.white,
+            "& + $track": {
+                backgroundColor: "#52d869",
+                opacity: 1,
+                border: "none",
+            },
+        },
+        "&$focusVisible $thumb": {
+            color: "#52d869",
+            border: "6px solid #fff",
+        },
+    },
+    thumb: {
+        width: 24,
+        height: 24,
+    },
+    track: {
+        borderRadius: 26 / 2,
+        border: `1px solid ${theme.palette.grey[400]}`,
+        backgroundColor: theme.palette.grey[50],
         opacity: 1,
-        border: "none",
-      },
+        transition: theme.transitions.create(["background-color", "border"]),
     },
-    "&$focusVisible $thumb": {
-      color: "#52d869",
-      border: "6px solid #fff",
-    },
-  },
-  thumb: {
-    width: 24,
-    height: 24,
-  },
-  track: {
-    borderRadius: 26 / 2,
-    border: `1px solid ${theme.palette.grey[400]}`,
-    backgroundColor: theme.palette.grey[50],
-    opacity: 1,
-    transition: theme.transitions.create(["background-color", "border"]),
-  },
-  checked: {},
-  focusVisible: {},
-}))(({ classes, ...props }) => {
-  return (
-    <Switch
-      focusVisibleClassName={classes.focusVisible}
-      disableRipple
-      classes={{
-        root: classes.root,
-        switchBase: classes.switchBase,
-        thumb: classes.thumb,
-        track: classes.track,
-        checked: classes.checked,
-      }}
-      {...props}
-    />
-  );
+    checked: {},
+    focusVisible: {},
+}))(({classes, ...props}) => {
+    return (
+        <Switch
+            focusVisibleClassName={classes.focusVisible}
+            disableRipple
+            classes={{
+                root: classes.root,
+                switchBase: classes.switchBase,
+                thumb: classes.thumb,
+                track: classes.track,
+                checked: classes.checked,
+            }}
+            {...props}
+        />
+    );
 });
 
 export default class App extends Component {
@@ -71,9 +72,9 @@ export default class App extends Component {
             margin: 0.1,
             portfolio: null,
             extension: false,
-            gnn:false,
-            value:false,
-            quality:false,
+            gnn: false,
+            value: false,
+            quality: false,
         };
         this.handleChange = this.handleChange.bind(this);
     }
@@ -82,9 +83,9 @@ export default class App extends Component {
         this.setState({[event.target.name]: Number(event.target.value), portfolio: null});
     };
 
-     handleSwitch = (event) => {
-    this.setState({ [event.target.name]: !this.state.name,portfolio: null });
-  };
+    handleSwitch = (event) => {
+        this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
+    };
 
     getInvestmentPortfolio = () => {
         const endpoint = `http://127.0.0.1:5000/invest/`;
@@ -146,7 +147,7 @@ export default class App extends Component {
                         </Col>
                     </Row>
                     <Row style={{textAlign: "left"}}>
-                        <Col xl={6} lg={6} md={12} sm={12} style={{marginBottom: "1rem"}}>
+                        <Col xl={9} lg={9} md={12} sm={12} style={{marginBottom: "1rem"}}>
                             <Card className={"card"}>
                                 <Card.Body>
                                     <Card.Title>Control Panel</Card.Title>
@@ -197,15 +198,15 @@ export default class App extends Component {
                                                 </Form.Group>
                                             </Col>
                                             <Col style={{margin: "20px 0 0 0"}}>
-                                                    <FormControlLabel
-                                                     control={
+                                                <FormControlLabel
+                                                    control={
                                                         <IOSSwitch
                                                             checked={this.state.extension}
                                                             onChange={this.handleSwitch}
                                                             name="extension"
                                                         />
-                                                        }
-                                                    />
+                                                    }
+                                                />
                                             </Col>
                                             <Col style={{margin: "20px 0 0 0"}}>
                                                 <Button size="lg" variant="outline-secondary"
@@ -221,7 +222,6 @@ export default class App extends Component {
                             </Card>
                         </Col>
                         <Col xl={3} lg={6} md={12} sm={12} style={{marginBottom: "1rem"}}>
-
                             <Card style={{height: "8.5rem"}} className={"card"}>
                                 <Card.Body>
                                     <Row>
@@ -229,19 +229,6 @@ export default class App extends Component {
                                             <Card.Title>COGSPMS</Card.Title>
                                             <Card.Subtitle>&copy; 2021 University of Cape Town </Card.Subtitle>
                                             <Card.Text><br/>Insaaf Dhansay & Kialan Pillay</Card.Text>
-                                        </Col>
-                                    </Row>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        <Col xl={3} lg={12} md={12} sm={12} style={{marginBottom: "1rem"}}>
-                            <Card style={{height: "8.5rem"}} className={"card"}>
-                                <Card.Body>
-                                    <Row>
-                                        <Col md={12}>
-                                            <Card.Title>Acknowledgements</Card.Title>
-                                            <Card.Text>This work is based on research partly funded by the National
-                                                Research Foundation of South Africa </Card.Text>
                                         </Col>
                                     </Row>
                                 </Card.Body>
