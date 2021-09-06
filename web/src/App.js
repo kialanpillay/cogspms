@@ -206,6 +206,7 @@ export default class App extends Component {
                                                             checked={this.state.extension}
                                                             onChange={this.handleSwitch}
                                                             name="extension"
+                                                            disabled={this.state.value || this.state.quality}
                                                         />
                                                     }
                                                     label="Extension"
@@ -219,6 +220,7 @@ export default class App extends Component {
                                                             checked={this.state.gnn}
                                                             onChange={this.handleSwitch}
                                                             name="gnn"
+                                                            disabled={this.state.value || this.state.quality}
                                                         />
                                                     }
                                                     label="GNN"
@@ -232,7 +234,7 @@ export default class App extends Component {
                                                             checked={this.state.value}
                                                             onChange={this.handleSwitch}
                                                             name="value"
-                                                            disabled={this.state.extension || this.state.gnn}
+                                                            disabled={this.state.extension || this.state.gnn || this.state.quality}
                                                         />
 
                                                     }
@@ -247,7 +249,7 @@ export default class App extends Component {
                                                             checked={this.state.quality}
                                                             onChange={this.handleSwitch}
                                                             name="quality"
-                                                            disabled={this.state.extension || this.state.gnn}
+                                                            disabled={this.state.extension || this.state.gnn || this.state.value}
                                                         />
 
                                                     }
