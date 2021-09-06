@@ -98,20 +98,19 @@ export default class App extends Component {
     handleGnn = (event) => {
         this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
         if (this.state.gnn==true ){
-            this.setState({gnn:this.state.gnn=true}) ;
-            console.log(this.state.gnn);
+            this.setState({disabled:this.state.disabled=true});
         }else{
-            this.setState({gnn:this.state.gnn=false})
+            this.setState({disabled:this.state.disabled=false})
         }
 
     };
      handleValue = (event) => {
         this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
-        this.setState({value:this.state.value=true})
+
     };
       handleQuality = (event) => {
         this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
-        this.setState({quality:this.state.quality=true})
+
     };
 
 
