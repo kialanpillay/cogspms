@@ -84,35 +84,10 @@ export default class App extends Component {
     handleChange = (event) => {
         this.setState({[event.target.name]: Number(event.target.value), portfolio: null});
     };
-    handleExtension = (event) => {
+
+    handleSwitch = (event) => {
         this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
-        console.log({[event.target.name]: !this.state[event.target.name]});
-        if (this.state.extension==true ){
-            this.setState({disabled:this.state.disabled=true}) ;
-            console.log(this.state.disabled);
-        }else{
-            this.setState({disabled:this.state.disabled=false})
-        }
-
-    };
-    handleGnn = (event) => {
-        this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
-        if (this.state.gnn==true ){
-            this.setState({disabled:this.state.disabled=true});
-        }else{
-            this.setState({disabled:this.state.disabled=false})
-        }
-
-    };
-     handleValue = (event) => {
-        this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
-
-    };
-      handleQuality = (event) => {
-        this.setState({[event.target.name]: !this.state[event.target.name], portfolio: null});
-
-    };
-
+    }
 
     getInvestmentPortfolio = () => {
         const endpoint = `http://127.0.0.1:5000/invest/`;
@@ -174,7 +149,7 @@ export default class App extends Component {
                         </Col>
                     </Row>
                     <Row style={{textAlign: "left"}}>
-                        <Col xl={9} lg={9} md={12} sm={12} style={{marginBottom: "1rem"}}>
+                        <Col xl={10} lg={10} md={12} sm={12} style={{marginBottom: "1rem"}}>
                             <Card className={"card"}>
                                 <Card.Body>
                                     <Card.Title>Control Panel</Card.Title>
@@ -213,7 +188,7 @@ export default class App extends Component {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={2} md={6} xs={6} >
+                                            <Col lg={2} md={6} xs={6} style={{margin: "0 -30px 0 0"}}>
                                                 <Form.Group>
                                                     <Form.Label>Margin</Form.Label>
                                                     <Form.Control name="margin" as="select" onChange={this.handleChange}
@@ -224,43 +199,40 @@ export default class App extends Component {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={1} md={3} xs={3}>
+                                            <Col lg={1} md={6} xs={6}>
                                                 <FormControlLabel
-                                                        control={
+                                                    control={
                                                         <IOSSwitch
                                                             checked={this.state.extension}
-                                                            onChange={this.handleExtension}
+                                                            onChange={this.handleSwitch}
                                                             name="extension"
-
                                                         />
-
                                                     }
                                                     label="Extension"
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-                                            <Col lg={1} md={3} xs={3} >
+                                            <Col lg={1} md={6} xs={6}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
                                                             checked={this.state.gnn}
-                                                            onChange={this.handleGnn}
+                                                            onChange={this.handleSwitch}
                                                             name="gnn"
                                                         />
-
                                                     }
                                                     label="GNN"
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-                                            <Col lg={1} md={3} xs={3}>
+                                            <Col lg={1} md={6} xs={6}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
                                                             checked={this.state.value}
-                                                            onChange={this.handleValue}
+                                                            onChange={this.handleSwitch}
                                                             name="value"
-                                                            disabled = {this.state.disabled}
+                                                            disabled={this.state.extension || this.state.gnn}
                                                         />
 
                                                     }
@@ -268,14 +240,14 @@ export default class App extends Component {
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-                                               <Col lg={1} md={3} xs={3} >
+                                            <Col lg={1} md={6} xs={6}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
                                                             checked={this.state.quality}
-                                                            onChange={this.handleQuality}
+                                                            onChange={this.handleSwitch}
                                                             name="quality"
-                                                            disabled = {this.state.disabled}
+                                                            disabled={this.state.extension || this.state.gnn}
                                                         />
 
                                                     }
@@ -283,7 +255,6 @@ export default class App extends Component {
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-
                                             <Col style={{margin: "20px 0 0 0"}}>
                                                 <Button size="lg" variant="outline-secondary"
                                                         style={{width: "100%", height: "100%"}}
@@ -297,8 +268,8 @@ export default class App extends Component {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col xl={3} lg={6} md={12} sm={12} style={{marginBottom: "1rem"}}>
-                            <Card style={{height: "8.5rem"}} className={"card"}>
+                        <Col xl={2} lg={6} md={12} sm={12} style={{marginBottom: "1rem"}}>
+                            <Card style={{height: "12.5rem"}} className={"card"}>
                                 <Card.Body>
                                     <Row>
                                         <Col md={12}>
