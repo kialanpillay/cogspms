@@ -149,13 +149,13 @@ export default class App extends Component {
                         </Col>
                     </Row>
                     <Row style={{textAlign: "left"}}>
-                        <Col xl={10} lg={10} md={12} sm={12} style={{marginBottom: "1rem"}}>
+                        <Col xl={12} lg={12} md={12} sm={12} style={{marginBottom: "1rem"}}>
                             <Card className={"card"}>
                                 <Card.Body>
                                     <Card.Title>Control Panel</Card.Title>
                                     <Form>
                                         <Row>
-                                            <Col lg={2} md={6} xs={6}>
+                                            <Col lg={1} md={6} xs={6}>
                                                 <Form.Group>
                                                     <Form.Label>Start</Form.Label>
                                                     <Form.Control name="start" as="select" onChange={this.handleChange}
@@ -166,7 +166,7 @@ export default class App extends Component {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={2} md={6} xs={6}>
+                                            <Col lg={1} md={6} xs={6}>
                                                 <Form.Group>
                                                     <Form.Label>End</Form.Label>
                                                     <Form.Control name="end" as="select" onChange={this.handleChange}
@@ -177,7 +177,7 @@ export default class App extends Component {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={2} md={6} xs={6}>
+                                            <Col lg={1} md={6} xs={6} style={{margin: "0 0 10px 0"}}>
                                                 <Form.Group>
                                                     <Form.Label>Beta</Form.Label>
                                                     <Form.Control name="beta" as="select" onChange={this.handleChange}
@@ -188,7 +188,7 @@ export default class App extends Component {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={2} md={6} xs={6} style={{margin: "0 -30px 0 0"}}>
+                                            <Col lg={1} md={6} xs={6} style={{margin: "0 0 10px 0"}}>
                                                 <Form.Group>
                                                     <Form.Label>Margin</Form.Label>
                                                     <Form.Control name="margin" as="select" onChange={this.handleChange}
@@ -199,7 +199,7 @@ export default class App extends Component {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={1} md={6} xs={6}>
+                                            <Col lg={1} md={3} xs={3} style={{margin: "0 0 0 -10px"}}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
@@ -213,7 +213,7 @@ export default class App extends Component {
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-                                            <Col lg={1} md={6} xs={6}>
+                                            <Col lg={1} md={3} xs={3}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
@@ -227,7 +227,8 @@ export default class App extends Component {
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-                                            <Col lg={1} md={6} xs={6}>
+
+                                            <Col lg={1} md={3} xs={3}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
@@ -236,13 +237,12 @@ export default class App extends Component {
                                                             name="value"
                                                             disabled={this.state.extension || this.state.gnn || this.state.quality}
                                                         />
-
                                                     }
                                                     label="Value"
                                                     labelPlacement="top"
                                                 />
                                             </Col>
-                                            <Col lg={1} md={6} xs={6}>
+                                            <Col lg={1} md={3} xs={3}>
                                                 <FormControlLabel
                                                     control={
                                                         <IOSSwitch
@@ -267,19 +267,6 @@ export default class App extends Component {
                                             </Col>
                                         </Row>
                                     </Form>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        <Col xl={2} lg={6} md={12} sm={12} style={{marginBottom: "1rem"}}>
-                            <Card style={{height: "12.5rem"}} className={"card"}>
-                                <Card.Body>
-                                    <Row>
-                                        <Col md={12}>
-                                            <Card.Title>COGSPMS</Card.Title>
-                                            <Card.Subtitle>&copy; 2021 University of Cape Town </Card.Subtitle>
-                                            <Card.Text><br/>Insaaf Dhansay & Kialan Pillay</Card.Text>
-                                        </Col>
-                                    </Row>
                                 </Card.Body>
                             </Card>
                         </Col>
