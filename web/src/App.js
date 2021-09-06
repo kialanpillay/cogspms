@@ -91,11 +91,25 @@ export default class App extends Component {
 
     getInvestmentPortfolio = () => {
         const endpoint = `http://127.0.0.1:5000/invest/`;
+        let ablation = false;
+        let network = '';
+        if (this.state.value){
+            ablation = true;
+            network = 'v'
+        }
+        if (this.state.quality){
+            ablation = true;
+            network = 'q'
+        }
         const query = {
             start: this.state.start,
             end: this.state.end,
             beta: this.state.beta,
             margin: this.state.margin,
+            extension: this.state.extension,
+            gnn: this.state.gnn,
+            ablation: ablation,
+            network: network,
         };
         const url = endpoint + this.encodeParameters(query);
         this.setState({loading: true, portfolio: null})
