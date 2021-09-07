@@ -19,7 +19,11 @@ invest_resource_model = namespace.model("INVEST Resource", {
     "start": fields.Integer(required=True),
     "end": fields.Integer(required=True),
     "margin": fields.Float(required=False),
-    "beta": fields.Float(required=False)
+    "beta": fields.Float(required=False),
+    "extension": fields.Boolean(required=False),
+    "gnn": fields.Boolean(required=False),
+    "ablation": fields.Boolean(required=False),
+    "network": fields.String(required=False),
 })
 
 metrics_model = namespace.model("IP Metrics", {
