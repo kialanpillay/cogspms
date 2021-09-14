@@ -8,7 +8,7 @@ import seaborn as sn
 
 
 def clean():
-    if args.raw_folder and args.source == 'SB':
+    if args.raw_folder and args.source == 'SB' and args.price == 'C':
         if not os.path.isfile(args.output + '_clean_truncated.csv') or not os.path.isfile(args.output + '_clean.csv'):
             start_time = time.time()
             clean_df = pd.DataFrame()
@@ -43,6 +43,32 @@ def clean():
             sn.heatmap(corr, annot=False, center=0, cmap='coolwarm', square=True)
             plt.savefig(os.path.join('img', 'JSE_corr.png'), dpi=300, bbox_inches='tight')
 
+    elif args.raw_folder and args.source == 'SB' and args.price == 'VWAP':
+        if not os.path.isfile(args.output + '_clean_truncated_VWAP.csv') \
+                or not os.path.isfile(args.output + '_clean_VWAP.csv'):
+            start_time = time.time()
+            clean_df = pd.DataFrame()
+            dir_ = args.raw_folder + '_' + args.source
+            for path in os.listdir(dir_):
+                if path == ".DS_Store":
+                    continue
+
+                name = path[path.index("-") + 1:path.index("2") - 1]
+                df = pd.read_csv(os.path.join(dir_, path), delimiter=';')
+                if args.truncate and df.shape[0] < 3000:
+                    continue
+                clean_df[name] = pd.to_numeric((df['Closing (c)'] + df['High (c)'] + df['Low (c)']) / 3)
+                clean_df[name].fillna(0, inplace=True)
+
+            clean_df = clean_df.reindex(index=clean_df.index[::-1])
+            if args.truncate:
+                output_file = args.output + "_clean_truncated_VWAP.csv"
+                clean_df.tail(3146).to_csv(output_file, index=False)
+            else:
+                output_file = args.output + "_clean_VWAP.csv"
+                clean_df.to_csv(output_file, index=False)
+            print("Processing Time: {:5.2f}s".format(time.time() - start_time))
+
     elif args.raw_folder and args.source == 'IRESS':
         if not os.path.isfile(args.output):
             start_time = time.time()
@@ -53,7 +79,6 @@ def clean():
                 name = path[0:path.index(".")]
                 print(name)
                 df = pd.read_csv(os.path.join(args.raw_folder, path), delimiter=';')
-                print(df.columns)
                 clean_df[name] = pd.to_numeric(df['Close'])
                 clean_df[name].fillna(0, inplace=True)
 
@@ -108,8 +133,8 @@ if __name__ == '__main__':
     parser.add_argument('--raw_folder', type=str, default='data/JSE')
     parser.add_argument('--source', type=str, default='SB')
     parser.add_argument('--output', type=str, default='data/JSE')
+    parser.add_argument('--price', type=str, default='C')
     parser.add_argument('--plot', type=bool, default=False)
     parser.add_argument('--truncate', type=bool, default=True)
-    parser.add_argument('--noise', type=bool, default=False)
     args = parser.parse_args()
     clean()

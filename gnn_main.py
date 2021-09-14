@@ -100,8 +100,8 @@ parser.add_argument('--splits', type=int, default=1)
 args = parser.parse_args()
 print(f'Training Configuration: {args}')
 print()
-result_train_file = os.path.join('output', args.model, args.dataset, 'train')
-baseline_train_file = os.path.join('output', 'lstm', args.dataset, 'train')
+result_train_file = os.path.join('output', args.model, args.dataset, str(args.window_size), str(args.horizon), 'train')
+baseline_train_file = os.path.join('output', 'lstm', args.dataset, str(args.window_size), str(args.horizon), 'train')
 if not os.path.exists(result_train_file):
     os.makedirs(result_train_file)
 if not os.path.exists(baseline_train_file):
@@ -141,7 +141,7 @@ if __name__ == '__main__':
             before_train = datetime.now().timestamp()
             _ = gnn.train.train(train_data, valid_data, args, result_train_file)
             after_train = datetime.now().timestamp()
-            hours, rem = divmod(before_train - after_train, 3600)
+            hours, rem = divmod(after_train - before_train, 3600)
             minutes, seconds = divmod(rem, 60)
             print("Train Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
         except KeyboardInterrupt:
