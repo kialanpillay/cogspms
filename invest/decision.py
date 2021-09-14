@@ -76,14 +76,11 @@ def investment_portfolio(df_, params, index_code, verbose=False):
                     betas[str(year)].append(df_year.iloc[params.holding_period]["ShareBeta"])
 
     if verbose:
-        print("\nJGIND {} - {}".format(params.start, params.end))
+        print("\n{} {} - {}".format(index_code, params.start, params.end))
         print("-" * 50)
         print("\nInvestable Shares")
         for year in range(params.start, params.end):
-            print(year, "IP.JGIND", len(investable_shares[str(year)]), investable_shares[str(year)])
-
-    if not params.noise:
-        validation.process_benchmark_metrics(params.start, params.end, "JGIND", params.holding_period)
+            print(year, "IP." + index_code, len(investable_shares[str(year)]), investable_shares[str(year)])
 
     ip_ar, ip_cr, ip_aar, ip_treynor, ip_sharpe = validation.process_metrics(df_,
                                                                              prices_initial,
@@ -93,7 +90,7 @@ def investment_portfolio(df_, params, index_code, verbose=False):
                                                                              params.end,
                                                                              index_code)
     benchmark_ar, benchmark_cr, benchmark_aar, benchmark_treynor, benchmark_sharpe = \
-        validation.process_benchmark_metrics(params.start, params.end, index_code)
+        validation.process_benchmark_metrics(params.start, params.end, index_code, params.holding_period)
 
     portfolio = {
         "ip": {
