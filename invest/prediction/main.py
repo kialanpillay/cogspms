@@ -32,7 +32,7 @@ def future_share_price_performance(year, model_name="GWN", dataset="INVEST_GNN_c
     -------
     pandas.DataFrame
     """
-    result_file = os.path.join('output', model_name, dataset, 'train')
+    result_file = os.path.join('output', model_name, dataset, str(40), str(horizon), 'train')
     ub = ((year - 2009) * 365)
     df = pd.read_csv(os.path.join('data', dataset + '.csv'))
     data = df.values
