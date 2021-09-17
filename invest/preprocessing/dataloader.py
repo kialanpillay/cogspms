@@ -11,7 +11,7 @@ def load_data(filename='data/INVEST_clean.csv'):
     return pd.read_csv(filename, sep=',')
 
 
-def load_benchmark_data(index_code, directory='data/INVEST_IRESS_'):
+def load_benchmark_data(index_code, directory='data/INVEST_IRESS'):
     """
        Loads and returns a dataframe containing benchmark data
     """

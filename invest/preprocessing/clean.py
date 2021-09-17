@@ -213,7 +213,7 @@ def merge():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--raw_folder', type=str, default='data/INVEST_IRESS_')
+    parser.add_argument('--raw_folder', type=str, default='data/INVEST_IRESS')
     parser.add_argument('--output', type=str, default='data/INVEST')
     args = parser.parse_args()
     merge()
