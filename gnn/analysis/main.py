@@ -40,6 +40,8 @@ def run():
         if args.plot:
             plt.show()
         if args.save:
+            if not os.path.exists('img'):
+                os.makedirs('img')
             plt.savefig(os.path.join('img', 'bicluster_n_2.png'), dpi=300, bbox_inches='tight')
     if graph:
         pos = nx.spring_layout(graph, seed=args.seed)
@@ -48,16 +50,22 @@ def run():
         node_size = [200 * graph.degree(v) for v in graph]
         edge_widths = [w for (*edge, w) in graph.edges.data('weight')]
         plt.figure(figsize=(12, 7))
-        nx.draw_networkx(graph, pos=pos, with_labels=True, node_color=node_color, cmap='coolwarm',
-                         node_size=node_size, font_size=8, font_color='black', edge_color=edge_widths,
-                         edge_cmap=cm.get_cmap('Greys'), edge_vmin=0, edge_vmax=1)
+        if args.adj_data:
+            nx.draw_networkx(graph, pos=pos, with_labels=True, node_color=node_color, cmap='coolwarm',
+                             node_size=node_size, font_size=8, font_color='black', edge_color=edge_widths,
+                             edge_cmap=cm.get_cmap('Greys'), edge_vmin=0, edge_vmax=1)
+        else:
+            nx.draw_networkx(graph, pos=pos, with_labels=True, node_color=node_color, cmap='coolwarm',
+                             node_size=node_size, font_size=8, font_color='black', edge_color='silver')
         # for node, (x, y) in pos.items():
         #     text(x, y, node, fontsize=dict(graph.degree)[node], ha='center', va='center')
         plt.axis('off')
         if args.plot:
             plt.show()
         if args.save:
-            plt.savefig(os.path.join('img', 'network_.png'), dpi=300, bbox_inches='tight')
+            if not os.path.exists('img'):
+                os.makedirs('img')
+            plt.savefig(os.path.join('img', 'network.png'), dpi=300, bbox_inches='tight')
 
 
 def str2bool(v):
