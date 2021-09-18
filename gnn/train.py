@@ -51,7 +51,7 @@ def init_model(model_name, args):
                      skip_channels=args.skip_channels, end_channels=args.end_channels,
                      seq_length=args.window_size, in_dim=args.in_dim, out_dim=args.horizon,
                      layers=args.layers, propalpha=args.prop_alpha, tanhalpha=args.tanh_alpha,
-                     layer_norm_affline=args.multi_step)
+                     layer_norm_affline=True)
 
 
 def get_iterable_loader(model_name, loader):
