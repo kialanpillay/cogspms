@@ -216,6 +216,8 @@ def validate_baseline(model, data_loader, device, norm_method, statistic, naive=
     forecast_norm = torch.cat(forecast_set, dim=0)[:np.concatenate(target_set, axis=0).shape[0], ...].detach().cpu() \
         .numpy()
     target_norm = np.concatenate(target_set, axis=0)
+    if target_norm.shape[1] == 1:
+        target_norm = target_norm[:, 0]
 
     if norm_method == 'min_max':
         scale = statistic['max'] - statistic['min'] + 1e-8
