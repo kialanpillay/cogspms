@@ -42,6 +42,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
 parser.add_argument('--baseline', type=str2bool, default=False)
+parser.add_argument('--baseline_only', type=str2bool, default=False)
 # StemGNN arguments
 parser.add_argument('--train', type=str2bool, default=True)
 parser.add_argument('--evaluate', type=str2bool, default=True)
@@ -141,26 +142,28 @@ if __name__ == '__main__':
     if args.train:
         if args.baseline:
             _ = gnn.training.baseline.train(train_data, valid_data, args, baseline_train_file)
-        try:
-            before_train = datetime.now().timestamp()
-            _ = gnn.train.train(train_data, valid_data, args, result_train_file)
-            after_train = datetime.now().timestamp()
-            hours, rem = divmod(after_train - before_train, 3600)
-            minutes, seconds = divmod(rem, 60)
-            print("Train Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
-        except KeyboardInterrupt:
-            print('-' * 99)
-            print('Exiting Early')
+        if not args.baseline_only:
+            try:
+                before_train = datetime.now().timestamp()
+                _ = gnn.train.train(train_data, valid_data, args, result_train_file)
+                after_train = datetime.now().timestamp()
+                hours, rem = divmod(after_train - before_train, 3600)
+                minutes, seconds = divmod(rem, 60)
+                print("Train Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+            except KeyboardInterrupt:
+                print('-' * 99)
+                print('Exiting Early')
     if args.evaluate:
         if args.baseline:
             gnn.evaluation.test_.baseline_test(test_data, args, baseline_train_file)
         before_evaluation = datetime.now().timestamp()
-        if args.model == 'StemGNN':
-            gnn.evaluation.test_.test(test_data, args, result_train_file)
-        else:
-            gnn.evaluation.test_.custom_test(test_data, args, result_train_file)
-        after_evaluation = datetime.now().timestamp()
-        hours, rem = divmod(after_evaluation - before_evaluation, 3600)
-        minutes, seconds = divmod(rem, 60)
-        print("Evaluation Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+        if not args.baseline_only:
+            if args.model == 'StemGNN':
+                gnn.evaluation.test_.test(test_data, args, result_train_file)
+            else:
+                gnn.evaluation.test_.custom_test(test_data, args, result_train_file)
+            after_evaluation = datetime.now().timestamp()
+            hours, rem = divmod(after_evaluation - before_evaluation, 3600)
+            minutes, seconds = divmod(rem, 60)
+            print("Evaluation Time: ""{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
     print('done')
