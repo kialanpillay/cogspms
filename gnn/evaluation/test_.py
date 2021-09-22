@@ -63,13 +63,14 @@ def baseline_test(test_data, args, result_train_file):
                                                         normalize_method=args.norm_method)
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size, drop_last=False,
                                               shuffle=False, num_workers=0)
-    performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method, normalize_statistic)
+    performance_metrics = validate_baseline(model, args.lstm_node, test_loader, args.device, args.norm_method,
+                                            normalize_statistic)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
     print('Test Set Performance: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae, rmse))
 
     if args.horizon == 1:
-        performance_metrics = validate_baseline(model, test_loader, args.device, args.norm_method, normalize_statistic
-                                                , True)
+        performance_metrics = validate_baseline(model, args.lstm_node, test_loader, args.device, args.norm_method,
+                                                normalize_statistic, True)
         mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
         print(
             'Last-Value Test Set Performance: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.2f}'.format(mape * 100, mae,
