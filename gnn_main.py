@@ -97,6 +97,10 @@ parser.add_argument('--prop_alpha', type=float, default=0.05)
 parser.add_argument('--tanh_alpha', type=float, default=3)
 parser.add_argument('--splits', type=int, default=1)
 
+# LSTM arguments
+parser.add_argument('--lstm_layers', type=int, default=100)
+parser.add_argument('--lstm_node', type=int, default=0)
+
 args = parser.parse_args()
 print(f'Training Configuration: {args}')
 print()

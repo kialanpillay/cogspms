@@ -32,7 +32,7 @@ def train(train_data, valid_data, args, result_file):
     -------
     dict
     """
-    model = LSTM(input_size=args.window_size, output_size=args.horizon)
+    model = LSTM(input_size=args.window_size, hidden_layers=args.lstm_layers, output_size=args.horizon)
     model.to(args.device)
     if len(train_data) == 0:
         raise Exception('Cannot organize enough training data')
@@ -40,13 +40,13 @@ def train(train_data, valid_data, args, result_file):
         raise Exception('Cannot organize enough validation data')
 
     if args.norm_method == 'z_score':
-        train_mean = np.mean(train_data[:, 0], axis=0)
-        train_std = np.std(train_data[:, 0], axis=0)
+        train_mean = np.mean(train_data[:, args.lstm_node], axis=0)
+        train_std = np.std(train_data[:, args.lstm_node], axis=0)
         norm_statistic = {"mean": [train_mean], "std": [train_std]}
 
     elif args.norm_method == 'min_max':
-        train_min = np.min(train_data[:, 0], axis=0)
-        train_max = np.max(train_data[:, 0], axis=0)
+        train_min = np.min(train_data[:, args.lstm_node], axis=0)
+        train_max = np.max(train_data[:, args.lstm_node], axis=0)
         norm_statistic = {"min": [train_min], "max": [train_max]}
     else:
         norm_statistic = None
@@ -102,8 +102,8 @@ def train(train_data, valid_data, args, result_file):
             optimizer.zero_grad()
             model.hidden_cell = (torch.zeros(1, 1, model.hidden_layers),
                                  torch.zeros(1, 1, model.hidden_layers))
-            forecast = model(inputs[:, :, 0])
-            loss = criterion(forecast, target[:, :, 0])
+            forecast = model(inputs[:, :, args.lstm_node])
+            loss = criterion(forecast, target[:, :, args.lstm_node])
             loss.backward()
             cnt += 1
             optimizer.step()
@@ -117,9 +117,10 @@ def train(train_data, valid_data, args, result_file):
             is_best = False
             print('------ VALIDATE ------')
             performance_metrics = \
-                validate_baseline(model, valid_loader, args.device, args.norm_method, norm_statistic)
+                validate_baseline(model, args.lstm_node, valid_loader, args.device, args.norm_method, norm_statistic)
             if args.horizon == 1:
-                validate_baseline(model, valid_loader, args.device, args.norm_method, norm_statistic, True)
+                validate_baseline(model, args.lstm_node, valid_loader, args.device, args.norm_method, norm_statistic,
+                                  True)
             if np.abs(best_validate_mae) > np.abs(performance_metrics['mae']):
                 best_validate_mae = performance_metrics['mae']
                 is_best = True

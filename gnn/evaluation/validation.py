@@ -171,7 +171,7 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
     return dict(mae=score[1], mape=score[0], rmse=score[2])
 
 
-def validate_baseline(model, data_loader, device, norm_method, statistic, naive=False):
+def validate_baseline(model, node, data_loader, device, norm_method, statistic, naive=False):
     """
     Validates a LSTM or naive model and returns raw and normalized error metrics
     computed on validation set predictions
@@ -180,6 +180,8 @@ def validate_baseline(model, data_loader, device, norm_method, statistic, naive=
     ----------
     model : Union[GraphWaveNet, MTGNN, Model]
         Graph neural network model for validation
+    node: int
+        Index of node to forecast
     data_loader : torch.Dataset
         An iterable dataset
     device : str
@@ -199,14 +201,14 @@ def validate_baseline(model, data_loader, device, norm_method, statistic, naive=
     target_set = []
     if naive:
         for i, (inputs, target) in enumerate(data_loader):
-            forecast_set.append(inputs[:, -1, 0])
-            target_set.append(target[:, :, 0])
+            forecast_set.append(inputs[:, -1, node])
+            target_set.append(target[:, :, node])
     else:
         model.eval()
         with torch.no_grad():
             for i, (inputs, target) in enumerate(data_loader):
-                inputs = torch.Tensor(inputs[:, :, 0]).to(device)
-                target_norm = torch.Tensor(target[:, :, 0]).to(device)
+                inputs = torch.Tensor(inputs[:, :, node]).to(device)
+                target_norm = torch.Tensor(target[:, :, node]).to(device)
                 model.hidden = (torch.zeros(1, 1, model.hidden_layers),
                                 torch.zeros(1, 1, model.hidden_layers))
                 forecast_result = model(inputs)
