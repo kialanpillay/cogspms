@@ -32,7 +32,8 @@ def train(train_data, valid_data, args, result_file):
     -------
     dict
     """
-    model = LSTM(input_size=args.window_size, hidden_layers=args.lstm_layers, output_size=args.horizon)
+    model = LSTM(input_size=args.window_size, hidden_layers=args.lstm_hidden_layers, hidden_size=args.lstm_hidden_size,
+                 output_size=args.horizon)
     model.to(args.device)
     if len(train_data) == 0:
         raise Exception('Cannot organize enough training data')
@@ -86,9 +87,10 @@ def train(train_data, valid_data, args, result_file):
             continue
         param = parameter.numel()
         total_params += param
-    print(f"Total Trainable Params: {total_params}")
-    print("LSTM")
-    print()
+    if args.verbose:
+        print(f"Total Trainable Params: {total_params}")
+        print("LSTM")
+        print()
 
     best_validate_mae = np.inf
     validate_score_non_decrease_count = 0
@@ -100,22 +102,24 @@ def train(train_data, valid_data, args, result_file):
         cnt = 0
         for i, (inputs, target) in enumerate(train_loader):
             optimizer.zero_grad()
-            model.hidden_cell = (torch.zeros(1, 1, model.hidden_layers),
-                                 torch.zeros(1, 1, model.hidden_layers))
+            model.hidden_cell = (torch.zeros(model.hidden_layers, 1, model.hidden_size),
+                                 torch.zeros(model.hidden_layers, 1, model.hidden_size))
             forecast = model(inputs[:, :, args.lstm_node])
             loss = criterion(forecast, target[:, :, args.lstm_node])
             loss.backward()
             cnt += 1
             optimizer.step()
             loss_total += float(loss)
-        print('Epoch {:2d} | Time: {:4.2f}s | Total Loss: {:5.4f}'.format(epoch + 1, (
-                time.time() - epoch_start_time), loss_total / cnt))
+        if args.verbose:
+            print('Epoch {:2d} | Time: {:4.2f}s | Total Loss: {:5.4f}'.format(epoch + 1, (
+                     time.time() - epoch_start_time), loss_total / cnt))
         save_model(model, result_file, epoch)
         if (epoch + 1) % args.exponential_decay_step == 0:
             lr_scheduler.step()
         if (epoch + 1) % args.validate_freq == 0:
             is_best = False
-            print('------ VALIDATE ------')
+            if args.verbose:
+                print('------ VALIDATE ------')
             performance_metrics = \
                 validate_baseline(model, args.lstm_node, valid_loader, args.device, args.norm_method, norm_statistic)
             if args.horizon == 1:

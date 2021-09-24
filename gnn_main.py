@@ -43,6 +43,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, default='StemGNN')
 parser.add_argument('--baseline', type=str2bool, default=False)
 parser.add_argument('--baseline_only', type=str2bool, default=False)
+parser.add_argument('--verbose', type=str2bool, default=True)
 # StemGNN arguments
 parser.add_argument('--train', type=str2bool, default=True)
 parser.add_argument('--evaluate', type=str2bool, default=True)
@@ -99,12 +100,14 @@ parser.add_argument('--tanh_alpha', type=float, default=3)
 parser.add_argument('--splits', type=int, default=1)
 
 # LSTM arguments
-parser.add_argument('--lstm_layers', type=int, default=100)
+parser.add_argument('--lstm_hidden_layers', type=int, default=2)
+parser.add_argument('--lstm_hidden_size', type=int, default=500)
 parser.add_argument('--lstm_node', type=int, default=0)
 
 args = parser.parse_args()
-print(f'Training Configuration: {args}')
-print()
+if args.verbose:
+    print(f'Training Configuration: {args}')
+    print()
 result_train_file = os.path.join('output', args.model, args.dataset, str(args.window_size), str(args.horizon), 'train')
 baseline_train_file = os.path.join('output', 'lstm', args.dataset, str(args.window_size), str(args.horizon), 'train')
 if not os.path.exists(result_train_file):
