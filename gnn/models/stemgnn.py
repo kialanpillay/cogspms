@@ -102,6 +102,7 @@ class Model(nn.Module):
         self.leakyrelu = nn.LeakyReLU(self.alpha)
         self.dropout = nn.Dropout(p=dropout_rate)
         self.to(device)
+        self.final_adj = None
 
     def get_laplacian(self, graph, normalize):
         """
@@ -144,6 +145,7 @@ class Model(nn.Module):
         diagonal_degree_hat = torch.diag(1 / (torch.sqrt(degree) + 1e-7))
         laplacian = torch.matmul(diagonal_degree_hat,
                                  torch.matmul(degree_l - attention, diagonal_degree_hat))
+        self.final_adj = laplacian
         mul_L = self.cheb_polynomial(laplacian)
         return mul_L, attention
 

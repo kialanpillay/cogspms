@@ -161,7 +161,7 @@ def generate_adjacency_network(df):
     edges = {}
 
     for i, a in enumerate(v_corr):
-        idx = np.nonzero(a > 0.01)
+        idx = np.nonzero(np.abs(a) > 0.01)
         edges[df.columns[i]] = (df.columns[idx].values, a[idx])
 
     for k, v in edges.items():

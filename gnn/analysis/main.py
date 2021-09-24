@@ -32,6 +32,9 @@ def run():
 
     if args.adj_data:
         df_ = pd.read_csv(args.adj_data, index_col=0)
+        # sn.set(font_scale=0.5)
+        # sn.heatmap(df_, annot=False, center=0, cmap='coolwarm', square=True, vmax=0.2)
+        # plt.savefig(os.path.join('img', 'StemGNN_corr.png'), dpi=300, bbox_inches='tight')
         graph = generate_adjacency_network(df_)
 
     if not df_cluster.empty:
@@ -48,7 +51,7 @@ def run():
         betweenness_dict = nx.betweenness_centrality(graph, normalized=True, endpoints=True)
         node_color = [20000 * v for v in betweenness_dict.values()]
         node_size = [200 * graph.degree(v) for v in graph]
-        edge_widths = [w for (*edge, w) in graph.edges.data('weight')]
+        edge_widths = [abs(w) for (*edge, w) in graph.edges.data('weight')]
         plt.figure(figsize=(12, 7))
         if args.adj_data:
             nx.draw_networkx(graph, pos=pos, with_labels=True, node_color=node_color, cmap='coolwarm',
