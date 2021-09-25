@@ -163,6 +163,7 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
             mape[1].append(score_norm[0])
             mae[1].append(score_norm[1])
             rmse[1].append(score_norm[2])
+        print(mape[0])
         score = (np.mean(mape[0]), np.mean(mae[0]), np.mean(rmse[0]))
         score_norm = (np.mean(mape[1]), np.mean(mae[1]), np.mean(rmse[1]))
     print("NORM -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score_norm[0] * 100, score_norm[1],
@@ -238,5 +239,39 @@ def validate_baseline(model, node, data_loader, device, norm_method, statistic, 
     print("NORM -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score_norm[0] * 100, score_norm[1],
                                                                            score_norm[2]))
     print("RAW  -  MAPE {:>8.4f}% | MAE {:>10.4f} | RMSE {:>10.4f}".format(score[0] * 100, score[1], score[2]))
+
+    return dict(mae=score[1], mape=score[0], rmse=score[2])
+
+
+def validate_regressor(regressor, node, data_loader, norm_method, statistic, naive=False):
+    forecast_set = []
+    target_set = []
+    if naive:
+        for i, (inputs, target) in enumerate(data_loader):
+            forecast_set.append(inputs[:, -1, node])
+            target_set.append(target[:, :, node])
+    else:
+        for i, (inputs, target) in enumerate(data_loader):
+            inputs = inputs[:, :, node]
+            target = target[:, :, node]
+            forecast_result = regressor.predict(inputs)
+            forecast_set.append(forecast_result)
+            target_set.append(target)
+
+    forecast_norm = np.concatenate(forecast_set, axis=0)[:np.concatenate(target_set, axis=0).shape[0], ...]
+    target_norm = np.concatenate(target_set, axis=0)
+    if target_norm.shape[1] == 1:
+        target_norm = target_norm[:, 0]
+
+    if norm_method == 'min_max':
+        scale = statistic['max'] - statistic['min'] + 1e-8
+        forecast = forecast_norm * scale + statistic['min']
+        target = target_norm * scale + statistic['min']
+    elif norm_method == 'z_score':
+        forecast = forecast_norm * statistic['std'] + statistic['mean']
+        target = target_norm * statistic['std'] + statistic['mean']
+    else:
+        forecast, target = forecast_norm, target_norm
+    score = evaluate(target, forecast)
 
     return dict(mae=score[1], mape=score[0], rmse=score[2])
