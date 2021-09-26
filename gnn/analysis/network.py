@@ -28,11 +28,12 @@ def build_network(df, n=5):
     for i, a in enumerate(v_corr):
         idx = np.argpartition(np.delete(a, i), -n)[-n:]
         edges[corr.columns[i]] = \
-            np.delete(corr.columns[idx].values, np.where(corr.columns[idx].values == corr.columns[i]))
+            (np.delete(corr.columns[idx].values, np.where(corr.columns[idx].values == corr.columns[i])),
+             np.delete(a[idx], np.where(corr.columns[idx].values == corr.columns[i])))
 
     for k, v in edges.items():
-        for n_ in v:
-            graph.add_edge(k, n_)
+        for i in range(len(v[0])):
+            graph.add_edge(k, v[0][i], weight=v[1][i])
 
     return graph
 

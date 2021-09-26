@@ -59,7 +59,8 @@ def run():
                              edge_cmap=cm.get_cmap('Greys'), edge_vmin=0, edge_vmax=1)
         else:
             nx.draw_networkx(graph, pos=pos, with_labels=True, node_color=node_color, cmap='coolwarm',
-                             node_size=node_size, font_size=8, font_color='black', edge_color='silver')
+                             node_size=node_size, font_size=8, font_color='black', edge_color=edge_widths,
+                             edge_cmap=cm.get_cmap('Greys'), edge_vmin=0, edge_vmax=1)
         # for node, (x, y) in pos.items():
         #     text(x, y, node, fontsize=dict(graph.degree)[node], ha='center', va='center')
         plt.axis('off')
