@@ -19,7 +19,7 @@ export function ReturnChart(props) {
                        domain={[dataMin => Math.round(dataMin - 20), dataMax => Math.round(dataMax + 20)]}/>
                 <Legend/>
                 <ReferenceLine y={0} stroke="silver"/>
-                <Bar dataKey="IP" fill="#bc5090">
+                <Bar dataKey="IP" fill="#327aff">
                     <LabelList dataKey="IP" position="top" fill={"black"} fontSize={"0.8rem"}/>
                 </Bar>
                 <Bar dataKey="Benchmark" fill="#ffa600">

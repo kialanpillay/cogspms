@@ -293,7 +293,7 @@ export default class App extends Component {
                                         <Card.Body>
                                             <Card.Title>JGIND</Card.Title>
                                             <Card.Subtitle className="mb-2 text-muted">
-                                                <Badge style={{backgroundColor: "#bc5090"}}>Investment
+                                                <Badge style={{backgroundColor: "#327aff"}}>Investment
                                                     Portfolio</Badge></Card.Subtitle>
                                             <Card.Subtitle
                                                 className="mb-2 text-muted">{this.state.start} - {this.state.end}</Card.Subtitle>
@@ -377,7 +377,7 @@ export default class App extends Component {
                                         <Card.Body>
                                             <Card.Title>JCSEV</Card.Title>
                                             <Card.Subtitle className="mb-2 text-muted">
-                                                <Badge style={{backgroundColor: "#bc5090"}}>Investment
+                                                <Badge style={{backgroundColor: "#327aff"}}>Investment
                                                     Portfolio</Badge></Card.Subtitle>
                                             <Card.Subtitle
                                                 className="mb-2 text-muted">{this.state.start} - {this.state.end}</Card.Subtitle>
