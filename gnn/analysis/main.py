@@ -38,14 +38,14 @@ def run():
         graph = generate_adjacency_network(df_)
 
     if not df_cluster.empty:
-        sn.set(font_scale=0.5)
+        sn.set(font_scale=1)
         sn.heatmap(df_cluster, annot=False, center=0, cmap='coolwarm', square=True)
         if args.plot:
             plt.show()
         if args.save:
             if not os.path.exists('img'):
                 os.makedirs('img')
-            plt.savefig(os.path.join('img', 'bicluster_n_2.png'), dpi=300, bbox_inches='tight')
+            plt.savefig(os.path.join('img', 'biclustered_correlation.png'), dpi=300, bbox_inches='tight')
     if graph:
         pos = nx.spring_layout(graph, seed=args.seed)
         betweenness_dict = nx.betweenness_centrality(graph, normalized=True, endpoints=True)

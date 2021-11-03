@@ -132,7 +132,7 @@ def custom_test(test_data, args, result_train_file):
 
     if model.final_adj:
         adj = model.final_adj[0].detach().cpu().numpy()
-        sn.set(font_scale=0.5)
+        sn.set(font_scale=1)
         columns = pd.read_csv('data/' + args.dataset + '.csv').columns
         df = pd.DataFrame(data=adj, columns=columns)
         df.index = columns.values
@@ -141,7 +141,7 @@ def custom_test(test_data, args, result_train_file):
         if 'JSE' in args.dataset:
             if not os.path.exists('img'):
                 os.makedirs('img')
-            plt.savefig(os.path.join('img', args.model + '_corr.png'), dpi=300, bbox_inches='tight')
+            plt.savefig(os.path.join('img', args.model + '_adj.png'), dpi=300, bbox_inches='tight')
 
     x, y = process_data(test_data, args.window_size, args.horizon)
     scaler = gnn.preprocessing.loader.CustomStandardScaler(mean=x.mean(), std=x.std())

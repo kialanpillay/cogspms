@@ -39,7 +39,7 @@ def clean():
             df = pd.read_csv(args.output + "_clean.csv")
         corr = df.corr()
         if args.plot:
-            sn.set(font_scale=0.5)
+            sn.set(font_scale=1)
             sn.heatmap(corr, annot=False, center=0, cmap='coolwarm', square=True)
             plt.savefig(os.path.join('img', 'JSE_corr.png'), dpi=300, bbox_inches='tight')
 
