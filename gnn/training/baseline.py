@@ -93,7 +93,7 @@ def train(train_data, valid_data, args, result_file):
     best_validate_mae = np.inf
     validate_score_non_decrease_count = 0
     performance_metrics = {}
-    for epoch in range(50):
+    for epoch in range(args.epoch):
         epoch_start_time = time.time()
         model.train()
         loss_total = 0
