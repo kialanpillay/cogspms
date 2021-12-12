@@ -140,11 +140,11 @@ def validate(model, model_name, data_loader, device, normalize_method, statistic
         for i in range(horizon):
             if normalize_method:
                 if horizon == 1:
-                    forecast = torch.Tensor(scaler.inverse_transform(forecast_norm))
-                    target = torch.Tensor(scaler.inverse_transform(torch.squeeze(target_norm)))
+                    forecast = torch.Tensor(scaler.inverse_transform(forecast_norm).cpu())
+                    target = torch.Tensor(scaler.inverse_transform(torch.squeeze(target_norm)).cpu())
                 else:
-                    forecast = torch.Tensor(scaler.inverse_transform(forecast_norm[:, :, i]))
-                    target = torch.Tensor(scaler.inverse_transform(target_norm[:, :, i]))
+                    forecast = torch.Tensor(scaler.inverse_transform(forecast_norm[:, :, i]).cpu())
+                    target = torch.Tensor(scaler.inverse_transform(target_norm[:, :, i]).cpu())
             else:
                 forecast, target = forecast_norm, torch.squeeze(target_norm)
 

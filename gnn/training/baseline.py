@@ -93,15 +93,17 @@ def train(train_data, valid_data, args, result_file):
     best_validate_mae = np.inf
     validate_score_non_decrease_count = 0
     performance_metrics = {}
-    for epoch in range(50):
+    for epoch in range(args.epoch):
         epoch_start_time = time.time()
         model.train()
         loss_total = 0
         cnt = 0
         for i, (inputs, target) in enumerate(train_loader):
+            inputs = inputs.to(args.device)
+            target = target.to(args.device)
             optimizer.zero_grad()
-            model.hidden_cell = (torch.zeros(1, 1, model.hidden_layers),
-                                 torch.zeros(1, 1, model.hidden_layers))
+            model.hidden_cell = (torch.zeros(1, 1, model.hidden_layers).to(args.device),
+                                 torch.zeros(1, 1, model.hidden_layers).to(args.device))
             forecast = model(inputs[:, :, args.lstm_node])
             loss = criterion(forecast, target[:, :, args.lstm_node])
             loss.backward()
